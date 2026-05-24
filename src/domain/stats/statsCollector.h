@@ -15,6 +15,13 @@ typedef struct StatsCollector {
     int externalWaste;
     int totalPageFaults;
     float fragmentation;
+    int totalContextSwitches;                           // Total context switches
+    float avgWaitingTime;                               // Average waiting time
+    float avgTurnaroundTime;                            // Average turnaround time
+    int totalIoOperations;                              // Total I/O operations
+    int algorithmChanges;                               // Number of algorithm changes
+    int processesFinished;                              // Processes that finished
+    float avgProcessesFinishedPerCycle;                 // Average processes finished per cycle
 } StatsCollector;
 
 StatsCollector* statsCollectorCreate(void);

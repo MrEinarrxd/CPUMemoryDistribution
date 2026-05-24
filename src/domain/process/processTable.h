@@ -22,6 +22,21 @@ typedef struct ProcessTable {
     float avgTurnaroundTime;
     int currentCycle;
     int simulationStartTime;
+    int totalCpuCyclesExecuted;                         // Total CPU cycles executed by all processes
+    int totalContextSwitches;                           // Total context switches performed
+    int algorithmChangeCount;                           // Number of times algorithm was changed
+    int totalIoOperations;                              // Total I/O operations performed
+    float cpuUtilization;                               // CPU utilization percentage
+    int internalWaste;                                  // Internal fragmentation
+    int externalWaste;                                  // External fragmentation
+    int totalPageFaults;                                // Total page faults occurred
+    float fragmentation;                                // Current fragmentation level
+    int quantumCurrent;                                 // Current quantum value
+    int quantumHistory[20];                             // History of quantum changes
+    float proportionReady;                              // Current proportion ready/total
+    float proportionWaiting;                            // Current proportion waiting/total
+    int iterationsSinceBalance;                         // Iterations since last balance
+    int shouldSwitchAlgorithm;                          // Flag: should switch algorithm
 } ProcessTable;
 
 ProcessTable* processTableCreate(void);

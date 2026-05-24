@@ -1,25 +1,24 @@
-// === src/domain/memory/memoryResize.h ===
-
 #ifndef MEMORY_RESIZE_H
 #define MEMORY_RESIZE_H
+
+#include "../../utils/constants.h"
+
+struct PagingManager;
+struct ProcessTable;
 
 typedef struct MemoryResizer {
     int resizeAttempts;
     int successfulResizes;
-    int currentMemorySize;
-    int maximumMemorySize;
+    int lastResizeCycle;
 } MemoryResizer;
 
-MemoryResizer* memoryResizerCreate(int initialSize, int maxSize);
-
+MemoryResizer* memoryResizerCreate(void);
 void memoryResizerDestroy(MemoryResizer* resizer);
-
-int memoryResizerExpandMemory(MemoryResizer* resizer, int newSize);
-
-int memoryResizerShrinkMemory(MemoryResizer* resizer, int newSize);
-
-int memoryResizerGetCurrentSize(MemoryResizer* resizer);
-
-int memoryResizerGetResizeAttempts(MemoryResizer* resizer);
+void memoryResizerExecute(MemoryResizer* resizer, struct ProcessTable* table, struct PagingManager* paging);
+void memoryResizerReduceProcess(MemoryResizer* resizer, struct PagingManager* paging, int processIndex);
+void memoryResizerDuplicateProcess(MemoryResizer* resizer, struct PagingManager* paging, int processIndex);
+int memoryResizerGetFrameCount(struct PagingManager* paging, int processIndex);
+int memoryResizerGetAttempts(MemoryResizer* resizer);
+int memoryResizerGetSuccessful(MemoryResizer* resizer);
 
 #endif

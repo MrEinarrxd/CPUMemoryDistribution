@@ -7,6 +7,7 @@
 
 struct ProcessTable;
 struct PageDirectory;
+struct FifoReplacement;
 
 // Propietario exclusivo de PageDirectory
 typedef struct PagingManager {
@@ -14,6 +15,8 @@ typedef struct PagingManager {
     int totalPageFaults;
     int internalWaste;
     int externalWaste;
+    struct FifoReplacement* fifoReplacement;            // FIFO replacement handler for swap
+    int frameCountPerProcess[procesosEnEjecucion];      // Frame count per process for resizing
 } PagingManager;
 
 PagingManager* pagingManagerCreate(int totalPages);
@@ -31,5 +34,11 @@ int pagingManagerGetPageFaultCount(PagingManager* manager);
 int pagingManagerGetInternalWaste(PagingManager* manager);
 
 int pagingManagerGetExternalWaste(PagingManager* manager);
+
+// Set FIFO replacement handler for swap operations
+void pagingManagerSetReplacement(PagingManager* manager, struct FifoReplacement* fifo);
+
+// Resize frame allocation for process
+int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newFrameCount);
 
 #endif
