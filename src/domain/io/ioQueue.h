@@ -9,7 +9,7 @@ struct Process;
 
 // Propietario exclusivo de Process items
 typedef struct IoSubQueue {
-    struct Process** items;
+    struct Process* items[tamColaListos];   // Procesos esperando en este dispositivo
     int capacity;
     int head;
     int tail;

@@ -5,45 +5,46 @@
 
 #include "../../utils/constants.h"
 
-// Bitmap algorithm for memory WITHOUT swap
-// Each bit represents one memory block: 0=free, 1=used
+// Algoritmo bitmap para memoria SIN swap
+// Cada bit representa un bloque de memoria: 0=libre, 1=ocupado
 typedef struct BitmapManager {
-    unsigned char* bitmap;                              // Bitmap array, size maxMarcos/8
+    unsigned char* bitmap;                              // Arreglo bitmap, tamaño maxMarcos/8
     int totalBlocks;                                    // = maxMarcos
-    int blockSize;                                      // Size of each block in bytes
-    int usedBlocks;                                     // Number of blocks currently in use
-    int internalWaste;                                  // Internal fragmentation
-    int externalWaste;                                  // External fragmentation
-    int totalAllocations;                               // Counter of allocation operations
-    int totalDeallocations;                             // Counter of deallocation operations
-    int processBlocks[procesosEnEjecucion];             // Blocks allocated per process
+    int blockSize;                                      // Tamaño de cada bloque en bytes
+    int usedBlocks;                                     // Número de bloques en uso actualmente
+    int internalWaste;                                  // Fragmentación interna
+    int externalWaste;                                  // Fragmentación externa
+    int totalAllocations;                               // Contador de operaciones de asignación
+    int totalDeallocations;                             // Contador de operaciones de liberación
+    int processBlocks[procesosEnEjecucion];             // Bloques asignados por proceso
+    int processStartBlock[procesosEnEjecucion];   // Bloque inicial asignado a cada proceso
 } BitmapManager;
 
-// Create bitmap manager with specified block size
+// Crea administrador bitmap con el tamaño de bloque especificado
 BitmapManager* bitmapManagerCreate(int blockSize);
 
-// Destroy and free bitmap manager resources
+// Destruye y libera recursos del administrador bitmap
 void bitmapManagerDestroy(BitmapManager* manager);
 
-// Allocate blocks for process, returns starting block index or -1 on failure
+// Asigna bloques para proceso, retorna índice inicial o -1 en fallo
 int bitmapManagerAllocate(BitmapManager* manager, int processIndex, int blocksNeeded);
 
-// Free blocks for process
+// Libera bloques de proceso
 void bitmapManagerFree(BitmapManager* manager, int processIndex);
 
-// Get current number of used blocks
+// Obtiene número actual de bloques usados
 int bitmapManagerGetUsedBlocks(BitmapManager* manager);
 
-// Get current number of free blocks
+// Obtiene número actual de bloques libres
 int bitmapManagerGetFreeBlocks(BitmapManager* manager);
 
-// Get internal fragmentation value
+// Obtiene valor de fragmentación interna
 int bitmapManagerGetInternalWaste(BitmapManager* manager);
 
-// Get external fragmentation value
+// Obtiene valor de fragmentación externa
 int bitmapManagerGetExternalWaste(BitmapManager* manager);
 
-// Print current state of bitmap manager
+// Imprime estado actual del administrador bitmap
 void bitmapManagerPrint(BitmapManager* manager);
 
 #endif

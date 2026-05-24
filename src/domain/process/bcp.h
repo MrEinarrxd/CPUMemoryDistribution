@@ -20,8 +20,8 @@ typedef struct Bcp {
     int pid;
     ProcessState state;
     int priority;
-    int executionTime;
-    int remainingTime;
+    int totalCpuCycles;
+    int remainingCycles;
     int arrivalTime;
     int currentTimeSlice;
     int contextSwitchTime;
@@ -33,6 +33,7 @@ typedef struct Bcp {
     int timeInWaiting;
     int ageingTimeSlices;
     int timesInIo;
+    int ioTimeRemaining;   // Tiempo restante en cola de E/S (1-100 * multiplicador)
     char phraseBuffer[500];
     char requiredWords[palabrasPorFrase][maxCaracteresPalabra];
     int requiredWordsCount;

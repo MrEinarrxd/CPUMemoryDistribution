@@ -34,6 +34,12 @@ void schedulerOnContextSwitch(Scheduler* scheduler);
 
 void schedulerSetAlgorithm(Scheduler* scheduler, SchedulerAlgorithm algorithm);
 
+void schedulerSetFcfs(Scheduler* scheduler, struct FcfsScheduler* fcfs);
+// Asigna el planificador FCFS al scheduler
+
+void schedulerSetRr(Scheduler* scheduler, struct RrScheduler* rr);
+// Asigna el planificador RR al scheduler
+
 SchedulerAlgorithm schedulerGetAlgorithm(Scheduler* scheduler);
 
 int schedulerGetTotalContextSwitches(Scheduler* scheduler);

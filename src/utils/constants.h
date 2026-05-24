@@ -34,10 +34,15 @@
 #define iteracionesRebalanceo 20
 #define umbralDesbalance 75
 #define palabrasPorFrase 5
-#define pvmNumSlaves 3
-#define maxStringLength 256
-#define messageBufferSize 1024
-#define logBufferSize 2048
-#define maxAlgorithmHistory 1000
+#define pvmNumEsclavos 2
+#define longitudMaximaCadena 256
+#define tamanoBufferMensaje 1024
+#define tamanoBufferLog 2048
+#define historialAlgoritmoMaximo 1000
+#define marcosMin 8
+#define marcosMax 20
+#define tiempoEsMin 1
+#define tiempoEsMax 100
+#define growthListSize 20
 
 #endif

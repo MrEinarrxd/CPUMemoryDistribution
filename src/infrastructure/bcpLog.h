@@ -23,4 +23,7 @@ void bcpLogRecordPageSwap(BcpLog* log, struct Bcp* bcp, int swapAddress);
 
 void bcpLogFlush(BcpLog* log);
 
+void bcpLogRecordFull(BcpLog* log, struct Bcp* bcp);
+// Registra todas las variables del BCP (minimo 25) en el log
+
 #endif

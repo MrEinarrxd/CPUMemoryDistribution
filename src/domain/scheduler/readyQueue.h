@@ -20,6 +20,8 @@ ReadyQueue* readyQueueCreate(void);
 void readyQueueDestroy(ReadyQueue* queue);
 
 int readyQueueEnqueue(ReadyQueue* queue, struct Process* process);
+int readyQueueEnqueueFront(ReadyQueue* queue, struct Process* process);
+// Inserta proceso al frente de la cola (para proceso privilegiado tecla A)
 
 struct Process* readyQueueDequeue(ReadyQueue* queue);
 

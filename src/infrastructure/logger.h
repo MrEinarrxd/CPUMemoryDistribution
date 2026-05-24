@@ -4,6 +4,7 @@
 #define LOGGER_H
 
 #include <stdio.h>
+#include <stdarg.h>
 #include "../../utils/constants.h"
 
 typedef enum {
@@ -25,6 +26,9 @@ Logger* loggerCreate(const char* fileName, LogLevel minLevel);
 void loggerDestroy(Logger* logger);
 
 void loggerLog(Logger* logger, LogLevel level, const char* message);
+
+void loggerLogFormat(Logger* logger, LogLevel level, const char* format, ...);
+// Escribe mensaje con formato printf en el archivo de log
 
 void loggerFlush(Logger* logger);
 

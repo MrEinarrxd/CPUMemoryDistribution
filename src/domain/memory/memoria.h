@@ -11,7 +11,6 @@ typedef struct Marco {
     int free;
     struct Pagina* page;
     char processId[idProcesoLen];  
-    int modifiedBit;
 } Marco;
 
 typedef struct Pagina {

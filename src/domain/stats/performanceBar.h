@@ -9,6 +9,7 @@ struct StatsCollector;
 
 typedef struct PerformanceBar {
     float values[barrasHistorial];
+    float wasteValues[barrasHistorial];   // Desperdicio de CPU en cada barra histórica
     int valueCount;
     float currentValue;
     float minValue;

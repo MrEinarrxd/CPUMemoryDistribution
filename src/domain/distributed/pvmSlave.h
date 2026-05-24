@@ -17,13 +17,20 @@ typedef struct PvmSlave {
     int maxProcesses;
 } PvmSlave;
 
-PvmSlave* pvmSlaveInit(int slaveTid, int masterTid, int maxProcesses);
+PvmSlave* pvmSlaveInit(int masterTid, int maxProcesses);
+// El slaveTid se obtiene internamente con pvm_mytid()
 
 int pvmSlaveConnect(PvmSlave* slave);
 
 PvmMessage* pvmSlaveReceiveData(PvmSlave* slave);
 
 int pvmSlaveSendData(PvmSlave* slave, PvmMessage* message);
+
+void pvmSlaveRunTask1(PvmSlave* slave);
+// Tarea 1: calcula estadísticas parciales del subconjunto asignado
+
+void pvmSlaveRunTask2(PvmSlave* slave);
+// Tarea 2: analiza envejecimiento y desperdicio de CPU en RR
 
 void pvmSlaveAssignProcess(PvmSlave* slave, struct Process* process);
 

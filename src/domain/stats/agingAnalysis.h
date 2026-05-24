@@ -8,7 +8,7 @@
 struct ProcessTable;
 
 typedef struct AgingAnalysis {
-    int samples[maxAlgorithmHistory];
+    int samples[historialAlgoritmoMaximo];
     int sampleCount;
     float averageWaste;
     float maxWaste;

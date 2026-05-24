@@ -15,15 +15,16 @@ typedef struct PagingManager {
     int totalPageFaults;
     int internalWaste;
     int externalWaste;
-    struct FifoReplacement* fifoReplacement;            // FIFO replacement handler for swap
-    int frameCountPerProcess[procesosEnEjecucion];      // Frame count per process for resizing
+    struct FifoReplacement* fifoReplacement;            // Manejador de reemplazo FIFO para SWAP
+    int frameCountPerProcess[procesosEnEjecucion];      // Contador de marcos por proceso para redimensionar
 } PagingManager;
 
 PagingManager* pagingManagerCreate(int totalPages);
 
 void pagingManagerDestroy(PagingManager* manager);
 
-int pagingManagerHandlePageFault(PagingManager* manager, int pageNumber);
+int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int pageNumber, const char* missingWord);
+// Maneja fallo de página: trae página faltante de SWAP usando FIFO
 
 int pagingManagerAllocatePageForProcess(PagingManager* manager, int processIndex, int pageCount);
 
@@ -35,10 +36,10 @@ int pagingManagerGetInternalWaste(PagingManager* manager);
 
 int pagingManagerGetExternalWaste(PagingManager* manager);
 
-// Set FIFO replacement handler for swap operations
+// Establece el manejador FIFO de reemplazo para operaciones de SWAP
 void pagingManagerSetReplacement(PagingManager* manager, struct FifoReplacement* fifo);
 
-// Resize frame allocation for process
+// Redimensiona la asignación de marcos para un proceso
 int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newFrameCount);
 
 #endif

@@ -13,6 +13,9 @@ int systemControllerInit(SystemController* controller);
 
 int systemControllerRun(SystemController* controller);
 
+int systemControllerRunPvm(SystemController* controller);
+// Ejecuta las tareas distribuidas PVM (tarea 1 y tarea 2)
+
 int systemControllerHandleCommand(SystemController* controller, int command);
 
 int systemControllerCycle(SystemController* controller);

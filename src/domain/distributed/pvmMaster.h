@@ -12,11 +12,11 @@ struct RrScheduler;
 // Propietario exclusivo de ProcessTable y RrScheduler
 typedef struct PvmMaster {
     int masterTid;
-    int slaveTids[pvmNumSlaves];
+    int slaveTids[pvmNumEsclavos];
     struct ProcessTable* processTable;
     struct RrScheduler* rrScheduler;
-    DistributedStats task1Results[pvmNumSlaves];
-    AgingResults task2Results[pvmNumSlaves];
+    DistributedStats task1Results[pvmNumEsclavos];
+    AgingResults task2Results[pvmNumEsclavos];
 } PvmMaster;
 
 PvmMaster* pvmMasterInit(void);

@@ -5,37 +5,46 @@
 
 #include "../utils/constants.h"
 
-// Console text menu system
-// Replaces GUI, handles user input for algorithm selection, quantum input, X and A keys
+struct PerformanceBar;
+struct StatsCollector;
 
-// Show main menu
+// Sistema de menú de texto en consola
+// Reemplaza GUI, maneja entrada de usuario para selección de algoritmo, quantum, teclas X y A
+
+// Muestra menú principal
 void menuShowMain(void);
 
-// Show algorithm selection options
+// Muestra opciones de selección de algoritmo
 void menuShowAlgorithmOptions(void);
 
-// Get algorithm choice from user, returns algorithm ID
+// Obtiene elección de algoritmo del usuario, retorna ID del algoritmo
 int menuGetAlgorithmChoice(void);
 
-// Get quantum value input from user, returns quantum value
+// Obtiene valor de quantum ingresado por el usuario, retorna quantum
 int menuGetQuantumInput(void);
 
-// Show prompt for quantum input
+// Muestra prompt para ingreso de quantum
 void menuShowQuantumPrompt(void);
 
-// Show balance alert with current proportions and new quantum
+// Muestra alerta de balance con proporciones actuales y nuevo quantum
 void menuShowBalanceAlert(float proportionReady, float proportionWaiting, int newQuantum);
 
-// Show top 5 aged processes
+// Muestra los 5 procesos más envejecidos
 void menuShowTop5Aged(const char ids[][idProcesoLen], const int wasteValues[], int count);
 
-// Show top 5 memory wasters
+// Muestra las 5 peores fuentes de desperdicio de memoria
 void menuShowTop5Wasters(const char ids[][idProcesoLen], const int wasteValues[], int count);
 
-// Get privileged process ID from user input
+// Obtiene ID de proceso privilegiado de la entrada del usuario
 int menuGetPrivilegedProcessId(char* outId, int maxLen);
 
-// Show PVM distributed processing results
+// Muestra resultados de procesamiento distribuido PVM
 void menuShowPvmResults(void);
+
+void menuShowPerformanceBars(const struct PerformanceBar* bar);
+// Muestra las 5 barras de aprovechamiento y desperdicio de CPU
+
+void menuShowMemoryStats(const struct StatsCollector* collector);
+// Muestra estadísticas de memoria: desperdicio interno, externo, fragmentación
 
 #endif

@@ -16,12 +16,14 @@ typedef struct AgingRanking {
 
 typedef struct RrScheduler {
     int currentQuantum;
-    int quantumHistory[maxAlgorithmHistory];
+    int quantumHistory[historialAlgoritmoMaximo];
     int historyIndex;
     float proportionReady;
     float proportionWaiting;
     int iterationsSinceBalance;
     AgingRanking agingRanking;
+    char privilegedProcessId[idProcesoLen];   // ID del proceso privilegiado (tecla A)
+    int hasPrivilegedProcess;                  // 1 si hay proceso privilegiado activo
 } RrScheduler;
 
 RrScheduler* rrSchedulerCreate(int quantum);

@@ -18,7 +18,7 @@ typedef struct PvmMessage {
     int sourceNodeId;
     int destinationNodeId;
     MessageType messageType;
-    char payload[messageBufferSize];
+    char payload[tamanoBufferMensaje];
     int payloadSize;
     long timestamp;
 } PvmMessage;

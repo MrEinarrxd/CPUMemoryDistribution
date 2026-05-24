@@ -22,21 +22,21 @@ typedef struct ProcessTable {
     float avgTurnaroundTime;
     int currentCycle;
     int simulationStartTime;
-    int totalCpuCyclesExecuted;                         // Total CPU cycles executed by all processes
-    int totalContextSwitches;                           // Total context switches performed
-    int algorithmChangeCount;                           // Number of times algorithm was changed
-    int totalIoOperations;                              // Total I/O operations performed
-    float cpuUtilization;                               // CPU utilization percentage
-    int internalWaste;                                  // Internal fragmentation
-    int externalWaste;                                  // External fragmentation
-    int totalPageFaults;                                // Total page faults occurred
-    float fragmentation;                                // Current fragmentation level
-    int quantumCurrent;                                 // Current quantum value
-    int quantumHistory[20];                             // History of quantum changes
-    float proportionReady;                              // Current proportion ready/total
-    float proportionWaiting;                            // Current proportion waiting/total
-    int iterationsSinceBalance;                         // Iterations since last balance
-    int shouldSwitchAlgorithm;                          // Flag: should switch algorithm
+    int totalCpuCyclesExecuted;                         // Total de ciclos CPU ejecutados por todos los procesos
+    int totalContextSwitches;                           // Total de cambios de contexto realizados
+    int algorithmChangeCount;                           // Cantidad de veces que se cambió el algoritmo
+    int totalIoOperations;                              // Total de operaciones de E/S realizadas
+    float cpuUtilization;                               // Porcentaje de utilización de CPU
+    int internalWaste;                                  // Fragmentación interna
+    int externalWaste;                                  // Fragmentación externa
+    int totalPageFaults;                                // Total de fallos de página ocurridos
+    float fragmentation;                                // Nivel actual de fragmentación
+    int quantumCurrent;                                 // Valor actual de quantum
+    int quantumHistory[historialAlgoritmoMaximo];   // Historial de valores de Quantum
+    float proportionReady;                              // Proporción actual lista/total
+    float proportionWaiting;                            // Proporción actual en espera/total
+    int iterationsSinceBalance;                         // Iteraciones desde el último balance
+    int shouldSwitchAlgorithm;                          // Indicador: debe cambiar algoritmo
 } ProcessTable;
 
 ProcessTable* processTableCreate(void);

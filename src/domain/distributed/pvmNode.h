@@ -9,7 +9,7 @@ struct PvmMessage;
 
 typedef struct PvmNode {
     int nodeId;
-    char nodeName[maxStringLength];
+    char nodeName[longitudMaximaCadena];
     int isActive;
     int messagesReceived;
     int messagesSent;
