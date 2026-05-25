@@ -53,6 +53,10 @@ typedef struct Bcp {
     int contextSwitchCount;
 } Bcp;
 
+// Propietario exclusivo de: phraseBuffer, requiredWords[][], assignedPages[]
+// Solo referencia: pageTableBase, swapAddress
+// Los campos numéricos (ioOperationsPending, etc.) son propiedad del BCP
+
 Bcp* bcpCreate(const char* processId, int pid);
 
 void bcpDestroy(Bcp* bcp);

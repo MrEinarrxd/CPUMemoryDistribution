@@ -8,10 +8,12 @@
 struct ProcessTable;
 struct PageDirectory;
 struct FifoReplacement;
+struct BitmapManager;
 
 // Propietario exclusivo de PageDirectory
 typedef struct PagingManager {
     struct PageDirectory* pageDirectory;
+    struct BitmapManager* bitmapManager;
     int totalPageFaults;
     int internalWaste;
     int externalWaste;
@@ -19,9 +21,11 @@ typedef struct PagingManager {
     int frameCountPerProcess[procesosEnEjecucion];      // Contador de marcos por proceso para redimensionar
 } PagingManager;
 
-PagingManager* pagingManagerCreate(int totalPages);
+PagingManager* pagingManagerCreate(int totalPages, struct BitmapManager* bitmapManager);
 
 void pagingManagerDestroy(PagingManager* manager);
+
+void pagingManagerSetBitmapManager(PagingManager* manager, struct BitmapManager* bitmapManager);
 
 int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int pageNumber, const char* missingWord);
 // Maneja fallo de página: trae página faltante de SWAP usando FIFO
