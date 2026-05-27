@@ -34,6 +34,7 @@
 #define iteracionesRebalanceo 20
 #define umbralDesbalance 75
 #define palabrasPorFrase 5
+#define tamanoFraseIo 500
 #define pvmNumEsclavos 2
 #define longitudMaximaCadena 256
 #define tamanoBufferMensaje 1024

@@ -1,7 +1,5 @@
-// === src/business/systemController.c ===
-// Orquestador principal del simulador: inicializa, coordina y destruye todos los
-// subsistemas (procesos, planificación, memoria, E/S, estadísticas, logs).
-// El flujo de ejecución se divide en ciclos manejados por systemControllerCycle().
+// src/business/systemController.c
+// Orquestador principal del simulador: inicializa, coordina y destruye todos los subsistemas.
 
 #include "systemController.h"
 
@@ -9,9 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// -----------------------------------------------------------------------------
-// Headers de todos los módulos utilizados
-// -----------------------------------------------------------------------------
 #include "../utils/constants.h"
 #include "../utils/random.h"
 #include "../utils/wordLoader.h"
@@ -46,6 +41,8 @@
 #include "../domain/stats/performanceBar.h"
 #include "../domain/stats/agingAnalysis.h"
 
+#include "../domain/distributed/pvmMaster.h"
+
 #include "../infrastructure/logger.h"
 #include "../infrastructure/bcpLog.h"
 #include "../infrastructure/processLog.h"
@@ -54,13 +51,10 @@
 #include "../presentation/menu.h"
 
 // -----------------------------------------------------------------------------
-// Estructura privada de SystemController (definición oculta en el .c)
+// Estructura privada del controlador
 // -----------------------------------------------------------------------------
 struct SystemController {
-    // Procesos
     ProcessTable*          processTable;
-
-    // Planificación
     ReadyQueue*            readyQueue;
     FcfsScheduler*         fcfsScheduler;
     RrScheduler*           rrScheduler;
@@ -68,37 +62,27 @@ struct SystemController {
     Rebalancer*            rebalancer;
     PreemptionController*  preemptionController;
     AlgorithmSwitcher*     algorithmSwitcher;
-
-    // Entrada/Salida
     IoQueue*               ioQueue;
     IoDispatcher*          ioDispatcher;
     IoCompletionHandler*   ioCompletionHandler;
-
-    // Memoria (Bitmap + FIFO)
     BitmapManager*         bitmapManager;
     PagingManager*         pagingManager;
     SwapManager*           swapManager;
     MemoryResizer*         memoryResizer;
-
-    // Estadísticas y rendimiento
     StatsCollector*        statsCollector;
     PerformanceBar*        performanceBar;
     AgingAnalysis*         agingAnalysis;
-
-    // Logs
-    Logger*                mainLogger;      // archivo general simulation.log
-    Logger*                bcpLogger;       // archivo específico bcp.log
+    Logger*                mainLogger;
+    Logger*                bcpLogger;
     BcpLog*                bcpLog;
     ProcessLog*            processLog;
-
-    // Control de la simulación
-    int                    running;         // 1 = en ejecución, 0 = detenido
-    int                    currentProcess;  // índice del proceso en CPU (-1 si libre)
+    int                    running;          // 1 = en marcha, 0 = detenido
+    Process*               currentProcess;   // proceso en CPU o NULL
 };
 
-// -----------------------------------------------------------------------------
-// systemControllerCreate - Reserva memoria y establece valores por defecto
-// -----------------------------------------------------------------------------
+// =============================================================================
+// systemControllerCreate
+// =============================================================================
 SystemController* systemControllerCreate(void) {
     SystemController* ctrl = (SystemController*)malloc(sizeof(SystemController));
     if (!ctrl) {
@@ -106,22 +90,22 @@ SystemController* systemControllerCreate(void) {
         return NULL;
     }
     memset(ctrl, 0, sizeof(SystemController));
-    ctrl->running        = 0;
-    ctrl->currentProcess = -1;
+    ctrl->running = 0;
+    ctrl->currentProcess = NULL;
     return ctrl;
 }
 
-// -----------------------------------------------------------------------------
-// systemControllerInit - Crea e interconecta todos los subsistemas
-// -----------------------------------------------------------------------------
+// =============================================================================
+// systemControllerInit – crea e interconecta todos los subsistemas
+// =============================================================================
 int systemControllerInit(SystemController* ctrl) {
     if (!ctrl) return -1;
 
-    // ---------- 1. Utilidades globales ----------
-    initRandom(0);                    // semilla automática
+    // 1. Utilidades globales
+    initRandom(0);
     wordLoaderInit("libro1.odt");
 
-    // ---------- 2. Logs ----------
+    // 2. Logs
     ctrl->mainLogger = loggerCreate("simulation.log", LogLevelInfo);
     if (!ctrl->mainLogger)
         fprintf(stderr, "[SystemController] Advertencia: no se pudo abrir simulation.log\n");
@@ -130,184 +114,104 @@ int systemControllerInit(SystemController* ctrl) {
     if (!ctrl->bcpLogger)
         fprintf(stderr, "[SystemController] Advertencia: no se pudo abrir bcp.log\n");
 
-    ctrl->bcpLog    = bcpLogCreate(ctrl->bcpLogger);
+    ctrl->bcpLog = bcpLogCreate(ctrl->bcpLogger);
     ctrl->processLog = processLogCreate(ctrl->mainLogger);
 
-    // ---------- 3. Cola de listos (ReadyQueue) ----------
+    // 3. Cola de listos
     ctrl->readyQueue = readyQueueCreate();
-    if (!ctrl->readyQueue) {
-        fprintf(stderr, "[SystemController] Error: readyQueueCreate falló.\n");
-        goto rollback_logs;
-    }
+    if (!ctrl->readyQueue) goto rollback_logs;
 
-    // ---------- 4. Colas de E/S (4 dispositivos con multiplicadores) ----------
-    const int multipliers[numColasEs] = {
-        multColaEs1, multColaEs2, multColaEs3, multColaEs4
-    };
-    ctrl->ioQueue = ioQueueCreate(multipliers);
-    if (!ctrl->ioQueue) {
-        fprintf(stderr, "[SystemController] Error: ioQueueCreate falló.\n");
-        goto rollback_readyqueue;
-    }
+    // 4. Colas de E/S (4 dispositivos)
+    const int mult[numColasEs] = { multColaEs1, multColaEs2, multColaEs3, multColaEs4 };
+    ctrl->ioQueue = ioQueueCreate(mult);
+    if (!ctrl->ioQueue) goto rollback_readyqueue;
 
-    // ---------- 5. Tabla de procesos (referencia a readyQueue e ioQueue) ----------
+    // 5. Tabla de procesos
     ctrl->processTable = processTableCreate();
-    if (!ctrl->processTable) {
-        fprintf(stderr, "[SystemController] Error: processTableCreate falló.\n");
-        goto rollback_ioqueue;
-    }
+    if (!ctrl->processTable) goto rollback_ioqueue;
     ctrl->processTable->readyQueue = ctrl->readyQueue;
-    ctrl->processTable->ioQueue    = ctrl->ioQueue;
+    ctrl->processTable->ioQueue = ctrl->ioQueue;
 
-    // ---------- 6. Generación de los 250 procesos (150 ejecución, 100 espera) ----------
+    // 6. Inicializar generador de procesos (sin crear procesos aún)
     processGeneratorInit();
-    processGeneratorRun(ctrl->processTable);
+    ctrl->processTable->totalProcesses = 0;
 
-    // ---------- 7. Planificadores ----------
+    // 7. Planificadores
     ctrl->fcfsScheduler = fcfsSchedulerCreate();
-    if (!ctrl->fcfsScheduler) {
-        fprintf(stderr, "[SystemController] Error: fcfsSchedulerCreate falló.\n");
-        goto rollback_proctable;
-    }
+    if (!ctrl->fcfsScheduler) goto rollback_proctable;
 
     ctrl->rrScheduler = rrSchedulerCreate(quantumDefault);
-    if (!ctrl->rrScheduler) {
-        fprintf(stderr, "[SystemController] Error: rrSchedulerCreate falló.\n");
-        goto rollback_fcfs;
-    }
+    if (!ctrl->rrScheduler) goto rollback_fcfs;
 
-    // Scheduler maestro (comienza con FCFS)
     ctrl->scheduler = schedulerCreate(SchedulerAlgorithmFcfs);
-    if (!ctrl->scheduler) {
-        fprintf(stderr, "[SystemController] Error: schedulerCreate falló.\n");
-        goto rollback_rr;
-    }
+    if (!ctrl->scheduler) goto rollback_rr;
     schedulerSetFcfs(ctrl->scheduler, ctrl->fcfsScheduler);
-    schedulerSetRr(ctrl->scheduler,   ctrl->rrScheduler);
+    schedulerSetRr(ctrl->scheduler, ctrl->rrScheduler);
 
-    // ---------- 8. Módulos auxiliares de planificación ----------
+    // 8. Módulos auxiliares de planificación
     ctrl->rebalancer = rebalancerCreate();
-    if (!ctrl->rebalancer) {
-        fprintf(stderr, "[SystemController] Error: rebalancerCreate falló.\n");
-        goto rollback_scheduler;
-    }
+    if (!ctrl->rebalancer) goto rollback_scheduler;
 
-    ctrl->preemptionController = preemptionControllerCreate(0); // inicialmente sin apropiatividad
-    if (!ctrl->preemptionController) {
-        fprintf(stderr, "[SystemController] Error: preemptionControllerCreate falló.\n");
-        goto rollback_rebalancer;
-    }
+    ctrl->preemptionController = preemptionControllerCreate(0);
+    if (!ctrl->preemptionController) goto rollback_rebalancer;
 
     ctrl->algorithmSwitcher = algorithmSwitcherCreate(quantumDefault);
-    if (!ctrl->algorithmSwitcher) {
-        fprintf(stderr, "[SystemController] Error: algorithmSwitcherCreate falló.\n");
-        goto rollback_preemption;
-    }
+    if (!ctrl->algorithmSwitcher) goto rollback_preemption;
 
-    // ---------- 9. Dispatcher y manejador de finalización de E/S ----------
+    // 9. Subsistema de E/S
     ctrl->ioDispatcher = ioDispatcherCreate(ctrl->ioQueue);
-    if (!ctrl->ioDispatcher) {
-        fprintf(stderr, "[SystemController] Error: ioDispatcherCreate falló.\n");
-        goto rollback_algoswitch;
-    }
+    if (!ctrl->ioDispatcher) goto rollback_algoswitch;
 
     ctrl->ioCompletionHandler = ioCompletionHandlerCreate();
-    if (!ctrl->ioCompletionHandler) {
-        fprintf(stderr, "[SystemController] Error: ioCompletionHandlerCreate falló.\n");
-        goto rollback_iodispatch;
-    }
+    if (!ctrl->ioCompletionHandler) goto rollback_iodispatch;
 
-    // ---------- 10. Subsistema de memoria (Bitmap + FIFO + Swap) ----------
-    // 10a. Administrador de marcos físicos (Mapa de bits)
-    ctrl->bitmapManager = bitmapManagerCreate(1); // cada bloque = 1 marco
-    if (!ctrl->bitmapManager) {
-        fprintf(stderr, "[SystemController] Error: bitmapManagerCreate falló.\n");
-        goto rollback_iocomp;
-    }
+    // 10. Subsistema de memoria
+    ctrl->bitmapManager = bitmapManagerCreate(1);
+    if (!ctrl->bitmapManager) goto rollback_iocomp;
 
-    // 10b. Área de intercambio (SWAP)
     ctrl->swapManager = swapManagerCreate(maxSwap);
-    if (!ctrl->swapManager) {
-        fprintf(stderr, "[SystemController] Error: swapManagerCreate falló.\n");
-        goto rollback_bitmap;
-    }
+    if (!ctrl->swapManager) goto rollback_bitmap;
 
-    // 10c. Gestor de paginación (conecta bitmap, fifo y directorio de páginas)
     ctrl->pagingManager = pagingManagerCreate(maxMarcos, ctrl->bitmapManager);
-    if (!ctrl->pagingManager) {
-        fprintf(stderr, "[SystemController] Error: pagingManagerCreate falló.\n");
-        goto rollback_swap;
-    }
+    if (!ctrl->pagingManager) goto rollback_swap;
 
-    // 10d. Redimensionador dinámico de marcos (mitad reduce, mitad duplica)
     ctrl->memoryResizer = memoryResizerCreate();
-    if (!ctrl->memoryResizer) {
-        fprintf(stderr, "[SystemController] Error: memoryResizerCreate falló.\n");
-        goto rollback_paging;
-    }
+    if (!ctrl->memoryResizer) goto rollback_paging;
 
-    // ---------- 11. Estadísticas y barras de rendimiento ----------
+    // 11. Estadísticas
     ctrl->statsCollector = statsCollectorCreate();
-    if (!ctrl->statsCollector) {
-        fprintf(stderr, "[SystemController] Error: statsCollectorCreate falló.\n");
-        goto rollback_resizer;
-    }
+    if (!ctrl->statsCollector) goto rollback_resizer;
 
     ctrl->performanceBar = performanceBarCreate();
-    if (!ctrl->performanceBar) {
-        fprintf(stderr, "[SystemController] Error: performanceBarCreate falló.\n");
-        goto rollback_stats;
-    }
+    if (!ctrl->performanceBar) goto rollback_stats;
 
     ctrl->agingAnalysis = agingAnalysisCreate();
-    if (!ctrl->agingAnalysis) {
-        fprintf(stderr, "[SystemController] Error: agingAnalysisCreate falló.\n");
-        goto rollback_perfbar;
-    }
+    if (!ctrl->agingAnalysis) goto rollback_perfbar;
 
-    // ---------- 12. Simulación lista para ejecutarse ----------
+    // 12. Todo listo
     ctrl->running = 1;
-    if (ctrl->mainLogger) {
-        loggerLog(ctrl->mainLogger, LogLevelInfo,
-                  "SystemController inicializado correctamente.");
-    }
-    return 0;   // éxito
+    if (ctrl->mainLogger)
+        loggerLog(ctrl->mainLogger, LogLevelInfo, "SystemController inicializado correctamente.");
+    return 0;
 
-    // ----- Etiquetas de deshacer (rollback) en caso de error -----
-rollback_perfbar:
-    if (ctrl->performanceBar) performanceBarDestroy(ctrl->performanceBar);
-rollback_stats:
-    if (ctrl->statsCollector) statsCollectorDestroy(ctrl->statsCollector);
-rollback_resizer:
-    if (ctrl->memoryResizer) memoryResizerDestroy(ctrl->memoryResizer);
-rollback_paging:
-    if (ctrl->pagingManager) pagingManagerDestroy(ctrl->pagingManager);
-rollback_swap:
-    if (ctrl->swapManager) swapManagerDestroy(ctrl->swapManager);
-rollback_bitmap:
-    if (ctrl->bitmapManager) bitmapManagerDestroy(ctrl->bitmapManager);
-rollback_iocomp:
-    if (ctrl->ioCompletionHandler) ioCompletionHandlerDestroy(ctrl->ioCompletionHandler);
-rollback_iodispatch:
-    if (ctrl->ioDispatcher) ioDispatcherDestroy(ctrl->ioDispatcher);
-rollback_algoswitch:
-    if (ctrl->algorithmSwitcher) algorithmSwitcherDestroy(ctrl->algorithmSwitcher);
-rollback_preemption:
-    if (ctrl->preemptionController) preemptionControllerDestroy(ctrl->preemptionController);
-rollback_rebalancer:
-    if (ctrl->rebalancer) rebalancerDestroy(ctrl->rebalancer);
-rollback_scheduler:
-    if (ctrl->scheduler) schedulerDestroy(ctrl->scheduler);
-rollback_rr:
-    if (ctrl->rrScheduler) rrSchedulerDestroy(ctrl->rrScheduler);
-rollback_fcfs:
-    if (ctrl->fcfsScheduler) fcfsSchedulerDestroy(ctrl->fcfsScheduler);
-rollback_proctable:
-    if (ctrl->processTable) processTableDestroy(ctrl->processTable);
-rollback_ioqueue:
-    if (ctrl->ioQueue) ioQueueDestroy(ctrl->ioQueue);
-rollback_readyqueue:
-    if (ctrl->readyQueue) readyQueueDestroy(ctrl->readyQueue);
+    // Etiquetas de deshacer (rollback)
+rollback_perfbar:   performanceBarDestroy(ctrl->performanceBar);
+rollback_stats:     statsCollectorDestroy(ctrl->statsCollector);
+rollback_resizer:   memoryResizerDestroy(ctrl->memoryResizer);
+rollback_paging:    pagingManagerDestroy(ctrl->pagingManager);
+rollback_swap:      swapManagerDestroy(ctrl->swapManager);
+rollback_bitmap:    bitmapManagerDestroy(ctrl->bitmapManager);
+rollback_iocomp:    ioCompletionHandlerDestroy(ctrl->ioCompletionHandler);
+rollback_iodispatch:ioDispatcherDestroy(ctrl->ioDispatcher);
+rollback_algoswitch:algorithmSwitcherDestroy(ctrl->algorithmSwitcher);
+rollback_preemption:preemptionControllerDestroy(ctrl->preemptionController);
+rollback_rebalancer:rebalancerDestroy(ctrl->rebalancer);
+rollback_scheduler: schedulerDestroy(ctrl->scheduler);
+rollback_rr:        rrSchedulerDestroy(ctrl->rrScheduler);
+rollback_fcfs:      fcfsSchedulerDestroy(ctrl->fcfsScheduler);
+rollback_proctable: processTableDestroy(ctrl->processTable);
+rollback_ioqueue:   ioQueueDestroy(ctrl->ioQueue);
+rollback_readyqueue:readyQueueDestroy(ctrl->readyQueue);
 rollback_logs:
     if (ctrl->processLog) processLogDestroy(ctrl->processLog);
     if (ctrl->bcpLog) bcpLogDestroy(ctrl->bcpLog);
@@ -317,80 +221,504 @@ rollback_logs:
     return -1;
 }
 
-// -----------------------------------------------------------------------------
-// systemControllerDestroy - Libera todos los recursos (orden inverso a Init)
-// -----------------------------------------------------------------------------
-void systemControllerDestroy(SystemController* ctrl) {
-    if (!ctrl) return;
+// =============================================================================
+// systemControllerCycle – ejecuta un ciclo de simulación (modelo incremental)
+// =============================================================================
+int systemControllerCycle(SystemController* ctrl) {
+    if (!ctrl || !ctrl->running) return -1;
 
-    // Estadísticas
-    if (ctrl->agingAnalysis)    agingAnalysisDestroy(ctrl->agingAnalysis);
-    if (ctrl->performanceBar)   performanceBarDestroy(ctrl->performanceBar);
-    if (ctrl->statsCollector)   statsCollectorDestroy(ctrl->statsCollector);
+    // 1. Avanzar el reloj
+    ctrl->processTable->currentCycle++;
+    int ciclo = ctrl->processTable->currentCycle;
 
-    // Memoria
-    if (ctrl->memoryResizer)    memoryResizerDestroy(ctrl->memoryResizer);
-    if (ctrl->pagingManager)    pagingManagerDestroy(ctrl->pagingManager);
-    if (ctrl->swapManager)      swapManagerDestroy(ctrl->swapManager);
-    if (ctrl->bitmapManager)    bitmapManagerDestroy(ctrl->bitmapManager);
+    // -------------------------------------------------------------------------
+    // 2. Admitir nuevos procesos mediante processGeneratorGetNext() (generador incremental)
+    // -------------------------------------------------------------------------
+    while (processGeneratorHasMore()) {
+        Bcp* bcp = processGeneratorGetNext();
+        if (!bcp) break;
 
-    // E/S
-    if (ctrl->ioCompletionHandler) ioCompletionHandlerDestroy(ctrl->ioCompletionHandler);
-    if (ctrl->ioDispatcher)        ioDispatcherDestroy(ctrl->ioDispatcher);
+        // Si el proceso no toca aún, no lo procesamos (asume arrivalTimes ordenados)
+        if (bcp->arrivalTime > ciclo) break;
 
-    // Planificación
-    if (ctrl->algorithmSwitcher)   algorithmSwitcherDestroy(ctrl->algorithmSwitcher);
-    if (ctrl->preemptionController) preemptionControllerDestroy(ctrl->preemptionController);
-    if (ctrl->rebalancer)          rebalancerDestroy(ctrl->rebalancer);
-    if (ctrl->scheduler)           schedulerDestroy(ctrl->scheduler);
-    if (ctrl->rrScheduler)         rrSchedulerDestroy(ctrl->rrScheduler);
-    if (ctrl->fcfsScheduler)       fcfsSchedulerDestroy(ctrl->fcfsScheduler);
+        Process* proc = processCreate(bcp->processId, bcp->pid);
+        if (!proc) {
+            fprintf(stderr, "[SystemController] Fallo processCreate para %s\n", bcp->processId);
+            continue;
+        }
+        proc->bcp = bcp;
+        processActivate(proc);
+        ctrl->processTable->totalProcesses++;
 
-    // Tabla de procesos (destruye los procesos internos)
-    processGeneratorCleanup();
-    if (ctrl->processTable) processTableDestroy(ctrl->processTable);
+        int slot = -1;
+        for (int i = 0; i < procesosEnEjecucion; i++) {
+            if (ctrl->processTable->runningProcesses[i] == NULL) {
+                slot = i;
+                break;
+            }
+        }
 
-    // Colas (después de la tabla para evitar referencias colgantes)
-    if (ctrl->ioQueue)    ioQueueDestroy(ctrl->ioQueue);
-    if (ctrl->readyQueue) readyQueueDestroy(ctrl->readyQueue);
+        if (slot != -1) {
+            ctrl->processTable->runningProcesses[slot] = proc;
+            bcpSetState(bcp, ProcessStateReady);
+            if (readyQueueEnqueue(ctrl->readyQueue, proc) != 0) {
+                if (ctrl->mainLogger)
+                    loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
+                        "Cola de listos llena al admitir %s en ciclo %d",
+                        bcp->processId, ciclo);
+            }
+            pagingManagerAllocatePageForProcess(ctrl->pagingManager, slot, bcp->pageCount);
+            if (ctrl->processLog)
+                processLogRecordCreation(ctrl->processLog, proc);
+        } else {
+            for (int i = 0; i < procesosEnEspera; i++) {
+                if (ctrl->processTable->newRequests[i] == NULL) {
+                    ctrl->processTable->newRequests[i] = proc;
+                    bcpSetState(bcp, ProcessStateNew);
+                    break;
+                }
+            }
+        }
+    }
 
-    // Logs
-    if (ctrl->processLog) processLogDestroy(ctrl->processLog);
-    if (ctrl->bcpLog)     bcpLogDestroy(ctrl->bcpLog);
-    if (ctrl->bcpLogger)  loggerDestroy(ctrl->bcpLogger);
-    if (ctrl->mainLogger) loggerDestroy(ctrl->mainLogger);
+    // -------------------------------------------------------------------------
+    // 3. Admitir procesos cuyo tiempo de llegada se ha cumplido (procesos ya creados)
+    // -------------------------------------------------------------------------
+    // 3a. Procesos que ya están en runningProcesses pero aún en estado New
+    for (int i = 0; i < procesosEnEjecucion; i++) {
+        Process* p = ctrl->processTable->runningProcesses[i];
+        if (!p || !p->bcp) continue;
+        if (p->bcp->state != ProcessStateNew) continue;
+        if (p->bcp->arrivalTime > ciclo) continue;
 
-    // Utilidades globales
-    wordLoaderCleanup();
+        bcpSetState(p->bcp, ProcessStateReady);
+        if (readyQueueEnqueue(ctrl->readyQueue, p) != 0) {
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
+                    "Cola de listos llena al admitir %s en ciclo %d",
+                    p->bcp->processId, ciclo);
+        }
+        pagingManagerAllocatePageForProcess(ctrl->pagingManager, i, p->bcp->pageCount);
+        if (ctrl->processLog)
+            processLogRecordCreation(ctrl->processLog, p);
+    }
 
-    free(ctrl);
-}
+    // 3b. Mover procesos desde newRequests a runningProcesses cuando corresponda
+    for (int i = 0; i < procesosEnEspera; i++) {
+        Process* espera = ctrl->processTable->newRequests[i];
+        if (!espera || !espera->bcp) continue;
+        if (espera->bcp->arrivalTime > ciclo) continue;
 
-// -----------------------------------------------------------------------------
-// Stubs de los métodos que se completarán en etapas posteriores
-// -----------------------------------------------------------------------------
+        int slotLibre = -1;
+        for (int j = 0; j < procesosEnEjecucion; j++) {
+            if (ctrl->processTable->runningProcesses[j] == NULL) {
+                slotLibre = j;
+                break;
+            }
+        }
+        if (slotLibre == -1) continue;
 
-int systemControllerRun(SystemController* ctrl) {
-    (void)ctrl;   // evitar warning de parámetro no usado
-    // Implementación futura: bucle principal de simulación
+        ctrl->processTable->runningProcesses[slotLibre] = espera;
+        ctrl->processTable->newRequests[i] = NULL;
+
+        bcpSetState(espera->bcp, ProcessStateReady);
+        if (readyQueueEnqueue(ctrl->readyQueue, espera) != 0) {
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
+                    "Cola de listos llena al admitir %s desde espera", espera->bcp->processId);
+        }
+        pagingManagerAllocatePageForProcess(ctrl->pagingManager, slotLibre, espera->bcp->pageCount);
+        if (ctrl->processLog)
+            processLogRecordCreation(ctrl->processLog, espera);
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. Finalización de E/S
+    // -------------------------------------------------------------------------
+    ioCompletionHandlerProcess(ctrl->ioCompletionHandler, ctrl->ioQueue, ctrl->readyQueue);
+
+    // -------------------------------------------------------------------------
+    // 5. Seleccionar el próximo proceso a ejecutar
+    // -------------------------------------------------------------------------
+    Process* actual = schedulerSelectNext(ctrl->scheduler, ctrl->processTable);
+    if (actual && actual->bcp) {
+        Bcp* bcp = actual->bcp;
+        bcpSetState(bcp, ProcessStateRunning);
+        ctrl->currentProcess = actual;
+
+        // 5a. Ejecutar una ráfaga de CPU
+        int instancia = randomCpuInstanceCycles();
+        if (instancia > bcp->remainingCycles)
+            instancia = bcp->remainingCycles;
+
+        bcpUpdateRemainingTime(bcp, instancia);
+        bcp->timeInExecution += instancia;
+        bcp->quantumUsed += instancia;
+        bcp->timesExecuted++;
+        ctrl->processTable->totalCpuCyclesExecuted += instancia;
+
+        // 5b. Coste de cambio de contexto
+        bcp->contextSwitchTime = randomContextSwitchTime();
+        bcpIncrementContextSwitches(bcp);
+        ctrl->processTable->totalContextSwitches++;
+        schedulerOnContextSwitch(ctrl->scheduler);
+        if (ctrl->bcpLog) bcpLogRecordContextSwitch(ctrl->bcpLog, bcp);
+
+        // 5c. Verificar expiración del quantum (solo en RR)
+        if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) {
+            int quantum = rrSchedulerGetCurrentQuantum(ctrl->rrScheduler);
+            if (bcp->quantumUsed >= quantum) {
+                bcp->quantumUsed = 0;
+                rrSchedulerOnQuantumExpired(ctrl->rrScheduler);
+                if (ctrl->bcpLog) bcpLogRecordQuantumExpired(ctrl->bcpLog, bcp);
+
+                if (bcp->remainingCycles > 0 && bcp->ioOperationsPending == 0) {
+                    bcpSetState(bcp, ProcessStateReady);
+                    readyQueueEnqueue(ctrl->readyQueue, actual);
+                }
+                ctrl->currentProcess = NULL;
+            }
+        }
+
+        // 5d. Proceso terminado
+        if (bcp->remainingCycles <= 0) {
+            bcp->finishTime = ciclo;
+            bcpSetState(bcp, ProcessStateFinished);
+            processDeactivate(actual);
+            processTableIncrementFinished(ctrl->processTable);
+            pagingManagerDeallocatePagesForProcess(ctrl->pagingManager, bcp->pid % procesosEnEjecucion);
+            if (ctrl->processLog)
+                processLogRecordTermination(ctrl->processLog, actual);
+
+            for (int j = 0; j < procesosEnEjecucion; j++) {
+                if (ctrl->processTable->runningProcesses[j] == actual) {
+                    ctrl->processTable->runningProcesses[j] = NULL;
+                    break;
+                }
+            }
+            ctrl->currentProcess = NULL;
+
+        // 5e. Enviar a E/S si hay operaciones pendientes
+        } else if (bcp->ioOperationsPending > 0) {
+            bcpSetState(bcp, ProcessStateWaitingIo);
+            int dispositivo = bcp->timesInIo % numColasEs;
+            bcp->timesInIo++;
+            ctrl->processTable->totalIoOperations++;
+            ioDispatcherDispatch(ctrl->ioDispatcher, actual, dispositivo);
+            ctrl->currentProcess = NULL;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Avanzar los relojes de E/S
+    // -------------------------------------------------------------------------
+    ioDispatcherTick(ctrl->ioDispatcher);
+
+    // -------------------------------------------------------------------------
+    // 7. Rebalanceo dinámico de quantum
+    // -------------------------------------------------------------------------
+    rebalancerTick(ctrl->rebalancer);
+    if (rebalancerShouldCheck(ctrl->rebalancer)) {
+        rrSchedulerUpdateProportions(ctrl->rrScheduler, ctrl->processTable);
+        float propListos = ctrl->rrScheduler->proportionReady;
+        if (rebalancerIsImbalanced(ctrl->rebalancer, propListos)) {
+            int delta = rebalancerSuggestQuantumDelta(ctrl->rebalancer, propListos);
+            int nuevoQuantum = ctrl->rrScheduler->currentQuantum + delta;
+            if (nuevoQuantum < 1) nuevoQuantum = 1;
+            ctrl->rrScheduler->currentQuantum = nuevoQuantum;
+            rebalancerOnBalanceRestored(ctrl->rebalancer);
+            menuShowBalanceAlert(ctrl->rrScheduler->proportionReady,
+                                 ctrl->rrScheduler->proportionWaiting,
+                                 nuevoQuantum);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Cambio automático de algoritmo
+    // -------------------------------------------------------------------------
+    if (algorithmSwitcherShouldSwitch(ctrl->algorithmSwitcher, ctrl->scheduler)) {
+        algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
+        ctrl->processTable->algorithmChangeCount++;
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. Actualizar ranking de envejecimiento (solo RR)
+    // -------------------------------------------------------------------------
+    if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr)
+        rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
+
+    // -------------------------------------------------------------------------
+    // 10. Redimensionar memoria periódicamente
+    // -------------------------------------------------------------------------
+    if (ciclo % growthListSize == 0)
+        memoryResizerExecute(ctrl->memoryResizer, ctrl->processTable, ctrl->pagingManager);
+
+    // -------------------------------------------------------------------------
+    // 11. Recolectar estadísticas
+    // -------------------------------------------------------------------------
+    statsCollectorCollect(ctrl->statsCollector, ctrl->processTable);
+    performanceBarUpdate(ctrl->performanceBar, ctrl->statsCollector);
+    agingAnalysisCollectSample(ctrl->agingAnalysis, ctrl->processTable);
+    processTableUpdateAverages(ctrl->processTable);
+
     return 0;
 }
 
+// =============================================================================
+// systemControllerDestroy – libera todos los recursos
+// =============================================================================
+void systemControllerDestroy(SystemController* ctrl) {
+    if (!ctrl) return;
+
+    if (ctrl->agingAnalysis)        agingAnalysisDestroy(ctrl->agingAnalysis);
+    if (ctrl->performanceBar)       performanceBarDestroy(ctrl->performanceBar);
+    if (ctrl->statsCollector)       statsCollectorDestroy(ctrl->statsCollector);
+    if (ctrl->memoryResizer)        memoryResizerDestroy(ctrl->memoryResizer);
+    if (ctrl->pagingManager)        pagingManagerDestroy(ctrl->pagingManager);
+    if (ctrl->swapManager)          swapManagerDestroy(ctrl->swapManager);
+    if (ctrl->bitmapManager)        bitmapManagerDestroy(ctrl->bitmapManager);
+    if (ctrl->ioCompletionHandler)  ioCompletionHandlerDestroy(ctrl->ioCompletionHandler);
+    if (ctrl->ioDispatcher)         ioDispatcherDestroy(ctrl->ioDispatcher);
+    if (ctrl->algorithmSwitcher)    algorithmSwitcherDestroy(ctrl->algorithmSwitcher);
+    if (ctrl->preemptionController) preemptionControllerDestroy(ctrl->preemptionController);
+    if (ctrl->rebalancer)           rebalancerDestroy(ctrl->rebalancer);
+    if (ctrl->scheduler)            schedulerDestroy(ctrl->scheduler);
+    if (ctrl->rrScheduler)          rrSchedulerDestroy(ctrl->rrScheduler);
+    if (ctrl->fcfsScheduler)        fcfsSchedulerDestroy(ctrl->fcfsScheduler);
+
+    processGeneratorCleanup();
+    if (ctrl->processTable)         processTableDestroy(ctrl->processTable);
+    if (ctrl->ioQueue)              ioQueueDestroy(ctrl->ioQueue);
+    if (ctrl->readyQueue)           readyQueueDestroy(ctrl->readyQueue);
+    if (ctrl->processLog)           processLogDestroy(ctrl->processLog);
+    if (ctrl->bcpLog)               bcpLogDestroy(ctrl->bcpLog);
+    if (ctrl->bcpLogger)            loggerDestroy(ctrl->bcpLogger);
+    if (ctrl->mainLogger)           loggerDestroy(ctrl->mainLogger);
+
+    wordLoaderCleanup();
+    free(ctrl);
+}
+
+// =============================================================================
+// Manejadores internos de teclas (estáticos)
+// =============================================================================
+static void handleKeyX(SystemController* ctrl) {
+    consoleIoClear();
+    menuShowAlgorithmOptions();
+    int opcion = menuGetAlgorithmChoice();   // 1=FCFS, 2=RR, 0=cancelar
+    if (opcion == 0) return;
+
+    if (opcion == 1 || opcion == 2) {
+        systemControllerHandleCommand(ctrl, opcion);
+    }
+}
+
+static void handleKeyA(SystemController* ctrl) {
+    rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
+    AgingRanking* r = &ctrl->rrScheduler->agingRanking;
+
+    consoleIoClear();
+    menuShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
+    menuShowTop5Wasters((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
+
+    char idElegido[idProcesoLen];
+    memset(idElegido, 0, sizeof(idElegido));
+
+    if (menuGetPrivilegedProcessId(idElegido, idProcesoLen) > 0 && idElegido[0] != '\0') {
+        rrSchedulerPrioritizeProcess(ctrl->rrScheduler, idElegido);
+        if (ctrl->mainLogger)
+            loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
+                "Tecla A: proceso %s marcado como privilegiado.", idElegido);
+    }
+}
+
+// =============================================================================
+// systemControllerRun – bucle principal de simulación
+// =============================================================================
+int systemControllerRun(SystemController* ctrl) {
+    if (!ctrl) return -1;
+
+    consoleIoInit();
+    menuShowMain();
+
+    if (ctrl->mainLogger)
+        loggerLog(ctrl->mainLogger, LogLevelInfo, "Bucle de simulación iniciado.");
+
+    while (ctrl->running) {
+        int ret = systemControllerCycle(ctrl);
+        if (ret != 0) {
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelError,
+                    "systemControllerCycle devolvió %d en ciclo %d. Abortando.",
+                    ret, ctrl->processTable->currentCycle);
+            ctrl->running = 0;
+            break;
+        }
+
+        if (ctrl->processTable->currentCycle % 10 == 0) {
+            consoleIoClear();
+            menuShowPerformanceBars(ctrl->performanceBar);
+            menuShowMemoryStats(ctrl->statsCollector);
+        }
+
+        if (ctrl->processTable->totalProcesses > 0 &&
+            ctrl->processTable->finishedProcesses >= ctrl->processTable->totalProcesses) {
+            if (ctrl->mainLogger)
+                loggerLog(ctrl->mainLogger, LogLevelInfo, "Todos los procesos terminaron. Simulación finalizada.");
+            ctrl->running = 0;
+            break;
+        }
+
+        if (!consoleIoKbhit()) continue;
+
+        char tecla = consoleIoGetChar();
+        switch (tecla) {
+            case 'X': case 'x':
+                handleKeyX(ctrl);
+                break;
+            case 'A': case 'a':
+                if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr)
+                    handleKeyA(ctrl);
+                else
+                    consoleIoPrintLine("El ranking de envejecimiento solo está disponible en modo RR.");
+                break;
+            case 'P': case 'p': {
+                consoleIoPrintLine("[PAUSADO] Presione P nuevamente para reanudar...");
+                char reanudar = 0;
+                while (reanudar != 'P' && reanudar != 'p') {
+                    if (consoleIoKbhit()) reanudar = consoleIoGetChar();
+                    else                  timeHelperDelay(50);
+                }
+                consoleIoPrintLine("[REANUDADO]");
+                break;
+            }
+            case 'Q': case 'q': case 27:
+                if (ctrl->mainLogger)
+                    loggerLog(ctrl->mainLogger, LogLevelInfo, "Usuario solicitó detener la simulación.");
+                ctrl->running = 0;
+                break;
+            default:
+                systemControllerHandleCommand(ctrl, (int)tecla);
+                break;
+        }
+    }
+
+    // Resumen final
+    consoleIoClear();
+    if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) {
+        rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
+        AgingRanking* r = &ctrl->rrScheduler->agingRanking;
+        menuShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
+        menuShowTop5Wasters((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
+    }
+    menuShowPerformanceBars(ctrl->performanceBar);
+    menuShowMemoryStats(ctrl->statsCollector);
+    consoleIoPrintSeparator();
+    consoleIoPrintInt("Ciclos totales:        ", ctrl->processTable->currentCycle);
+    consoleIoPrintInt("Procesos terminados:   ", ctrl->processTable->finishedProcesses);
+    consoleIoPrintInt("Cambios de contexto:   ", ctrl->processTable->totalContextSwitches);
+    consoleIoPrintInt("Cambios de algoritmo:  ", ctrl->processTable->algorithmChangeCount);
+    consoleIoPrintSeparator();
+
+    if (ctrl->mainLogger) {
+        loggerLog(ctrl->mainLogger, LogLevelInfo, "Bucle de simulación finalizado.");
+        loggerFlush(ctrl->mainLogger);
+    }
+    if (ctrl->bcpLogger) loggerFlush(ctrl->bcpLogger);
+
+    consoleIoCleanup();
+    return 0;
+}
+
+// =============================================================================
+// Ejecución de tareas distribuidas PVM
+// =============================================================================
 int systemControllerRunPvm(SystemController* ctrl) {
-    (void)ctrl;
-    // Implementación futura: ejecución de tareas distribuidas con PVM
+    if (!ctrl) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "systemControllerRunPvm: ctrl es NULL");
+        return -1;
+    }
+
+    consoleIoPrintLine("Inicializando maestro PVM...");
+    PvmMaster* master = pvmMasterInit();
+    if (!master) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed,
+                       "systemControllerRunPvm: no se pudo inicializar pvmMaster");
+        return -1;
+    }
+
+    // Asignar referencias a processTable y rrScheduler
+    master->processTable = ctrl->processTable;
+    master->rrScheduler = ctrl->rrScheduler;
+
+    // Lanzar esclavos
+    consoleIoPrintLine("Lanzando procesos esclavos...");
+    int numEsclavos = pvmMasterSpawnSlaves(master);
+    if (numEsclavos != pvmNumEsclavos) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed,
+                       "systemControllerRunPvm: no se pudieron lanzar todos los esclavos");
+        pvmMasterCleanup(master);
+        return -1;
+    }
+
+    consoleIoPrintLine("Ejecutando Tarea 1: Estadísticas de procesos...");
+    pvmMasterTask1Stats(master);
+
+    consoleIoPrintLine("Ejecutando Tarea 2: Análisis de Round-Robin...");
+    pvmMasterTask2Aging(master);
+
+    consoleIoPrintLine("Integrando resultados...");
+    pvmMasterIntegrateResults(master);
+
+    consoleIoPrintLine("Imprimiendo resultados finales...");
+    pvmMasterPrintResults(master);
+
+    // Limpieza
+    pvmMasterCleanup(master);
+    consoleIoPrintLine("Tareas distribuidas completadas.");
     return 0;
 }
 
 int systemControllerHandleCommand(SystemController* ctrl, int command) {
-    (void)ctrl;
-    (void)command;
-    // Implementación futura: comandos de usuario (cambiar algoritmo, etc.)
-    return 0;
-}
+    if (!ctrl || !ctrl->scheduler || !ctrl->rrScheduler || !ctrl->algorithmSwitcher || !ctrl->processTable)
+        return -1;
 
-int systemControllerCycle(SystemController* ctrl) {
-    (void)ctrl;
-    // Implementación futura: avance de un ciclo de simulación
-    return 0;
+    switch (command) {
+        case 1: {
+            algorithmSwitcherSetNext(ctrl->algorithmSwitcher, SchedulerAlgorithmFcfs);
+            algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
+            ctrl->processTable->algorithmChangeCount++;
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
+                                "Comando 1: cambio manual a FCFS");
+            return 0;
+        }
+        case 2: {
+            menuShowQuantumPrompt();
+            int quantum = menuGetQuantumInput();
+            if (quantum > 0) {
+                ctrl->rrScheduler->currentQuantum = quantum;
+            }
+            algorithmSwitcherSetNext(ctrl->algorithmSwitcher, SchedulerAlgorithmRr);
+            algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
+            ctrl->processTable->algorithmChangeCount++;
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
+                                "Comando 2: cambio manual a RR con quantum %d", quantum);
+            return 0;
+        }
+        case 3: {
+            char processId[idProcesoLen];
+            memset(processId, 0, sizeof(processId));
+            if (menuGetPrivilegedProcessId(processId, idProcesoLen) > 0 && processId[0] != '\0') {
+                rrSchedulerPrioritizeProcess(ctrl->rrScheduler, processId);
+                if (ctrl->mainLogger)
+                    loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
+                                    "Comando 3: proceso %s privilegiado", processId);
+            }
+            return 0;
+        }
+        default:
+            return -1;
+    }
 }

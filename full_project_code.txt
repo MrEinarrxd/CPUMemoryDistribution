@@ -1,0 +1,3859 @@
+=== BEGIN FILE: src/business/systemController.c ===
+// src/business/systemController.c
+// Orquestador principal del simulador: inicializa, coordina y destruye todos los subsistemas.
+
+#include "systemController.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "../utils/constants.h"
+#include "../utils/random.h"
+#include "../utils/wordLoader.h"
+#include "../utils/timeHelper.h"
+#include "../utils/errorHandler.h"
+
+#include "../domain/process/bcp.h"
+#include "../domain/process/process.h"
+#include "../domain/process/processTable.h"
+#include "../domain/process/processGenerator.h"
+
+#include "../domain/scheduler/readyQueue.h"
+#include "../domain/scheduler/fcfsScheduler.h"
+#include "../domain/scheduler/rrScheduler.h"
+#include "../domain/scheduler/scheduler.h"
+#include "../domain/scheduler/rebalancing.h"
+#include "../domain/scheduler/preemption.h"
+#include "../domain/scheduler/algorithmSwitcher.h"
+
+#include "../domain/io/ioQueue.h"
+#include "../domain/io/ioDispatcher.h"
+#include "../domain/io/ioCompletionHandler.h"
+
+#include "../domain/memory/memoria.h"
+#include "../domain/memory/bitmapManager.h"
+#include "../domain/memory/fifoReplacement.h"
+#include "../domain/memory/swapManager.h"
+#include "../domain/memory/pagingManager.h"
+#include "../domain/memory/memoryResize.h"
+
+#include "../domain/stats/statsCollector.h"
+#include "../domain/stats/performanceBar.h"
+#include "../domain/stats/agingAnalysis.h"
+
+#include "../domain/distributed/pvmMaster.h"
+
+#include "../infrastructure/logger.h"
+#include "../infrastructure/bcpLog.h"
+#include "../infrastructure/processLog.h"
+
+#include "../presentation/consoleIo.h"
+#include "../presentation/menu.h"
+
+// -----------------------------------------------------------------------------
+// Estructura privada del controlador
+// -----------------------------------------------------------------------------
+struct SystemController {
+    ProcessTable*          processTable;
+    ReadyQueue*            readyQueue;
+    FcfsScheduler*         fcfsScheduler;
+    RrScheduler*           rrScheduler;
+    Scheduler*             scheduler;
+    Rebalancer*            rebalancer;
+    PreemptionController*  preemptionController;
+    AlgorithmSwitcher*     algorithmSwitcher;
+    IoQueue*               ioQueue;
+    IoDispatcher*          ioDispatcher;
+    IoCompletionHandler*   ioCompletionHandler;
+    BitmapManager*         bitmapManager;
+    PagingManager*         pagingManager;
+    SwapManager*           swapManager;
+    MemoryResizer*         memoryResizer;
+    StatsCollector*        statsCollector;
+    PerformanceBar*        performanceBar;
+    AgingAnalysis*         agingAnalysis;
+    Logger*                mainLogger;
+    Logger*                bcpLogger;
+    BcpLog*                bcpLog;
+    ProcessLog*            processLog;
+    int                    running;          // 1 = en marcha, 0 = detenido
+    Process*               currentProcess;   // proceso en CPU o NULL
+};
+
+// =============================================================================
+// systemControllerCreate
+// =============================================================================
+SystemController* systemControllerCreate(void) {
+    SystemController* ctrl = (SystemController*)malloc(sizeof(SystemController));
+    if (!ctrl) {
+        fprintf(stderr, "[SystemController] Error: no se pudo asignar memoria.\n");
+        return NULL;
+    }
+    memset(ctrl, 0, sizeof(SystemController));
+    ctrl->running = 0;
+    ctrl->currentProcess = NULL;
+    return ctrl;
+}
+
+// =============================================================================
+// systemControllerInit – crea e interconecta todos los subsistemas
+// =============================================================================
+int systemControllerInit(SystemController* ctrl) {
+    if (!ctrl) return -1;
+
+    // 1. Utilidades globales
+    initRandom(0);
+    wordLoaderInit("libro1.odt");
+
+    // 2. Logs
+    ctrl->mainLogger = loggerCreate("simulation.log", LogLevelInfo);
+    if (!ctrl->mainLogger)
+        fprintf(stderr, "[SystemController] Advertencia: no se pudo abrir simulation.log\n");
+
+    ctrl->bcpLogger = loggerCreate("bcp.log", LogLevelDebug);
+    if (!ctrl->bcpLogger)
+        fprintf(stderr, "[SystemController] Advertencia: no se pudo abrir bcp.log\n");
+
+    ctrl->bcpLog = bcpLogCreate(ctrl->bcpLogger);
+    ctrl->processLog = processLogCreate(ctrl->mainLogger);
+
+    // 3. Cola de listos
+    ctrl->readyQueue = readyQueueCreate();
+    if (!ctrl->readyQueue) goto rollback_logs;
+
+    // 4. Colas de E/S (4 dispositivos)
+    const int mult[numColasEs] = { multColaEs1, multColaEs2, multColaEs3, multColaEs4 };
+    ctrl->ioQueue = ioQueueCreate(mult);
+    if (!ctrl->ioQueue) goto rollback_readyqueue;
+
+    // 5. Tabla de procesos
+    ctrl->processTable = processTableCreate();
+    if (!ctrl->processTable) goto rollback_ioqueue;
+    ctrl->processTable->readyQueue = ctrl->readyQueue;
+    ctrl->processTable->ioQueue = ctrl->ioQueue;
+
+    // 6. Inicializar generador de procesos (sin crear procesos aún)
+    processGeneratorInit();
+    ctrl->processTable->totalProcesses = 0;
+
+    // 7. Planificadores
+    ctrl->fcfsScheduler = fcfsSchedulerCreate();
+    if (!ctrl->fcfsScheduler) goto rollback_proctable;
+
+    ctrl->rrScheduler = rrSchedulerCreate(quantumDefault);
+    if (!ctrl->rrScheduler) goto rollback_fcfs;
+
+    ctrl->scheduler = schedulerCreate(SchedulerAlgorithmFcfs);
+    if (!ctrl->scheduler) goto rollback_rr;
+    schedulerSetFcfs(ctrl->scheduler, ctrl->fcfsScheduler);
+    schedulerSetRr(ctrl->scheduler, ctrl->rrScheduler);
+
+    // 8. Módulos auxiliares de planificación
+    ctrl->rebalancer = rebalancerCreate();
+    if (!ctrl->rebalancer) goto rollback_scheduler;
+
+    ctrl->preemptionController = preemptionControllerCreate(0);
+    if (!ctrl->preemptionController) goto rollback_rebalancer;
+
+    ctrl->algorithmSwitcher = algorithmSwitcherCreate(quantumDefault);
+    if (!ctrl->algorithmSwitcher) goto rollback_preemption;
+
+    // 9. Subsistema de E/S
+    ctrl->ioDispatcher = ioDispatcherCreate(ctrl->ioQueue);
+    if (!ctrl->ioDispatcher) goto rollback_algoswitch;
+
+    ctrl->ioCompletionHandler = ioCompletionHandlerCreate();
+    if (!ctrl->ioCompletionHandler) goto rollback_iodispatch;
+
+    // 10. Subsistema de memoria
+    ctrl->bitmapManager = bitmapManagerCreate(1);
+    if (!ctrl->bitmapManager) goto rollback_iocomp;
+
+    ctrl->swapManager = swapManagerCreate(maxSwap);
+    if (!ctrl->swapManager) goto rollback_bitmap;
+
+    ctrl->pagingManager = pagingManagerCreate(maxMarcos, ctrl->bitmapManager);
+    if (!ctrl->pagingManager) goto rollback_swap;
+
+    ctrl->memoryResizer = memoryResizerCreate();
+    if (!ctrl->memoryResizer) goto rollback_paging;
+
+    // 11. Estadísticas
+    ctrl->statsCollector = statsCollectorCreate();
+    if (!ctrl->statsCollector) goto rollback_resizer;
+
+    ctrl->performanceBar = performanceBarCreate();
+    if (!ctrl->performanceBar) goto rollback_stats;
+
+    ctrl->agingAnalysis = agingAnalysisCreate();
+    if (!ctrl->agingAnalysis) goto rollback_perfbar;
+
+    // 12. Todo listo
+    ctrl->running = 1;
+    if (ctrl->mainLogger)
+        loggerLog(ctrl->mainLogger, LogLevelInfo, "SystemController inicializado correctamente.");
+    return 0;
+
+    // Etiquetas de deshacer (rollback)
+rollback_perfbar:   performanceBarDestroy(ctrl->performanceBar);
+rollback_stats:     statsCollectorDestroy(ctrl->statsCollector);
+rollback_resizer:   memoryResizerDestroy(ctrl->memoryResizer);
+rollback_paging:    pagingManagerDestroy(ctrl->pagingManager);
+rollback_swap:      swapManagerDestroy(ctrl->swapManager);
+rollback_bitmap:    bitmapManagerDestroy(ctrl->bitmapManager);
+rollback_iocomp:    ioCompletionHandlerDestroy(ctrl->ioCompletionHandler);
+rollback_iodispatch:ioDispatcherDestroy(ctrl->ioDispatcher);
+rollback_algoswitch:algorithmSwitcherDestroy(ctrl->algorithmSwitcher);
+rollback_preemption:preemptionControllerDestroy(ctrl->preemptionController);
+rollback_rebalancer:rebalancerDestroy(ctrl->rebalancer);
+rollback_scheduler: schedulerDestroy(ctrl->scheduler);
+rollback_rr:        rrSchedulerDestroy(ctrl->rrScheduler);
+rollback_fcfs:      fcfsSchedulerDestroy(ctrl->fcfsScheduler);
+rollback_proctable: processTableDestroy(ctrl->processTable);
+rollback_ioqueue:   ioQueueDestroy(ctrl->ioQueue);
+rollback_readyqueue:readyQueueDestroy(ctrl->readyQueue);
+rollback_logs:
+    if (ctrl->processLog) processLogDestroy(ctrl->processLog);
+    if (ctrl->bcpLog) bcpLogDestroy(ctrl->bcpLog);
+    if (ctrl->bcpLogger) loggerDestroy(ctrl->bcpLogger);
+    if (ctrl->mainLogger) loggerDestroy(ctrl->mainLogger);
+    wordLoaderCleanup();
+    return -1;
+}
+
+// =============================================================================
+// systemControllerCycle – ejecuta un ciclo de simulación (modelo incremental)
+// =============================================================================
+int systemControllerCycle(SystemController* ctrl) {
+    if (!ctrl || !ctrl->running) return -1;
+
+    // 1. Avanzar el reloj
+    ctrl->processTable->currentCycle++;
+    int ciclo = ctrl->processTable->currentCycle;
+
+    // -------------------------------------------------------------------------
+    // 2. Admitir nuevos procesos mediante processGeneratorGetNext() (generador incremental)
+    // -------------------------------------------------------------------------
+    while (processGeneratorHasMore()) {
+        Bcp* bcp = processGeneratorGetNext();
+        if (!bcp) break;
+
+        // Si el proceso no toca aún, no lo procesamos (asume arrivalTimes ordenados)
+        if (bcp->arrivalTime > ciclo) break;
+
+        Process* proc = processCreate(bcp->processId, bcp->pid);
+        if (!proc) {
+            fprintf(stderr, "[SystemController] Fallo processCreate para %s\n", bcp->processId);
+            continue;
+        }
+        proc->bcp = bcp;
+        processActivate(proc);
+        ctrl->processTable->totalProcesses++;
+
+        int slot = -1;
+        for (int i = 0; i < procesosEnEjecucion; i++) {
+            if (ctrl->processTable->runningProcesses[i] == NULL) {
+                slot = i;
+                break;
+            }
+        }
+
+        if (slot != -1) {
+            ctrl->processTable->runningProcesses[slot] = proc;
+            bcpSetState(bcp, ProcessStateReady);
+            if (readyQueueEnqueue(ctrl->readyQueue, proc) != 0) {
+                if (ctrl->mainLogger)
+                    loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
+                        "Cola de listos llena al admitir %s en ciclo %d",
+                        bcp->processId, ciclo);
+            }
+            pagingManagerAllocatePageForProcess(ctrl->pagingManager, slot, bcp->pageCount);
+            if (ctrl->processLog)
+                processLogRecordCreation(ctrl->processLog, proc);
+        } else {
+            for (int i = 0; i < procesosEnEspera; i++) {
+                if (ctrl->processTable->newRequests[i] == NULL) {
+                    ctrl->processTable->newRequests[i] = proc;
+                    bcpSetState(bcp, ProcessStateNew);
+                    break;
+                }
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. Admitir procesos cuyo tiempo de llegada se ha cumplido (procesos ya creados)
+    // -------------------------------------------------------------------------
+    // 3a. Procesos que ya están en runningProcesses pero aún en estado New
+    for (int i = 0; i < procesosEnEjecucion; i++) {
+        Process* p = ctrl->processTable->runningProcesses[i];
+        if (!p || !p->bcp) continue;
+        if (p->bcp->state != ProcessStateNew) continue;
+        if (p->bcp->arrivalTime > ciclo) continue;
+
+        bcpSetState(p->bcp, ProcessStateReady);
+        if (readyQueueEnqueue(ctrl->readyQueue, p) != 0) {
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
+                    "Cola de listos llena al admitir %s en ciclo %d",
+                    p->bcp->processId, ciclo);
+        }
+        pagingManagerAllocatePageForProcess(ctrl->pagingManager, i, p->bcp->pageCount);
+        if (ctrl->processLog)
+            processLogRecordCreation(ctrl->processLog, p);
+    }
+
+    // 3b. Mover procesos desde newRequests a runningProcesses cuando corresponda
+    for (int i = 0; i < procesosEnEspera; i++) {
+        Process* espera = ctrl->processTable->newRequests[i];
+        if (!espera || !espera->bcp) continue;
+        if (espera->bcp->arrivalTime > ciclo) continue;
+
+        int slotLibre = -1;
+        for (int j = 0; j < procesosEnEjecucion; j++) {
+            if (ctrl->processTable->runningProcesses[j] == NULL) {
+                slotLibre = j;
+                break;
+            }
+        }
+        if (slotLibre == -1) continue;
+
+        ctrl->processTable->runningProcesses[slotLibre] = espera;
+        ctrl->processTable->newRequests[i] = NULL;
+
+        bcpSetState(espera->bcp, ProcessStateReady);
+        if (readyQueueEnqueue(ctrl->readyQueue, espera) != 0) {
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
+                    "Cola de listos llena al admitir %s desde espera", espera->bcp->processId);
+        }
+        pagingManagerAllocatePageForProcess(ctrl->pagingManager, slotLibre, espera->bcp->pageCount);
+        if (ctrl->processLog)
+            processLogRecordCreation(ctrl->processLog, espera);
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. Finalización de E/S
+    // -------------------------------------------------------------------------
+    ioCompletionHandlerProcess(ctrl->ioCompletionHandler, ctrl->ioQueue, ctrl->readyQueue);
+
+    // -------------------------------------------------------------------------
+    // 5. Seleccionar el próximo proceso a ejecutar
+    // -------------------------------------------------------------------------
+    Process* actual = schedulerSelectNext(ctrl->scheduler, ctrl->processTable);
+    if (actual && actual->bcp) {
+        Bcp* bcp = actual->bcp;
+        bcpSetState(bcp, ProcessStateRunning);
+        ctrl->currentProcess = actual;
+
+        // 5a. Ejecutar una ráfaga de CPU
+        int instancia = randomCpuInstanceCycles();
+        if (instancia > bcp->remainingCycles)
+            instancia = bcp->remainingCycles;
+
+        bcpUpdateRemainingTime(bcp, instancia);
+        bcp->timeInExecution += instancia;
+        bcp->quantumUsed += instancia;
+        bcp->timesExecuted++;
+        ctrl->processTable->totalCpuCyclesExecuted += instancia;
+
+        // 5b. Coste de cambio de contexto
+        bcp->contextSwitchTime = randomContextSwitchTime();
+        bcpIncrementContextSwitches(bcp);
+        ctrl->processTable->totalContextSwitches++;
+        schedulerOnContextSwitch(ctrl->scheduler);
+        if (ctrl->bcpLog) bcpLogRecordContextSwitch(ctrl->bcpLog, bcp);
+
+        // 5c. Verificar expiración del quantum (solo en RR)
+        if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) {
+            int quantum = rrSchedulerGetCurrentQuantum(ctrl->rrScheduler);
+            if (bcp->quantumUsed >= quantum) {
+                bcp->quantumUsed = 0;
+                rrSchedulerOnQuantumExpired(ctrl->rrScheduler);
+                if (ctrl->bcpLog) bcpLogRecordQuantumExpired(ctrl->bcpLog, bcp);
+
+                if (bcp->remainingCycles > 0 && bcp->ioOperationsPending == 0) {
+                    bcpSetState(bcp, ProcessStateReady);
+                    readyQueueEnqueue(ctrl->readyQueue, actual);
+                }
+                ctrl->currentProcess = NULL;
+            }
+        }
+
+        // 5d. Proceso terminado
+        if (bcp->remainingCycles <= 0) {
+            bcp->finishTime = ciclo;
+            bcpSetState(bcp, ProcessStateFinished);
+            processDeactivate(actual);
+            processTableIncrementFinished(ctrl->processTable);
+            pagingManagerDeallocatePagesForProcess(ctrl->pagingManager, bcp->pid % procesosEnEjecucion);
+            if (ctrl->processLog)
+                processLogRecordTermination(ctrl->processLog, actual);
+
+            for (int j = 0; j < procesosEnEjecucion; j++) {
+                if (ctrl->processTable->runningProcesses[j] == actual) {
+                    ctrl->processTable->runningProcesses[j] = NULL;
+                    break;
+                }
+            }
+            ctrl->currentProcess = NULL;
+
+        // 5e. Enviar a E/S si hay operaciones pendientes
+        } else if (bcp->ioOperationsPending > 0) {
+            bcpSetState(bcp, ProcessStateWaitingIo);
+            int dispositivo = bcp->timesInIo % numColasEs;
+            bcp->timesInIo++;
+            ctrl->processTable->totalIoOperations++;
+            ioDispatcherDispatch(ctrl->ioDispatcher, actual, dispositivo);
+            ctrl->currentProcess = NULL;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Avanzar los relojes de E/S
+    // -------------------------------------------------------------------------
+    ioDispatcherTick(ctrl->ioDispatcher);
+
+    // -------------------------------------------------------------------------
+    // 7. Rebalanceo dinámico de quantum
+    // -------------------------------------------------------------------------
+    rebalancerTick(ctrl->rebalancer);
+    if (rebalancerShouldCheck(ctrl->rebalancer)) {
+        rrSchedulerUpdateProportions(ctrl->rrScheduler, ctrl->processTable);
+        float propListos = ctrl->rrScheduler->proportionReady;
+        if (rebalancerIsImbalanced(ctrl->rebalancer, propListos)) {
+            int delta = rebalancerSuggestQuantumDelta(ctrl->rebalancer, propListos);
+            int nuevoQuantum = ctrl->rrScheduler->currentQuantum + delta;
+            if (nuevoQuantum < 1) nuevoQuantum = 1;
+            ctrl->rrScheduler->currentQuantum = nuevoQuantum;
+            rebalancerOnBalanceRestored(ctrl->rebalancer);
+            menuShowBalanceAlert(ctrl->rrScheduler->proportionReady,
+                                 ctrl->rrScheduler->proportionWaiting,
+                                 nuevoQuantum);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Cambio automático de algoritmo
+    // -------------------------------------------------------------------------
+    if (algorithmSwitcherShouldSwitch(ctrl->algorithmSwitcher, ctrl->scheduler)) {
+        algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
+        ctrl->processTable->algorithmChangeCount++;
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. Actualizar ranking de envejecimiento (solo RR)
+    // -------------------------------------------------------------------------
+    if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr)
+        rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
+
+    // -------------------------------------------------------------------------
+    // 10. Redimensionar memoria periódicamente
+    // -------------------------------------------------------------------------
+    if (ciclo % growthListSize == 0)
+        memoryResizerExecute(ctrl->memoryResizer, ctrl->processTable, ctrl->pagingManager);
+
+    // -------------------------------------------------------------------------
+    // 11. Recolectar estadísticas
+    // -------------------------------------------------------------------------
+    statsCollectorCollect(ctrl->statsCollector, ctrl->processTable);
+    performanceBarUpdate(ctrl->performanceBar, ctrl->statsCollector);
+    agingAnalysisCollectSample(ctrl->agingAnalysis, ctrl->processTable);
+    processTableUpdateAverages(ctrl->processTable);
+
+    return 0;
+}
+
+// =============================================================================
+// systemControllerDestroy – libera todos los recursos
+// =============================================================================
+void systemControllerDestroy(SystemController* ctrl) {
+    if (!ctrl) return;
+
+    if (ctrl->agingAnalysis)        agingAnalysisDestroy(ctrl->agingAnalysis);
+    if (ctrl->performanceBar)       performanceBarDestroy(ctrl->performanceBar);
+    if (ctrl->statsCollector)       statsCollectorDestroy(ctrl->statsCollector);
+    if (ctrl->memoryResizer)        memoryResizerDestroy(ctrl->memoryResizer);
+    if (ctrl->pagingManager)        pagingManagerDestroy(ctrl->pagingManager);
+    if (ctrl->swapManager)          swapManagerDestroy(ctrl->swapManager);
+    if (ctrl->bitmapManager)        bitmapManagerDestroy(ctrl->bitmapManager);
+    if (ctrl->ioCompletionHandler)  ioCompletionHandlerDestroy(ctrl->ioCompletionHandler);
+    if (ctrl->ioDispatcher)         ioDispatcherDestroy(ctrl->ioDispatcher);
+    if (ctrl->algorithmSwitcher)    algorithmSwitcherDestroy(ctrl->algorithmSwitcher);
+    if (ctrl->preemptionController) preemptionControllerDestroy(ctrl->preemptionController);
+    if (ctrl->rebalancer)           rebalancerDestroy(ctrl->rebalancer);
+    if (ctrl->scheduler)            schedulerDestroy(ctrl->scheduler);
+    if (ctrl->rrScheduler)          rrSchedulerDestroy(ctrl->rrScheduler);
+    if (ctrl->fcfsScheduler)        fcfsSchedulerDestroy(ctrl->fcfsScheduler);
+
+    processGeneratorCleanup();
+    if (ctrl->processTable)         processTableDestroy(ctrl->processTable);
+    if (ctrl->ioQueue)              ioQueueDestroy(ctrl->ioQueue);
+    if (ctrl->readyQueue)           readyQueueDestroy(ctrl->readyQueue);
+    if (ctrl->processLog)           processLogDestroy(ctrl->processLog);
+    if (ctrl->bcpLog)               bcpLogDestroy(ctrl->bcpLog);
+    if (ctrl->bcpLogger)            loggerDestroy(ctrl->bcpLogger);
+    if (ctrl->mainLogger)           loggerDestroy(ctrl->mainLogger);
+
+    wordLoaderCleanup();
+    free(ctrl);
+}
+
+// =============================================================================
+// Manejadores internos de teclas (estáticos)
+// =============================================================================
+static void handleKeyX(SystemController* ctrl) {
+    consoleIoClear();
+    menuShowAlgorithmOptions();
+    int opcion = menuGetAlgorithmChoice();   // 1=FCFS, 2=RR, 0=cancelar
+    if (opcion == 0) return;
+
+    if (opcion == 1 || opcion == 2) {
+        systemControllerHandleCommand(ctrl, opcion);
+    }
+}
+
+static void handleKeyA(SystemController* ctrl) {
+    rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
+    AgingRanking* r = &ctrl->rrScheduler->agingRanking;
+
+    consoleIoClear();
+    menuShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
+    menuShowTop5Wasters((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
+
+    char idElegido[idProcesoLen];
+    memset(idElegido, 0, sizeof(idElegido));
+
+    if (menuGetPrivilegedProcessId(idElegido, idProcesoLen) > 0 && idElegido[0] != '\0') {
+        rrSchedulerPrioritizeProcess(ctrl->rrScheduler, idElegido);
+        if (ctrl->mainLogger)
+            loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
+                "Tecla A: proceso %s marcado como privilegiado.", idElegido);
+    }
+}
+
+// =============================================================================
+// systemControllerRun – bucle principal de simulación
+// =============================================================================
+int systemControllerRun(SystemController* ctrl) {
+    if (!ctrl) return -1;
+
+    consoleIoInit();
+    menuShowMain();
+
+    if (ctrl->mainLogger)
+        loggerLog(ctrl->mainLogger, LogLevelInfo, "Bucle de simulación iniciado.");
+
+    while (ctrl->running) {
+        int ret = systemControllerCycle(ctrl);
+        if (ret != 0) {
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelError,
+                    "systemControllerCycle devolvió %d en ciclo %d. Abortando.",
+                    ret, ctrl->processTable->currentCycle);
+            ctrl->running = 0;
+            break;
+        }
+
+        if (ctrl->processTable->currentCycle % 10 == 0) {
+            consoleIoClear();
+            menuShowPerformanceBars(ctrl->performanceBar);
+            menuShowMemoryStats(ctrl->statsCollector);
+        }
+
+        if (ctrl->processTable->totalProcesses > 0 &&
+            ctrl->processTable->finishedProcesses >= ctrl->processTable->totalProcesses) {
+            if (ctrl->mainLogger)
+                loggerLog(ctrl->mainLogger, LogLevelInfo, "Todos los procesos terminaron. Simulación finalizada.");
+            ctrl->running = 0;
+            break;
+        }
+
+        if (!consoleIoKbhit()) continue;
+
+        char tecla = consoleIoGetChar();
+        switch (tecla) {
+            case 'X': case 'x':
+                handleKeyX(ctrl);
+                break;
+            case 'A': case 'a':
+                if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr)
+                    handleKeyA(ctrl);
+                else
+                    consoleIoPrintLine("El ranking de envejecimiento solo está disponible en modo RR.");
+                break;
+            case 'P': case 'p': {
+                consoleIoPrintLine("[PAUSADO] Presione P nuevamente para reanudar...");
+                char reanudar = 0;
+                while (reanudar != 'P' && reanudar != 'p') {
+                    if (consoleIoKbhit()) reanudar = consoleIoGetChar();
+                    else                  timeHelperDelay(50);
+                }
+                consoleIoPrintLine("[REANUDADO]");
+                break;
+            }
+            case 'Q': case 'q': case 27:
+                if (ctrl->mainLogger)
+                    loggerLog(ctrl->mainLogger, LogLevelInfo, "Usuario solicitó detener la simulación.");
+                ctrl->running = 0;
+                break;
+            default:
+                systemControllerHandleCommand(ctrl, (int)tecla);
+                break;
+        }
+    }
+
+    // Resumen final
+    consoleIoClear();
+    if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) {
+        rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
+        AgingRanking* r = &ctrl->rrScheduler->agingRanking;
+        menuShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
+        menuShowTop5Wasters((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
+    }
+    menuShowPerformanceBars(ctrl->performanceBar);
+    menuShowMemoryStats(ctrl->statsCollector);
+    consoleIoPrintSeparator();
+    consoleIoPrintInt("Ciclos totales:        ", ctrl->processTable->currentCycle);
+    consoleIoPrintInt("Procesos terminados:   ", ctrl->processTable->finishedProcesses);
+    consoleIoPrintInt("Cambios de contexto:   ", ctrl->processTable->totalContextSwitches);
+    consoleIoPrintInt("Cambios de algoritmo:  ", ctrl->processTable->algorithmChangeCount);
+    consoleIoPrintSeparator();
+
+    if (ctrl->mainLogger) {
+        loggerLog(ctrl->mainLogger, LogLevelInfo, "Bucle de simulación finalizado.");
+        loggerFlush(ctrl->mainLogger);
+    }
+    if (ctrl->bcpLogger) loggerFlush(ctrl->bcpLogger);
+
+    consoleIoCleanup();
+    return 0;
+}
+
+// =============================================================================
+// Ejecución de tareas distribuidas PVM
+// =============================================================================
+int systemControllerRunPvm(SystemController* ctrl) {
+    if (!ctrl) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "systemControllerRunPvm: ctrl es NULL");
+        return -1;
+    }
+
+    consoleIoPrintLine("Inicializando maestro PVM...");
+    PvmMaster* master = pvmMasterInit();
+    if (!master) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed,
+                       "systemControllerRunPvm: no se pudo inicializar pvmMaster");
+        return -1;
+    }
+
+    // Asignar referencias a processTable y rrScheduler
+    master->processTable = ctrl->processTable;
+    master->rrScheduler = ctrl->rrScheduler;
+
+    // Lanzar esclavos
+    consoleIoPrintLine("Lanzando procesos esclavos...");
+    int numEsclavos = pvmMasterSpawnSlaves(master);
+    if (numEsclavos != pvmNumEsclavos) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed,
+                       "systemControllerRunPvm: no se pudieron lanzar todos los esclavos");
+        pvmMasterCleanup(master);
+        return -1;
+    }
+
+    consoleIoPrintLine("Ejecutando Tarea 1: Estadísticas de procesos...");
+    pvmMasterTask1Stats(master);
+
+    consoleIoPrintLine("Ejecutando Tarea 2: Análisis de Round-Robin...");
+    pvmMasterTask2Aging(master);
+
+    consoleIoPrintLine("Integrando resultados...");
+    pvmMasterIntegrateResults(master);
+
+    consoleIoPrintLine("Imprimiendo resultados finales...");
+    pvmMasterPrintResults(master);
+
+    // Limpieza
+    pvmMasterCleanup(master);
+    consoleIoPrintLine("Tareas distribuidas completadas.");
+    return 0;
+}
+
+int systemControllerHandleCommand(SystemController* ctrl, int command) {
+    if (!ctrl || !ctrl->scheduler || !ctrl->rrScheduler || !ctrl->algorithmSwitcher || !ctrl->processTable)
+        return -1;
+
+    switch (command) {
+        case 1: {
+            algorithmSwitcherSetNext(ctrl->algorithmSwitcher, SchedulerAlgorithmFcfs);
+            algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
+            ctrl->processTable->algorithmChangeCount++;
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
+                                "Comando 1: cambio manual a FCFS");
+            return 0;
+        }
+        case 2: {
+            menuShowQuantumPrompt();
+            int quantum = menuGetQuantumInput();
+            if (quantum > 0) {
+                ctrl->rrScheduler->currentQuantum = quantum;
+            }
+            algorithmSwitcherSetNext(ctrl->algorithmSwitcher, SchedulerAlgorithmRr);
+            algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
+            ctrl->processTable->algorithmChangeCount++;
+            if (ctrl->mainLogger)
+                loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
+                                "Comando 2: cambio manual a RR con quantum %d", quantum);
+            return 0;
+        }
+        case 3: {
+            char processId[idProcesoLen];
+            memset(processId, 0, sizeof(processId));
+            if (menuGetPrivilegedProcessId(processId, idProcesoLen) > 0 && processId[0] != '\0') {
+                rrSchedulerPrioritizeProcess(ctrl->rrScheduler, processId);
+                if (ctrl->mainLogger)
+                    loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
+                                    "Comando 3: proceso %s privilegiado", processId);
+            }
+            return 0;
+        }
+        default:
+            return -1;
+    }
+}
+=== END FILE: src/business/systemController.c ===
+
+=== BEGIN FILE: src/business/systemController.h ===
+// === src/business/systemController.h ===
+
+#ifndef SYSTEM_CONTROLLER_H
+#define SYSTEM_CONTROLLER_H
+
+typedef struct SystemController SystemController;
+
+SystemController* systemControllerCreate(void);
+
+void systemControllerDestroy(SystemController* controller);
+
+int systemControllerInit(SystemController* controller);
+
+int systemControllerRun(SystemController* controller);
+
+int systemControllerRunPvm(SystemController* controller);
+// Ejecuta las tareas distribuidas PVM (tarea 1 y tarea 2)
+
+int systemControllerHandleCommand(SystemController* controller, int command);
+
+int systemControllerCycle(SystemController* controller);
+
+#endif
+
+=== END FILE: src/business/systemController.h ===
+
+=== BEGIN FILE: src/domain/distributed/messageProtocol.c ===
+// === src/domain/distributed/messageProtocol.c ===
+// Protocolo de mensajes para comunicación PVM
+// Funciones de empaquetado y desempaquetado de estructuras de datos
+
+#include "messageProtocol.h"
+#include "../../utils/constants.h"
+#include "../../utils/errorHandler.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+// === packBcpMessage ===
+PvmMessage* packBcpMessage(int messageId, int sourceNodeId, int destinationNodeId,
+                           const void* bcpData, int dataSize) {
+    PvmMessage* msg = (PvmMessage*)malloc(sizeof(PvmMessage));
+    if (!msg) {
+        errorHandlerLog(ErrorCodeMemoryAllocationFailed,
+                       "packBcpMessage: no se pudo asignar memoria");
+        return NULL;
+    }
+
+    memset(msg, 0, sizeof(PvmMessage));
+    msg->messageId = messageId;
+    msg->sourceNodeId = sourceNodeId;
+    msg->destinationNodeId = destinationNodeId;
+    msg->messageType = MessageBcpSnapshot;
+    msg->timestamp = (long)time(NULL);
+
+    // Copiar datos al payload
+    if (bcpData && dataSize > 0) {
+        if (dataSize > tamanoBufferMensaje) {
+            dataSize = tamanoBufferMensaje;
+            errorHandlerLog(ErrorCodeInvalidArgument,
+                           "packBcpMessage: tamaño de datos excede buffer");
+        }
+        memcpy(msg->payload, bcpData, dataSize);
+        msg->payloadSize = dataSize;
+    } else {
+        msg->payloadSize = 0;
+    }
+
+    return msg;
+}
+
+// === unpackBcpMessage ===
+void unpackBcpMessage(PvmMessage* message, void* outBcpData, int maxSize) {
+    if (!message || !outBcpData) {
+        errorHandlerLog(ErrorCodeInvalidArgument,
+                       "unpackBcpMessage: argumentos inválidos");
+        return;
+    }
+
+    int copySize = message->payloadSize;
+    if (copySize > maxSize) {
+        copySize = maxSize;
+        errorHandlerLog(ErrorCodeInvalidArgument,
+                       "unpackBcpMessage: buffer de salida insuficiente");
+    }
+
+    memcpy(outBcpData, message->payload, copySize);
+}
+
+// === packStatsMessage ===
+PvmMessage* packStatsMessage(int messageId, int sourceNodeId, int destinationNodeId,
+                             DistributedStats* stats) {
+    PvmMessage* msg = (PvmMessage*)malloc(sizeof(PvmMessage));
+    if (!msg) {
+        errorHandlerLog(ErrorCodeMemoryAllocationFailed,
+                       "packStatsMessage: no se pudo asignar memoria");
+        return NULL;
+    }
+
+    memset(msg, 0, sizeof(PvmMessage));
+    msg->messageId = messageId;
+    msg->sourceNodeId = sourceNodeId;
+    msg->destinationNodeId = destinationNodeId;
+    msg->messageType = MessageStatistics;
+    msg->timestamp = (long)time(NULL);
+
+    if (stats) {
+        memcpy(msg->payload, stats, sizeof(DistributedStats));
+        msg->payloadSize = sizeof(DistributedStats);
+    } else {
+        msg->payloadSize = 0;
+    }
+
+    return msg;
+}
+
+// === unpackStatsMessage ===
+void unpackStatsMessage(PvmMessage* message, DistributedStats* outStats) {
+    if (!message || !outStats) {
+        errorHandlerLog(ErrorCodeInvalidArgument,
+                       "unpackStatsMessage: argumentos inválidos");
+        return;
+    }
+
+    if (message->payloadSize >= sizeof(DistributedStats)) {
+        memcpy(outStats, message->payload, sizeof(DistributedStats));
+    } else {
+        memset(outStats, 0, sizeof(DistributedStats));
+        if (message->payloadSize > 0) {
+            memcpy(outStats, message->payload, message->payloadSize);
+        }
+    }
+}
+
+// === packAgingMessage ===
+PvmMessage* packAgingMessage(int messageId, int sourceNodeId, int destinationNodeId,
+                             AgingResults* aging) {
+    PvmMessage* msg = (PvmMessage*)malloc(sizeof(PvmMessage));
+    if (!msg) {
+        errorHandlerLog(ErrorCodeMemoryAllocationFailed,
+                       "packAgingMessage: no se pudo asignar memoria");
+        return NULL;
+    }
+
+    memset(msg, 0, sizeof(PvmMessage));
+    msg->messageId = messageId;
+    msg->sourceNodeId = sourceNodeId;
+    msg->destinationNodeId = destinationNodeId;
+    msg->messageType = MessageAging;
+    msg->timestamp = (long)time(NULL);
+
+    if (aging) {
+        memcpy(msg->payload, aging, sizeof(AgingResults));
+        msg->payloadSize = sizeof(AgingResults);
+    } else {
+        msg->payloadSize = 0;
+    }
+
+    return msg;
+}
+
+// === unpackAgingMessage ===
+void unpackAgingMessage(PvmMessage* message, AgingResults* outAging) {
+    if (!message || !outAging) {
+        errorHandlerLog(ErrorCodeInvalidArgument,
+                       "unpackAgingMessage: argumentos inválidos");
+        return;
+    }
+
+    if (message->payloadSize >= sizeof(AgingResults)) {
+        memcpy(outAging, message->payload, sizeof(AgingResults));
+    } else {
+        memset(outAging, 0, sizeof(AgingResults));
+        if (message->payloadSize > 0) {
+            memcpy(outAging, message->payload, message->payloadSize);
+        }
+    }
+}
+
+// === pvmMessageDestroy ===
+void pvmMessageDestroy(PvmMessage* message) {
+    if (message) {
+        free(message);
+    }
+}
+
+=== END FILE: src/domain/distributed/messageProtocol.c ===
+
+=== BEGIN FILE: src/domain/distributed/messageProtocol.h ===
+// === src/domain/distributed/messageProtocol.h ===
+
+#ifndef MESSAGE_PROTOCOL_H
+#define MESSAGE_PROTOCOL_H
+
+#include "../../utils/constants.h"
+
+typedef enum {
+    MessageBcpSnapshot,
+    MessageStatistics,
+    MessageAging,
+    MessageFinish
+} MessageType;
+
+// Propietario exclusivo de datos de mensaje
+typedef struct PvmMessage {
+    int messageId;
+    int sourceNodeId;
+    int destinationNodeId;
+    MessageType messageType;
+    char payload[tamanoBufferMensaje];
+    int payloadSize;
+    long timestamp;
+} PvmMessage;
+
+typedef struct DistributedStats {
+    int totalProcessesFinished;
+    int totalProcessesWaiting;
+    int avgRemainingCycles;
+    int totalIoOperations;
+    float avgCpuUtilization;
+} DistributedStats;
+
+typedef struct AgingResults {
+    char topAgedIds[totalRankingProcesos][idProcesoLen];
+    int topAgedCpuWaste[totalRankingProcesos];
+    int topAgedCount;
+    char topWastersIds[totalRankingProcesos][idProcesoLen];
+    int topWastersCpuWaste[totalRankingProcesos];
+    int topWastersCount;
+    float avgCpuUtilizationPerSlave;
+    int totalReturnsToReady;
+} AgingResults;
+
+PvmMessage* packBcpMessage(int messageId, int sourceNodeId, int destinationNodeId, const void* bcpData, int dataSize);
+
+void unpackBcpMessage(PvmMessage* message, void* outBcpData, int maxSize);
+
+PvmMessage* packStatsMessage(int messageId, int sourceNodeId, int destinationNodeId, DistributedStats* stats);
+
+void unpackStatsMessage(PvmMessage* message, DistributedStats* outStats);
+
+PvmMessage* packAgingMessage(int messageId, int sourceNodeId, int destinationNodeId, AgingResults* aging);
+
+void unpackAgingMessage(PvmMessage* message, AgingResults* outAging);
+
+void pvmMessageDestroy(PvmMessage* message);
+
+#endif
+
+=== END FILE: src/domain/distributed/messageProtocol.h ===
+
+=== BEGIN FILE: src/domain/distributed/pvmMaster.c ===
+// === src/domain/distributed/pvmMaster.c ===
+// Nodo maestro del sistema distribuido con PVM
+// Responsable de distribuir tareas a esclavos, recolectar resultados e integrarlos
+
+#include "pvmMaster.h"
+#include "pvmSlave.h"
+#include "messageProtocol.h"
+#include "../process/bcp.h"
+#include "../process/process.h"
+#include "../process/processTable.h"
+#include "../scheduler/rrScheduler.h"
+#include "../../utils/constants.h"
+#include "../../utils/errorHandler.h"
+#include "../../presentation/consoleIo.h"
+
+#include <pvm3.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+
+// === Estructuras planas para serialización ===
+
+// Para la tarea 1 (estadísticas por proceso)
+typedef struct {
+    int pid;
+    char processId[idProcesoLen];
+    int state;                 // ProcessState como entero
+    int remainingCycles;
+    int totalCpuCycles;
+    int timesInIo;
+    int wastedCpuCycles;
+} BcpSummary;
+
+// Para la tarea 2 (análisis RR por proceso)
+typedef struct {
+    int pid;
+    char processId[idProcesoLen];
+    int quantumAssigned;
+    int quantumUsed;
+    int timesReturnedToReady;
+    float cpuWasteRatio;
+} RrProcessData;
+
+// === Función auxiliar para contar procesos activos ===
+static int countActiveProcesses(ProcessTable* table) {
+    int count = 0;
+    if (!table) return 0;
+
+    for (int i = 0; i < procesosEnEjecucion; i++) {
+        if (table->runningProcesses[i] && table->runningProcesses[i]->bcp) {
+            if (table->runningProcesses[i]->bcp->state != ProcessStateFinished) {
+                count++;
+            }
+        }
+    }
+
+    for (int i = 0; i < procesosEnEspera; i++) {
+        if (table->newRequests[i] && table->newRequests[i]->bcp) {
+            if (table->newRequests[i]->bcp->state != ProcessStateFinished) {
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+// === Función auxiliar para obtener procesos activos ===
+static int getActiveProcesses(ProcessTable* table, Process** outArray, int maxSize) {
+    int idx = 0;
+    if (!table || !outArray) return 0;
+
+    for (int i = 0; i < procesosEnEjecucion && idx < maxSize; i++) {
+        if (table->runningProcesses[i] && table->runningProcesses[i]->bcp) {
+            if (table->runningProcesses[i]->bcp->state != ProcessStateFinished) {
+                outArray[idx++] = table->runningProcesses[i];
+            }
+        }
+    }
+
+    for (int i = 0; i < procesosEnEspera && idx < maxSize; i++) {
+        if (table->newRequests[i] && table->newRequests[i]->bcp) {
+            if (table->newRequests[i]->bcp->state != ProcessStateFinished) {
+                outArray[idx++] = table->newRequests[i];
+            }
+        }
+    }
+
+    return idx;
+}
+
+// === Función auxiliar para convertir BCP a BcpSummary ===
+static void bcpToBcpSummary(Bcp* bcp, BcpSummary* summary) {
+    if (!bcp || !summary) return;
+
+    summary->pid = bcp->pid;
+    strncpy(summary->processId, bcp->processId, idProcesoLen - 1);
+    summary->processId[idProcesoLen - 1] = '\0';
+    summary->state = (int)bcp->state;
+    summary->remainingCycles = bcp->remainingCycles;
+    summary->totalCpuCycles = bcp->totalCpuCycles;
+    summary->timesInIo = bcp->timesInIo;
+    summary->wastedCpuCycles = bcp->wastedCpuCycles;
+}
+
+// === Función auxiliar para convertir BCP a RrProcessData ===
+static void bcpToRrProcessData(Bcp* bcp, RrProcessData* data) {
+    if (!bcp || !data) return;
+
+    data->pid = bcp->pid;
+    strncpy(data->processId, bcp->processId, idProcesoLen - 1);
+    data->processId[idProcesoLen - 1] = '\0';
+    data->quantumAssigned = bcp->quantumAssigned;
+    data->quantumUsed = bcp->quantumUsed;
+    data->timesReturnedToReady = bcp->timesReturnedToReady;
+    data->cpuWasteRatio = bcp->cpuWasteRatio;
+}
+
+static int compareRankingEntries(const void* a, const void* b) {
+    const struct {
+        char processId[idProcesoLen];
+        int waste;
+    } *entryA = a, *entryB = b;
+
+    int diff = entryB->waste - entryA->waste;
+    if (diff != 0) return diff;
+    return strcmp(entryA->processId, entryB->processId);
+}
+
+static void mergeTopRankings(const AgingResults* slaveResults, int numSlaves,
+                             char outIds[totalRankingProcesos][idProcesoLen],
+                             int outWaste[totalRankingProcesos],
+                             int* outCount,
+                             int useAgedList) {
+    struct {
+        char processId[idProcesoLen];
+        int waste;
+    } entries[pvmNumEsclavos * totalRankingProcesos];
+
+    int totalEntries = 0;
+    for (int i = 0; i < numSlaves; i++) {
+        int count = useAgedList ? slaveResults[i].topAgedCount : slaveResults[i].topWastersCount;
+        for (int j = 0; j < count && j < totalRankingProcesos; j++) {
+            if (totalEntries >= pvmNumEsclavos * totalRankingProcesos) break;
+            if (useAgedList) {
+                memcpy(entries[totalEntries].processId, slaveResults[i].topAgedIds[j], idProcesoLen);
+                entries[totalEntries].waste = slaveResults[i].topAgedCpuWaste[j];
+            } else {
+                memcpy(entries[totalEntries].processId, slaveResults[i].topWastersIds[j], idProcesoLen);
+                entries[totalEntries].waste = slaveResults[i].topWastersCpuWaste[j];
+            }
+            totalEntries++;
+        }
+    }
+
+    if (totalEntries == 0) {
+        *outCount = 0;
+        return;
+    }
+
+    qsort(entries, totalEntries, sizeof(entries[0]), compareRankingEntries);
+
+    int countToCopy = totalEntries < totalRankingProcesos ? totalEntries : totalRankingProcesos;
+    for (int i = 0; i < countToCopy; i++) {
+        memcpy(outIds[i], entries[i].processId, idProcesoLen);
+        outWaste[i] = entries[i].waste;
+    }
+    *outCount = countToCopy;
+}
+
+// === pvmMasterInit ===
+PvmMaster* pvmMasterInit(void) {
+    PvmMaster* master = (PvmMaster*)calloc(1, sizeof(PvmMaster));
+    if (!master) {
+        errorHandlerLog(ErrorCodeMemoryAllocationFailed, "pvmMasterInit: no se pudo asignar memoria");
+        return NULL;
+    }
+
+    int tid = pvm_mytid();
+    if (tid < 0) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed,
+                       "pvmMasterInit: pvm_mytid() falló - PVM puede no estar inicializado");
+        free(master);
+        return NULL;
+    }
+
+    master->masterTid = tid;
+    memset(master->slaveTids, 0, sizeof(master->slaveTids));
+    memset(master->task1Results, 0, sizeof(master->task1Results));
+    memset(master->task2Results, 0, sizeof(master->task2Results));
+
+    return master;
+}
+
+// === pvmMasterSpawnSlaves ===
+int pvmMasterSpawnSlaves(PvmMaster* master) {
+    if (!master) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "pvmMasterSpawnSlaves: master es NULL");
+        return -1;
+    }
+
+    int num = pvm_spawn("pvmSlave", NULL, 0, "", pvmNumEsclavos, master->slaveTids);
+
+    if (num < 0) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed, "pvmMasterSpawnSlaves: pvm_spawn() falló");
+        return -1;
+    }
+
+    if (num < pvmNumEsclavos) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed,
+                       "pvmMasterSpawnSlaves: solo se lanzaron algunos esclavos");
+        return num;
+    }
+
+    return pvmNumEsclavos;
+}
+
+// === pvmMasterTask1Stats ===
+void pvmMasterTask1Stats(PvmMaster* master) {
+    if (!master || !master->processTable) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "pvmMasterTask1Stats: argumentos inválidos");
+        return;
+    }
+
+    Process* activeProcesses[totalProcesos];
+    int totalActive = getActiveProcesses(master->processTable, activeProcesses, totalProcesos);
+
+    if (totalActive == 0) {
+        consoleIoPrintLine("No hay procesos activos para la tarea 1.");
+        return;
+    }
+
+    // Dividir en dos subconjuntos
+    int split = totalActive / 2;
+
+    for (int slaveIdx = 0; slaveIdx < pvmNumEsclavos; slaveIdx++) {
+        int start = (slaveIdx == 0) ? 0 : split;
+        int end = (slaveIdx == 0) ? split : totalActive;
+        int count = end - start;
+
+        if (count <= 0) continue;
+
+        // Crear array de BcpSummary
+        BcpSummary* summaries = (BcpSummary*)malloc(count * sizeof(BcpSummary));
+        if (!summaries) {
+            errorHandlerLog(ErrorCodeMemoryAllocationFailed,
+                           "pvmMasterTask1Stats: no se pudo asignar memoria para summaries");
+            continue;
+        }
+
+        for (int i = 0; i < count; i++) {
+            Process* p = activeProcesses[start + i];
+            if (p && p->bcp) {
+                bcpToBcpSummary(p->bcp, &summaries[i]);
+            }
+        }
+
+        // Empaquetar y enviar mensaje
+        PvmMessage* msg = packBcpMessage(slaveIdx, master->masterTid, master->slaveTids[slaveIdx],
+                                        (void*)summaries, count * sizeof(BcpSummary));
+        if (msg) {
+            msg->messageType = MessageBcpSnapshot;
+            if (pvmMasterSendData(master, msg) < 0) {
+                errorHandlerLog(ErrorCodeMessageProtocolError,
+                               "pvmMasterTask1Stats: fallo al enviar datos a esclavo");
+            }
+            pvmMessageDestroy(msg);
+        }
+
+        free(summaries);
+    }
+
+    // Recibir resultados
+    for (int slaveIdx = 0; slaveIdx < pvmNumEsclavos; slaveIdx++) {
+        PvmMessage* response = pvmMasterReceiveData(master);
+        if (response) {
+            if (response->messageType == MessageStatistics) {
+                unpackStatsMessage(response, &master->task1Results[slaveIdx]);
+            }
+            pvmMessageDestroy(response);
+        } else {
+            errorHandlerLog(ErrorCodeMessageProtocolError,
+                           "pvmMasterTask1Stats: timeout esperando respuesta de esclavo");
+        }
+    }
+}
+
+// === pvmMasterTask2Aging ===
+void pvmMasterTask2Aging(PvmMaster* master) {
+    if (!master || !master->processTable || !master->rrScheduler) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "pvmMasterTask2Aging: argumentos inválidos");
+        return;
+    }
+
+    Process* activeProcesses[totalProcesos];
+    int totalActive = getActiveProcesses(master->processTable, activeProcesses, totalProcesos);
+
+    if (totalActive == 0) {
+        consoleIoPrintLine("No hay procesos activos para la tarea 2.");
+        return;
+    }
+
+    // Dividir en dos subconjuntos
+    int split = totalActive / 2;
+
+    for (int slaveIdx = 0; slaveIdx < pvmNumEsclavos; slaveIdx++) {
+        int start = (slaveIdx == 0) ? 0 : split;
+        int end = (slaveIdx == 0) ? split : totalActive;
+        int count = end - start;
+
+        if (count <= 0) continue;
+
+        // Crear array de RrProcessData
+        RrProcessData* rrData = (RrProcessData*)malloc(count * sizeof(RrProcessData));
+        if (!rrData) {
+            errorHandlerLog(ErrorCodeMemoryAllocationFailed,
+                           "pvmMasterTask2Aging: no se pudo asignar memoria para rrData");
+            continue;
+        }
+
+        for (int i = 0; i < count; i++) {
+            Process* p = activeProcesses[start + i];
+            if (p && p->bcp) {
+                bcpToRrProcessData(p->bcp, &rrData[i]);
+            }
+        }
+
+        // Empaquetar y enviar mensaje
+        PvmMessage* msg = packBcpMessage(slaveIdx, master->masterTid, master->slaveTids[slaveIdx],
+                                        (void*)rrData, count * sizeof(RrProcessData));
+        if (msg) {
+            msg->messageType = MessageBcpSnapshot;
+            if (pvmMasterSendData(master, msg) < 0) {
+                errorHandlerLog(ErrorCodeMessageProtocolError,
+                               "pvmMasterTask2Aging: fallo al enviar datos a esclavo");
+            }
+            pvmMessageDestroy(msg);
+        }
+
+        free(rrData);
+    }
+
+    // Recibir resultados
+    for (int slaveIdx = 0; slaveIdx < pvmNumEsclavos; slaveIdx++) {
+        PvmMessage* response = pvmMasterReceiveData(master);
+        if (response) {
+            if (response->messageType == MessageAging) {
+                unpackAgingMessage(response, &master->task2Results[slaveIdx]);
+            }
+            pvmMessageDestroy(response);
+        } else {
+            errorHandlerLog(ErrorCodeMessageProtocolError,
+                           "pvmMasterTask2Aging: timeout esperando respuesta de esclavo");
+        }
+    }
+}
+
+// === pvmMasterSendData ===
+int pvmMasterSendData(PvmMaster* master, PvmMessage* message) {
+    if (!master || !message) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "pvmMasterSendData: argumentos inválidos");
+        return -1;
+    }
+
+    if (message->destinationNodeId < 0 || message->destinationNodeId >= pvmNumEsclavos) {
+        errorHandlerLog(ErrorCodeInvalidArgument,
+                       "pvmMasterSendData: destinationNodeId fuera de rango");
+        return -1;
+    }
+
+    int destTid = master->slaveTids[message->destinationNodeId];
+    if (destTid <= 0) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed,
+                       "pvmMasterSendData: TID destino inválido");
+        return -1;
+    }
+
+    pvm_initsend(PvmDataDefault);
+    pvm_pkbyte((char*)message, sizeof(PvmMessage), 1);
+
+    int ret = pvm_send(destTid, message->messageType);
+    if (ret < 0) {
+        errorHandlerLog(ErrorCodeNodeConnectionFailed,
+                       "pvmMasterSendData: pvm_send() falló");
+        return -1;
+    }
+
+    return 0;
+}
+
+// === pvmMasterReceiveData ===
+PvmMessage* pvmMasterReceiveData(PvmMaster* master) {
+    if (!master) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "pvmMasterReceiveData: master es NULL");
+        return NULL;
+    }
+
+    /* Opcionalmente solicitar ruta directa para mejorar el rendimiento de envío/recepción */
+    pvm_setopt(PvmRoute, PvmRouteDirect);
+
+    struct timeval timeout;
+    timeout.tv_sec = 5;
+    timeout.tv_usec = 0;
+
+    /* Esperar mensaje de cualquier origen (-1) de cualquier tipo (-1) con timeout */
+    int ret = pvm_trecv(-1, -1, &timeout);
+    if (ret == 0) {
+        errorHandlerLog(ErrorCodeMessageProtocolError,
+                       "timeout esperando respuesta de esclavo");
+        return NULL;
+    }
+
+    if (ret < 0) {
+        errorHandlerLog(ErrorCodeMessageProtocolError,
+                       "pvmMasterReceiveData: pvm_trecv() falló");
+        return NULL;
+    }
+
+    /* Asignar memoria para el mensaje */
+    PvmMessage* msg = (PvmMessage*)malloc(sizeof(PvmMessage));
+    if (!msg) {
+        errorHandlerLog(ErrorCodeMemoryAllocationFailed,
+                       "pvmMasterReceiveData: no se pudo asignar memoria");
+        return NULL;
+    }
+
+    /* Desempaquetar */
+    memset(msg, 0, sizeof(PvmMessage));
+    pvm_upkint(&msg->messageId, 1, 1);
+    pvm_upkint(&msg->sourceNodeId, 1, 1);
+    pvm_upkint(&msg->destinationNodeId, 1, 1);
+    pvm_upkint((int*)&msg->messageType, 1, 1);
+    pvm_upkbyte(msg->payload, tamanoBufferMensaje, 1);
+    pvm_upkint(&msg->payloadSize, 1, 1);
+    pvm_upklong(&msg->timestamp, 1, 1);
+
+    return msg;
+}
+
+// === pvmMasterIntegrateResults ===
+void pvmMasterIntegrateResults(PvmMaster* master) {
+    if (!master) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "pvmMasterIntegrateResults: master es NULL");
+        return;
+    }
+
+    // Integrar estadísticas de tarea 1
+    DistributedStats integrated1;
+    memset(&integrated1, 0, sizeof(DistributedStats));
+    for (int i = 0; i < pvmNumEsclavos; i++) {
+        integrated1.totalProcessesFinished += master->task1Results[i].totalProcessesFinished;
+        integrated1.totalProcessesWaiting += master->task1Results[i].totalProcessesWaiting;
+        integrated1.avgRemainingCycles += master->task1Results[i].avgRemainingCycles;
+        integrated1.totalIoOperations += master->task1Results[i].totalIoOperations;
+        integrated1.avgCpuUtilization += master->task1Results[i].avgCpuUtilization;
+    }
+    integrated1.avgRemainingCycles /= pvmNumEsclavos;
+    integrated1.avgCpuUtilization /= pvmNumEsclavos;
+
+    // Integrar resultados de tarea 2
+    AgingResults integrated2;
+    memset(&integrated2, 0, sizeof(AgingResults));
+
+    for (int i = 0; i < pvmNumEsclavos; i++) {
+        integrated2.totalReturnsToReady += master->task2Results[i].totalReturnsToReady;
+        integrated2.avgCpuUtilizationPerSlave += master->task2Results[i].avgCpuUtilizationPerSlave;
+    }
+    integrated2.avgCpuUtilizationPerSlave /= pvmNumEsclavos;
+
+    // Fusionar rankings usando mergeTopRankings
+    mergeTopRankings(master->task2Results, pvmNumEsclavos,
+                     integrated2.topAgedIds,
+                     integrated2.topAgedCpuWaste,
+                     &integrated2.topAgedCount,
+                     1);
+
+    mergeTopRankings(master->task2Results, pvmNumEsclavos,
+                     integrated2.topWastersIds,
+                     integrated2.topWastersCpuWaste,
+                     &integrated2.topWastersCount,
+                     0);
+
+    // Guardar resultados integrados en el slot 0
+    master->task1Results[0] = integrated1;
+    master->task2Results[0] = integrated2;
+}
+
+// === pvmMasterPrintResults ===
+void pvmMasterPrintResults(PvmMaster* master) {
+    if (!master) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "pvmMasterPrintResults: master es NULL");
+        return;
+    }
+
+    consoleIoClear();
+    consoleIoPrintSeparator();
+    consoleIoPrintLine("=== RESULTADOS TAREA DISTRIBUIDA 1: ESTADÍSTICAS ===");
+    consoleIoPrintSeparator();
+
+    DistributedStats* stats1 = &master->task1Results[0];
+    consoleIoPrintInt("Procesos finalizados: ", stats1->totalProcessesFinished);
+    consoleIoPrintInt("Procesos en espera: ", stats1->totalProcessesWaiting);
+    consoleIoPrintInt("Promedio ciclos pendientes: ", stats1->avgRemainingCycles);
+    consoleIoPrintInt("Operaciones E/S totales: ", stats1->totalIoOperations);
+    consoleIoPrintFloat("Utilización CPU promedio: ", stats1->avgCpuUtilization);
+
+    consoleIoPrintSeparator();
+    consoleIoPrintLine("=== RESULTADOS TAREA DISTRIBUIDA 2: ANÁLISIS RR ===");
+    consoleIoPrintSeparator();
+
+    AgingResults* aging = &master->task2Results[0];
+
+    consoleIoPrintLine("Top 5 procesos más envejecidos:");
+    for (int i = 0; i < aging->topAgedCount && i < totalRankingProcesos; i++) {
+        char buf[256];
+        snprintf(buf, sizeof(buf), "  %d. %s (desperdicio: %d)",
+                 i + 1, aging->topAgedIds[i], aging->topAgedCpuWaste[i]);
+        consoleIoPrintLine(buf);
+    }
+
+    consoleIoPrintLine("");
+    consoleIoPrintLine("Top 5 procesos con mayor desperdicio CPU:");
+    for (int i = 0; i < aging->topWastersCount && i < totalRankingProcesos; i++) {
+        char buf[256];
+        snprintf(buf, sizeof(buf), "  %d. %s (desperdicio: %d)",
+                 i + 1, aging->topWastersIds[i], aging->topWastersCpuWaste[i]);
+        consoleIoPrintLine(buf);
+    }
+
+    consoleIoPrintSeparator();
+    consoleIoPrintFloat("Promedio aprovechamiento CPU: ", aging->avgCpuUtilizationPerSlave);
+    consoleIoPrintInt("Veces que procesos retornaron a cola Listos: ", aging->totalReturnsToReady);
+    consoleIoPrintSeparator();
+}
+
+// === pvmMasterCleanup ===
+void pvmMasterCleanup(PvmMaster* master) {
+    if (!master) return;
+
+    pvm_exit();
+    free(master);
+}
+
+=== END FILE: src/domain/distributed/pvmMaster.c ===
+
+=== BEGIN FILE: src/domain/distributed/pvmMaster.h ===
+// === src/domain/distributed/pvmMaster.h ===
+
+#ifndef PVM_MASTER_H
+#define PVM_MASTER_H
+
+#include "../../utils/constants.h"
+#include "messageProtocol.h"
+
+struct ProcessTable;
+struct RrScheduler;
+
+// Propietario exclusivo de ProcessTable y RrScheduler
+typedef struct PvmMaster {
+    int masterTid;
+    int slaveTids[pvmNumEsclavos];
+    struct ProcessTable* processTable;
+    struct RrScheduler* rrScheduler;
+    DistributedStats task1Results[pvmNumEsclavos];
+    AgingResults task2Results[pvmNumEsclavos];
+} PvmMaster;
+
+PvmMaster* pvmMasterInit(void);
+
+int pvmMasterSpawnSlaves(PvmMaster* master);
+
+void pvmMasterTask1Stats(PvmMaster* master);
+
+void pvmMasterTask2Aging(PvmMaster* master);
+
+int pvmMasterSendData(PvmMaster* master, PvmMessage* message);
+
+PvmMessage* pvmMasterReceiveData(PvmMaster* master);
+
+void pvmMasterIntegrateResults(PvmMaster* master);
+
+void pvmMasterPrintResults(PvmMaster* master);
+
+void pvmMasterCleanup(PvmMaster* master);
+
+#endif
+
+=== END FILE: src/domain/distributed/pvmMaster.h ===
+
+=== BEGIN FILE: src/domain/distributed/pvmNode.h ===
+// === src/domain/distributed/pvmNode.h ===
+
+#ifndef PVM_NODE_H
+#define PVM_NODE_H
+
+#include "../../utils/constants.h"
+
+struct PvmMessage;
+
+typedef struct PvmNode {
+    int nodeId;
+    char nodeName[longitudMaximaCadena];
+    int isActive;
+    int messagesReceived;
+    int messagesSent;
+    int localProcessCount;
+} PvmNode;
+
+PvmNode* pvmNodeCreate(int nodeId, const char* nodeName);
+
+void pvmNodeDestroy(PvmNode* node);
+
+int pvmNodeSendMessage(PvmNode* node, struct PvmMessage* message);
+
+struct PvmMessage* pvmNodeReceiveMessage(PvmNode* node);
+
+int pvmNodeIsActive(PvmNode* node);
+
+void pvmNodeActivate(PvmNode* node);
+
+void pvmNodeDeactivate(PvmNode* node);
+
+#endif
+
+=== END FILE: src/domain/distributed/pvmNode.h ===
+
+=== BEGIN FILE: src/domain/distributed/pvmSlave.h ===
+// === src/domain/distributed/pvmSlave.h ===
+
+#ifndef PVM_SLAVE_H
+#define PVM_SLAVE_H
+
+#include "../../utils/constants.h"
+#include "messageProtocol.h"
+
+struct Process;
+
+// Propietario exclusivo de Process array
+typedef struct PvmSlave {
+    int slaveTid;
+    int masterTid;
+    struct Process** assignedProcesses;
+    int processCount;
+    int maxProcesses;
+} PvmSlave;
+
+PvmSlave* pvmSlaveInit(int masterTid, int maxProcesses);
+// El slaveTid se obtiene internamente con pvm_mytid()
+
+int pvmSlaveConnect(PvmSlave* slave);
+
+PvmMessage* pvmSlaveReceiveData(PvmSlave* slave);
+
+int pvmSlaveSendData(PvmSlave* slave, PvmMessage* message);
+
+void pvmSlaveRunTask1(PvmSlave* slave);
+// Tarea 1: calcula estadísticas parciales del subconjunto asignado
+
+void pvmSlaveRunTask2(PvmSlave* slave);
+// Tarea 2: analiza envejecimiento y desperdicio de CPU en RR
+
+void pvmSlaveAssignProcess(PvmSlave* slave, struct Process* process);
+
+int pvmSlaveProcessCount(PvmSlave* slave);
+
+void pvmSlaveCleanup(PvmSlave* slave);
+
+#endif
+
+=== END FILE: src/domain/distributed/pvmSlave.h ===
+
+=== BEGIN FILE: src/domain/io/ioCompletionHandler.h ===
+// === src/domain/io/ioCompletionHandler.h ===
+
+#ifndef IO_COMPLETION_HANDLER_H
+#define IO_COMPLETION_HANDLER_H
+
+struct IoQueue;
+struct ReadyQueue;
+
+// I/O completion handler
+// Checks all 4 I/O queues every cycle and moves finished processes back to ready
+// Does NOT own IoQueue or ReadyQueue, only references them
+typedef struct IoCompletionHandler {
+    int completionsHandled;                             // Total processes returned to ready
+    int lastCompletionCycle;                            // Cycle of last completion check
+} IoCompletionHandler;
+
+// Create I/O completion handler
+IoCompletionHandler* ioCompletionHandlerCreate(void);
+
+// Destroy I/O completion handler
+void ioCompletionHandlerDestroy(IoCompletionHandler* handler);
+
+// Process completions from I/O queue and move to ready queue, returns count
+int ioCompletionHandlerProcess(IoCompletionHandler* handler, struct IoQueue* ioQueue, struct ReadyQueue* readyQueue);
+
+// Get total completions handled
+int ioCompletionHandlerGetCompletionsHandled(IoCompletionHandler* handler);
+
+#endif
+
+=== END FILE: src/domain/io/ioCompletionHandler.h ===
+
+=== BEGIN FILE: src/domain/io/ioDispatcher.h ===
+// === src/domain/io/ioDispatcher.h ===
+
+#ifndef IO_DISPATCHER_H
+#define IO_DISPATCHER_H
+
+#include "../../utils/constants.h"
+
+struct IoQueue;
+struct Process;
+
+// Solo referencia, no destruye IoQueue
+typedef struct IoDispatcher {
+    struct IoQueue* ioQueue;
+    int totalIoOperations;
+    float avgIoTime;
+} IoDispatcher;
+
+IoDispatcher* ioDispatcherCreate(struct IoQueue* ioQueue);
+
+void ioDispatcherDestroy(IoDispatcher* dispatcher);
+
+int ioDispatcherDispatch(IoDispatcher* dispatcher, struct Process* process, int deviceId);
+
+void ioDispatcherTick(IoDispatcher* dispatcher);
+
+int ioDispatcherGetTotalIoOperations(IoDispatcher* dispatcher);
+
+float ioDispatcherGetAvgIoTime(IoDispatcher* dispatcher);
+
+#endif
+
+=== END FILE: src/domain/io/ioDispatcher.h ===
+
+=== BEGIN FILE: src/domain/io/ioQueue.h ===
+// === src/domain/io/ioQueue.h ===
+
+#ifndef IO_QUEUE_H
+#define IO_QUEUE_H
+
+#include "../../utils/constants.h"
+
+struct Process;
+
+// Propietario exclusivo de Process items
+typedef struct IoSubQueue {
+    struct Process* items[tamColaListos];   // Procesos esperando en este dispositivo
+    int capacity;
+    int head;
+    int tail;
+    int size;
+    int multiplier;
+} IoSubQueue;
+
+// Propietario exclusivo de IoSubQueue arrays
+typedef struct IoQueue {
+    IoSubQueue devices[numColasEs];
+} IoQueue;
+
+IoQueue* ioQueueCreate(const int multipliers[numColasEs]);
+
+void ioQueueDestroy(IoQueue* queue);
+
+int ioQueueSend(IoQueue* queue, struct Process* process, int deviceId);
+
+struct Process* ioQueueReceive(IoQueue* queue, int deviceId);
+
+void ioQueueTick(IoQueue* queue);
+
+struct Process* ioQueueGetFinished(IoQueue* queue, int deviceId);
+
+int ioQueueHasFinished(IoQueue* queue, int deviceId);
+
+#endif
+
+=== END FILE: src/domain/io/ioQueue.h ===
+
+=== BEGIN FILE: src/domain/memory/bitmapManager.h ===
+// === src/domain/memory/bitmapManager.h ===
+
+#ifndef BITMAP_MANAGER_H
+#define BITMAP_MANAGER_H
+
+#include "../../utils/constants.h"
+
+// Algoritmo bitmap para memoria SIN swap
+// Cada bit representa un bloque de memoria: 0=libre, 1=ocupado
+typedef struct BitmapManager {
+    unsigned char* bitmap;                              // Arreglo bitmap, tamaño maxMarcos/8
+    int totalBlocks;                                    // = maxMarcos
+    int blockSize;                                      // Tamaño de cada bloque en bytes
+    int usedBlocks;                                     // Número de bloques en uso actualmente
+    int internalWaste;                                  // Fragmentación interna
+    int externalWaste;                                  // Fragmentación externa
+    int totalAllocations;                               // Contador de operaciones de asignación
+    int totalDeallocations;                             // Contador de operaciones de liberación
+    int processBlocks[procesosEnEjecucion];             // Bloques asignados por proceso
+    int processStartBlock[procesosEnEjecucion];   // Bloque inicial asignado a cada proceso
+} BitmapManager;
+
+// Crea administrador bitmap con el tamaño de bloque especificado
+BitmapManager* bitmapManagerCreate(int blockSize);
+
+// Destruye y libera recursos del administrador bitmap
+void bitmapManagerDestroy(BitmapManager* manager);
+
+// Asigna bloques para proceso, retorna índice inicial o -1 en fallo
+int bitmapManagerAllocate(BitmapManager* manager, int processIndex, int blocksNeeded);
+
+// Libera bloques de proceso
+void bitmapManagerFree(BitmapManager* manager, int processIndex);
+
+// Obtiene número actual de bloques usados
+int bitmapManagerGetUsedBlocks(BitmapManager* manager);
+
+// Obtiene número actual de bloques libres
+int bitmapManagerGetFreeBlocks(BitmapManager* manager);
+
+// Obtiene valor de fragmentación interna
+int bitmapManagerGetInternalWaste(BitmapManager* manager);
+
+// Obtiene valor de fragmentación externa
+int bitmapManagerGetExternalWaste(BitmapManager* manager);
+
+// Imprime estado actual del administrador bitmap
+void bitmapManagerPrint(BitmapManager* manager);
+
+#endif
+
+=== END FILE: src/domain/memory/bitmapManager.h ===
+
+=== BEGIN FILE: src/domain/memory/fifoReplacement.h ===
+// === src/domain/memory/fifoReplacement.h ===
+
+#ifndef FIFO_REPLACEMENT_H
+#define FIFO_REPLACEMENT_H
+
+#include "../../utils/constants.h"
+#include "memoria.h"
+
+// FIFO queue structure for page replacement
+typedef struct FifoQueue {
+    int* pageIds;                                       // Array of page IDs in queue
+    int head;                                           // Head pointer
+    int tail;                                           // Tail pointer
+    int count;                                          // Current number of pages in queue
+    int capacity;                                       // Maximum capacity
+} FifoQueue;
+
+// FIFO page replacement algorithm for swap memory
+// Oldest page is replaced first
+typedef struct FifoReplacement {
+    FifoQueue fifoQueue;                                // FIFO queue of pages
+    int totalReplacements;                              // Total replacement operations performed
+    Marco** frames;                                     // Pointer to frame array (NOT owned)
+    int totalFrames;                                    // Number of frames available
+} FifoReplacement;
+
+// Create FIFO replacement handler with frame references
+FifoReplacement* fifoReplacementCreate(Marco** frames, int totalFrames);
+
+// Destroy FIFO replacement handler
+void fifoReplacementDestroy(FifoReplacement* fifo);
+
+// Select victim page to be replaced, returns page ID
+int fifoReplacementSelectVictim(FifoReplacement* fifo);
+
+// Add page to FIFO queue
+void fifoReplacementAddPage(FifoReplacement* fifo, int pageId);
+
+// Remove page from FIFO queue
+void fifoReplacementRemovePage(FifoReplacement* fifo, int pageId);
+
+// Get total number of replacement operations performed
+int fifoReplacementGetTotalReplacements(FifoReplacement* fifo);
+
+#endif
+
+=== END FILE: src/domain/memory/fifoReplacement.h ===
+
+=== BEGIN FILE: src/domain/memory/memoria.h ===
+// === src/domain/memory/memoria.h ===
+
+#ifndef MEMORIA_H
+#define MEMORIA_H
+
+#include "../../utils/constants.h"
+
+typedef struct Marco {
+    int id;
+    int size;
+    int free;
+    struct Pagina* page;
+    char processId[idProcesoLen];  
+} Marco;
+
+typedef struct Pagina {
+    int id;
+    char words[palabrasPorPagina][maxCaracteresPalabra];
+    int enMemoria;
+    int idMarco;
+    int idProceso;
+} Pagina;
+
+typedef struct ProcessPageTable {
+    Pagina** pages;
+    int pageCount;
+} ProcessPageTable;
+
+typedef struct PageDirectory {
+    Pagina* allPages;
+    int totalPages;
+    ProcessPageTable processTables[procesosEnEjecucion];
+} PageDirectory;
+
+PageDirectory* pageDirectoryCreate(int totalPages);
+
+void pageDirectoryDestroy(PageDirectory* pageDir);
+
+ProcessPageTable* pageDirectoryGetProcessTable(PageDirectory* pageDir, int processIndex);
+
+Pagina* pageDirectoryGetPage(PageDirectory* pageDir, int pageNumber);
+
+void pageDirectorySetPageFrame(PageDirectory* pageDir, int pageNumber, int frameNumber);
+
+int pageDirectoryGetPageFrame(PageDirectory* pageDir, int pageNumber);
+
+void pageDirectoryMarkDirty(PageDirectory* pageDir, int pageNumber);
+
+void pageDirectoryMarkClean(PageDirectory* pageDir, int pageNumber);
+
+Marco* marcoCreate(int id);
+
+void marcoDestroy(Marco* marco);
+
+void marcoSetPage(Marco* marco, Pagina* pagina);
+
+#endif
+
+=== END FILE: src/domain/memory/memoria.h ===
+
+=== BEGIN FILE: src/domain/memory/memoryResize.h ===
+#ifndef MEMORY_RESIZE_H
+#define MEMORY_RESIZE_H
+
+#include "../../utils/constants.h"
+
+struct PagingManager;
+struct ProcessTable;
+
+typedef struct MemoryResizer {
+    int resizeAttempts;
+    int successfulResizes;
+    int lastResizeCycle;
+} MemoryResizer;
+
+MemoryResizer* memoryResizerCreate(void);
+void memoryResizerDestroy(MemoryResizer* resizer);
+void memoryResizerExecute(MemoryResizer* resizer, struct ProcessTable* table, struct PagingManager* paging);
+void memoryResizerReduceProcess(MemoryResizer* resizer, struct PagingManager* paging, int processIndex);
+void memoryResizerDuplicateProcess(MemoryResizer* resizer, struct PagingManager* paging, int processIndex);
+int memoryResizerGetFrameCount(struct PagingManager* paging, int processIndex);
+int memoryResizerGetAttempts(MemoryResizer* resizer);
+int memoryResizerGetSuccessful(MemoryResizer* resizer);
+
+#endif
+
+=== END FILE: src/domain/memory/memoryResize.h ===
+
+=== BEGIN FILE: src/domain/memory/pagingManager.h ===
+// === src/domain/memory/pagingManager.h ===
+
+#ifndef PAGING_MANAGER_H
+#define PAGING_MANAGER_H
+
+#include "../../utils/constants.h"
+
+struct ProcessTable;
+struct PageDirectory;
+struct FifoReplacement;
+struct BitmapManager;
+
+// Propietario exclusivo de PageDirectory
+typedef struct PagingManager {
+    struct PageDirectory* pageDirectory;
+    struct BitmapManager* bitmapManager;
+    int totalPageFaults;
+    int internalWaste;
+    int externalWaste;
+    struct FifoReplacement* fifoReplacement;            // Manejador de reemplazo FIFO para SWAP
+    int frameCountPerProcess[procesosEnEjecucion];      // Contador de marcos por proceso para redimensionar
+} PagingManager;
+
+PagingManager* pagingManagerCreate(int totalPages, struct BitmapManager* bitmapManager);
+
+void pagingManagerDestroy(PagingManager* manager);
+
+void pagingManagerSetBitmapManager(PagingManager* manager, struct BitmapManager* bitmapManager);
+
+int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int pageNumber, const char* missingWord);
+// Maneja fallo de página: trae página faltante de SWAP usando FIFO
+
+int pagingManagerAllocatePageForProcess(PagingManager* manager, int processIndex, int pageCount);
+
+int pagingManagerDeallocatePagesForProcess(PagingManager* manager, int processIndex);
+
+int pagingManagerGetPageFaultCount(PagingManager* manager);
+
+int pagingManagerGetInternalWaste(PagingManager* manager);
+
+int pagingManagerGetExternalWaste(PagingManager* manager);
+
+// Establece el manejador FIFO de reemplazo para operaciones de SWAP
+void pagingManagerSetReplacement(PagingManager* manager, struct FifoReplacement* fifo);
+
+// Redimensiona la asignación de marcos para un proceso
+int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newFrameCount);
+
+#endif
+
+=== END FILE: src/domain/memory/pagingManager.h ===
+
+=== BEGIN FILE: src/domain/memory/swapManager.h ===
+// === src/domain/memory/swapManager.h ===
+
+#ifndef SWAP_MANAGER_H
+#define SWAP_MANAGER_H
+
+#include "../../utils/constants.h"
+
+typedef struct SwapMetadata SwapMetadata;
+
+// Propietario exclusivo de SwapMetadata
+typedef struct SwapManager {
+    int totalSwapSize;
+    int usedSwapSize;
+    SwapMetadata* metadata;
+    int swapOperations;
+} SwapManager;
+
+SwapManager* swapManagerCreate(int swapSize);
+
+void swapManagerDestroy(SwapManager* manager);
+
+int swapManagerWrite(SwapManager* manager, const void* buffer, int size, int* outAddress);
+
+int swapManagerRead(SwapManager* manager, int swapAddress, void* outBuffer, int bufferSize);
+
+int swapManagerFree(SwapManager* manager, int swapAddress);
+
+int swapManagerGetAvailableSwap(SwapManager* manager);
+
+int swapManagerGetSwapOperationCount(SwapManager* manager);
+
+#endif
+
+=== END FILE: src/domain/memory/swapManager.h ===
+
+=== BEGIN FILE: src/domain/process/bcp.h ===
+// === src/domain/process/bcp.h ===
+
+#ifndef BCP_H
+#define BCP_H
+
+#include "../../utils/constants.h"
+
+typedef enum {
+    ProcessStateNew,
+    ProcessStateReady,
+    ProcessStateRunning,
+    ProcessStateWaitingIo,
+    ProcessStateSwap,
+    ProcessStateSuspended,
+    ProcessStateFinished
+} ProcessState;
+
+typedef struct Bcp {
+    char processId[idProcesoLen];
+    int pid;
+    ProcessState state;
+    int priority;
+    int totalCpuCycles;
+    int remainingCycles;
+    int arrivalTime;
+    int currentTimeSlice;
+    int contextSwitchTime;
+    int timeInExecution;
+    int timesExecuted;
+    int creationTime;
+    int startTime;
+    int finishTime;
+    int timeInWaiting;
+    int ageingTimeSlices;
+    int timesInIo;
+    int ioTimeRemaining;   // Tiempo restante en cola de E/S (1-100 * multiplicador)
+
+    // ============ I/O PHRASE HANDLING (NEW) ============
+    // Cuando proceso va a E/S: se lee una frase aleatoria de frases.txt
+    // La frase se divide en palabras que se verifican en memoria
+    char ioPhrase[tamanoFraseIo];        // Frase completa leída de frases.txt
+    char requiredWords[palabrasPorFrase][maxCaracteresPalabra]; // Las 5 palabras clave de la frase
+    int requiredWordsCount;    // Cuántas palabras requiere (típicamente 5)
+
+    int pageCount;
+    int memoryRequested;
+    int totalMemoryAllocated;
+    int assignedPages[maxPaginasPorProceso];
+    int quantumAssigned;
+    int quantumUsed;
+    float cpuWasteRatio;
+    int agingCounter;
+    int timesReturnedToReady;
+    int wastedCpuCycles;
+    int pageTableBase;
+    int swapAddress;
+    int ioOperationsPending;
+    int contextSwitchCount;
+} Bcp;
+
+// Propietario exclusivo de: phraseBuffer, requiredWords[][], assignedPages[]
+// Solo referencia: pageTableBase, swapAddress
+// Los campos numéricos (ioOperationsPending, etc.) son propiedad del BCP
+
+Bcp* bcpCreate(const char* processId, int pid);
+
+void bcpDestroy(Bcp* bcp);
+
+void bcpInitialize(Bcp* bcp, int priority, int executionTime, int arrivalTime);
+
+void bcpSetState(Bcp* bcp, ProcessState state);
+
+ProcessState bcpGetState(Bcp* bcp);
+
+void bcpIncrementContextSwitches(Bcp* bcp);
+
+void bcpUpdateRemainingTime(Bcp* bcp, int cycles);
+
+void bcpAddPage(Bcp* bcp, int pageIndex);
+
+void bcpAddPhrase(Bcp* bcp, const char* phrase);
+
+#endif
+
+=== END FILE: src/domain/process/bcp.h ===
+
+=== BEGIN FILE: src/domain/process/processGenerator.c ===
+// === src/domain/process/processGenerator.c ===
+
+#include "processGenerator.h"
+#include "bcp.h"
+#include "../../utils/random.h"
+#include "../../utils/uniqueId.h"
+#include "../../utils/constants.h"
+#include "processTable.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+typedef struct ArrivalPair {
+    int arrival;
+    int idx;
+} ArrivalPair;
+
+static Bcp** g_bcpArray = NULL;
+static int* g_arrivalTimes = NULL; // sorted arrival times
+static int g_nextIndex = 0;
+
+static int arrivalPairCmp(const void* a, const void* b) {
+    const ArrivalPair* A = (const ArrivalPair*)a;
+    const ArrivalPair* B = (const ArrivalPair*)b;
+    if (A->arrival < B->arrival) return -1;
+    if (A->arrival > B->arrival) return 1;
+    return 0;
+}
+
+void processGeneratorInit(void) {
+    if (g_bcpArray != NULL) {
+        // already initialized
+        g_nextIndex = 0;
+        return;
+    }
+
+    g_bcpArray = (Bcp**)calloc(totalProcesos, sizeof(Bcp*));
+    if (!g_bcpArray) {
+        g_nextIndex = 0;
+        return;
+    }
+
+    g_arrivalTimes = (int*)calloc(totalProcesos, sizeof(int));
+    if (!g_arrivalTimes) {
+        free(g_bcpArray);
+        g_bcpArray = NULL;
+        g_nextIndex = 0;
+        return;
+    }
+
+    int* tempArrivals = (int*)calloc(totalProcesos, sizeof(int));
+    if (!tempArrivals) {
+        free(g_arrivalTimes);
+        free(g_bcpArray);
+        g_arrivalTimes = NULL;
+        g_bcpArray = NULL;
+        g_nextIndex = 0;
+        return;
+    }
+
+    generateUniqueArrivalTimes(tempArrivals, totalProcesos);
+
+    ArrivalPair* pairs = (ArrivalPair*)malloc(sizeof(ArrivalPair) * totalProcesos);
+    if (!pairs) {
+        free(tempArrivals);
+        free(g_arrivalTimes);
+        free(g_bcpArray);
+        g_arrivalTimes = NULL;
+        g_bcpArray = NULL;
+        g_nextIndex = 0;
+        return;
+    }
+
+    for (int i = 0; i < totalProcesos; ++i) {
+        pairs[i].arrival = tempArrivals[i];
+        pairs[i].idx = i;
+    }
+
+    qsort(pairs, totalProcesos, sizeof(ArrivalPair), arrivalPairCmp);
+
+    // create BCPs in arrival order
+    for (int i = 0; i < totalProcesos; ++i) {
+        char pidStr[idProcesoLen];
+        generateProcessId(i + 1, pidStr, (size_t)idProcesoLen);
+
+        Bcp* bcp = bcpCreate(pidStr, i + 1);
+        if (!bcp) {
+            // allocation failure: cleanup partial
+            for (int j = 0; j < i; ++j) {
+                if (g_bcpArray[j]) bcpDestroy(g_bcpArray[j]);
+            }
+            free(pairs);
+            free(tempArrivals);
+            free(g_arrivalTimes);
+            free(g_bcpArray);
+            g_bcpArray = NULL;
+            g_arrivalTimes = NULL;
+            g_nextIndex = 0;
+            return;
+        }
+
+        // zero any remaining fields to be safe
+        // bcpCreate is expected to allocate and zero-initialize some fields,
+        // but ensure unset fields are zeroed where needed
+        // set required fields
+        bcp->pid = i + 1;
+        bcp->arrivalTime = pairs[i].arrival;
+        bcp->totalCpuCycles = randomCpuCycles();
+        bcp->remainingCycles = bcp->totalCpuCycles;
+        bcp->priority = 0;
+        bcp->pageCount = randomInt(1, maxPaginasPorProceso);
+        bcp->state = ProcessStateNew;
+
+        // other numeric fields default to 0; ensure by clearing if necessary
+        // (we avoid memset over entire struct because bcpCreate may set processId)
+
+        g_bcpArray[i] = bcp;
+        g_arrivalTimes[i] = bcp->arrivalTime;
+    }
+
+    free(pairs);
+    free(tempArrivals);
+
+    g_nextIndex = 0;
+}
+
+void processGeneratorRun(struct ProcessTable* table) {
+    // Deprecated in incremental model. For backward compatibility,
+    // simply iterate through all generated BCPs to ensure creation.
+    if (!g_bcpArray) processGeneratorInit();
+    while (processGeneratorHasMore()) {
+        (void)processGeneratorGetNext();
+    }
+}
+
+struct Bcp* processGeneratorGetNext(void) {
+    if (!g_bcpArray) return NULL;
+    if (g_nextIndex >= totalProcesos) return NULL;
+    Bcp* b = g_bcpArray[g_nextIndex];
+    g_nextIndex++;
+    return b;
+}
+
+int processGeneratorHasMore(void) {
+    if (!g_bcpArray) return 0;
+    return g_nextIndex < totalProcesos;
+}
+
+void processGeneratorReset(void) {
+    g_nextIndex = 0;
+}
+
+int processGeneratorGetNextSleepTime(void) {
+    return randomInt(sleepCreacionMin, sleepCreacionMax);
+}
+
+void processGeneratorAssignUniqueIds(struct ProcessTable* table, int count) {
+    (void)table; (void)count; // stub
+}
+
+void processGeneratorAssignUniqueArrivalTimes(struct ProcessTable* table, int count) {
+    (void)table; (void)count; // stub
+}
+
+void processGeneratorAssignCpuCycles(struct ProcessTable* table, int count) {
+    (void)table; (void)count; // stub
+}
+
+void processGeneratorAssignMemory(struct ProcessTable* table, int count) {
+    (void)table; (void)count; // stub
+}
+
+void processGeneratorCleanup(void) {
+    if (g_bcpArray) {
+        for (int i = 0; i < totalProcesos; ++i) {
+            if (g_bcpArray[i]) {
+                bcpDestroy(g_bcpArray[i]);
+                g_bcpArray[i] = NULL;
+            }
+        }
+        free(g_bcpArray);
+        g_bcpArray = NULL;
+    }
+    if (g_arrivalTimes) {
+        free(g_arrivalTimes);
+        g_arrivalTimes = NULL;
+    }
+    g_nextIndex = 0;
+}
+
+=== END FILE: src/domain/process/processGenerator.c ===
+
+=== BEGIN FILE: src/domain/process/processGenerator.h ===
+// === src/domain/process/processGenerator.h ===
+
+#ifndef PROCESS_GENERATOR_H
+#define PROCESS_GENERATOR_H
+
+struct ProcessTable;
+
+// Process generator
+// Generates all 250 processes with unique IDs and arrival times
+// Assigns random CPU cycles and memory, uses sleep between creations
+
+// Initialize process generator (prepara lista de 250 procesos no creados)
+void processGeneratorInit(void);
+
+// [DEPRECATED] Run process generation on process table (crea todos de golpe)
+void processGeneratorRun(struct ProcessTable* table);
+
+// ============ GENERADOR INCREMENTAL (NEW) ============
+// Devuelve el siguiente proceso a crear, o NULL si todos están creados
+struct Bcp* processGeneratorGetNext(void);
+
+// Devuelve verdadero si hay procesos pendientes de crear
+int processGeneratorHasMore(void);
+
+// Reinicia el generador (para pruebas)
+void processGeneratorReset(void);
+
+// Obtiene el tiempo de sleep hasta próxima creación (1-50 ciclos)
+int processGeneratorGetNextSleepTime(void);
+
+// ============ FUNCIONES AUXILIARES ============
+// Assign unique process IDs to all processes
+void processGeneratorAssignUniqueIds(struct ProcessTable* table, int count);
+
+// Assign unique arrival times to all processes
+void processGeneratorAssignUniqueArrivalTimes(struct ProcessTable* table, int count);
+
+// Assign random CPU cycles to all processes
+void processGeneratorAssignCpuCycles(struct ProcessTable* table, int count);
+
+// Assign random memory requirements to all processes
+void processGeneratorAssignMemory(struct ProcessTable* table, int count);
+
+// Cleanup process generator resources
+void processGeneratorCleanup(void);
+
+#endif
+
+=== END FILE: src/domain/process/processGenerator.h ===
+
+=== BEGIN FILE: src/domain/process/process.h ===
+// === src/domain/process/process.h ===
+
+#ifndef PROCESS_H
+#define PROCESS_H
+
+#include "bcp.h"
+
+// Propietario exclusivo de Bcp
+typedef struct Process {
+    Bcp* bcp;
+    int isActive;
+} Process;
+
+Process* processCreate(const char* processId, int pid);
+
+void processDestroy(Process* process);
+
+void processActivate(Process* process);
+
+void processDeactivate(Process* process);
+
+int processIsActive(Process* process);
+
+#endif
+
+=== END FILE: src/domain/process/process.h ===
+
+=== BEGIN FILE: src/domain/process/processTable.h ===
+// === src/domain/process/processTable.h ===
+
+#ifndef PROCESS_TABLE_H
+#define PROCESS_TABLE_H
+
+#include "../../utils/constants.h"
+#include "process.h"
+
+struct ReadyQueue;
+struct IoQueue;
+
+// Propietario exclusivo de Process arrays
+// Solo referencia a ReadyQueue e IoQueue
+typedef struct ProcessTable {
+    Process* runningProcesses[procesosEnEjecucion];
+    Process* newRequests[procesosEnEspera];
+    int totalProcesses;
+    int finishedProcesses;
+    struct ReadyQueue* readyQueue;
+    struct IoQueue* ioQueue;
+    float avgWaitingTime;
+    float avgTurnaroundTime;
+    int currentCycle;
+    int simulationStartTime;
+    int totalCpuCyclesExecuted;                         // Total de ciclos CPU ejecutados por todos los procesos
+    int totalContextSwitches;                           // Total de cambios de contexto realizados
+    int algorithmChangeCount;                           // Cantidad de veces que se cambió el algoritmo
+    int totalIoOperations;                              // Total de operaciones de E/S realizadas
+    float cpuUtilization;                               // Porcentaje de utilización de CPU
+    int internalWaste;                                  // Fragmentación interna
+    int externalWaste;                                  // Fragmentación externa
+    int totalPageFaults;                                // Total de fallos de página ocurridos
+    float fragmentation;                                // Nivel actual de fragmentación
+    int quantumCurrent;                                 // Valor actual de quantum
+    int quantumHistory[historialAlgoritmoMaximo];   // Historial de valores de Quantum
+    float proportionReady;                              // Proporción actual lista/total
+    float proportionWaiting;                            // Proporción actual en espera/total
+    int iterationsSinceBalance;                         // Iteraciones desde el último balance
+    int shouldSwitchAlgorithm;                          // Indicador: debe cambiar algoritmo
+} ProcessTable;
+
+ProcessTable* processTableCreate(void);
+
+void processTableDestroy(ProcessTable* table);
+
+int processTableAddRunning(ProcessTable* table, Process* process);
+
+int processTableAddNew(ProcessTable* table, Process* process);
+
+Process* processTableGetRunning(ProcessTable* table, int index);
+
+Process* processTableGetNew(ProcessTable* table, int index);
+
+void processTableRemoveRunning(ProcessTable* table, int index);
+
+int processTableGetTotalProcesses(ProcessTable* table);
+
+int processTableGetFinishedProcesses(ProcessTable* table);
+
+void processTableIncrementFinished(ProcessTable* table);
+
+void processTableUpdateAverages(ProcessTable* table);
+
+#endif
+
+=== END FILE: src/domain/process/processTable.h ===
+
+=== BEGIN FILE: src/domain/scheduler/algorithmSwitcher.h ===
+// === src/domain/scheduler/algorithmSwitcher.h ===
+
+#ifndef ALGORITHM_SWITCHER_H
+#define ALGORITHM_SWITCHER_H
+
+#include "scheduler.h"
+
+struct Scheduler;
+
+typedef struct AlgorithmSwitcher {
+    int algorithmChangeCount;
+    int shouldSwitchAlgorithm;
+    SchedulerAlgorithm nextAlgorithm;
+    int switchThreshold;
+    int tableThresholds[3];
+    int pcbThresholds[5];
+} AlgorithmSwitcher;
+
+AlgorithmSwitcher* algorithmSwitcherCreate(int switchThreshold);
+
+void algorithmSwitcherDestroy(AlgorithmSwitcher* switcher);
+
+int algorithmSwitcherShouldSwitch(AlgorithmSwitcher* switcher, struct Scheduler* scheduler);
+
+void algorithmSwitcherSetNext(AlgorithmSwitcher* switcher, SchedulerAlgorithm nextAlgorithm);
+
+SchedulerAlgorithm algorithmSwitcherGetNext(AlgorithmSwitcher* switcher);
+
+void algorithmSwitcherApply(AlgorithmSwitcher* switcher, struct Scheduler* scheduler);
+
+int algorithmSwitcherGetChangeCount(AlgorithmSwitcher* switcher);
+
+#endif
+
+=== END FILE: src/domain/scheduler/algorithmSwitcher.h ===
+
+=== BEGIN FILE: src/domain/scheduler/fcfsScheduler.h ===
+// === src/domain/scheduler/fcfsScheduler.h ===
+
+#ifndef FCFS_SCHEDULER_H
+#define FCFS_SCHEDULER_H
+
+struct ProcessTable;
+struct Process;
+
+typedef struct FcfsScheduler {
+    int totalScheduled;
+    int contextSwitchCount;
+} FcfsScheduler;
+
+FcfsScheduler* fcfsSchedulerCreate(void);
+
+void fcfsSchedulerDestroy(FcfsScheduler* scheduler);
+
+struct Process* fcfsSchedulerSelectNext(FcfsScheduler* scheduler, struct ProcessTable* table);
+
+void fcfsSchedulerOnContextSwitch(FcfsScheduler* scheduler);
+
+#endif
+
+=== END FILE: src/domain/scheduler/fcfsScheduler.h ===
+
+=== BEGIN FILE: src/domain/scheduler/preemption.h ===
+// === src/domain/scheduler/preemption.h ===
+
+#ifndef PREEMPTION_H
+#define PREEMPTION_H
+
+struct ProcessTable;
+struct Process;
+
+typedef struct PreemptionController {
+    int isPreemptive;
+    int preemptionCount;
+    int lastPreemptionTime;
+} PreemptionController;
+
+PreemptionController* preemptionControllerCreate(int isPreemptive);
+
+void preemptionControllerDestroy(PreemptionController* controller);
+
+int preemptionControllerCanPreempt(PreemptionController* controller, struct Process* current, struct Process* candidate);
+
+void preemptionControllerOnPreemption(PreemptionController* controller);
+
+int preemptionControllerGetPreemptionCount(PreemptionController* controller);
+
+void preemptionControllerSetPreemptive(PreemptionController* controller, int isPreemptive);
+
+#endif
+
+=== END FILE: src/domain/scheduler/preemption.h ===
+
+=== BEGIN FILE: src/domain/scheduler/readyQueue.h ===
+// === src/domain/scheduler/readyQueue.h ===
+
+#ifndef READY_QUEUE_H
+#define READY_QUEUE_H
+
+#include "../../utils/constants.h"
+
+struct Process;
+
+// Propietario exclusivo de Process items
+typedef struct ReadyQueue {
+    struct Process* processes[tamColaListos];
+    int head;
+    int tail;
+    int count;
+} ReadyQueue;
+
+ReadyQueue* readyQueueCreate(void);
+
+void readyQueueDestroy(ReadyQueue* queue);
+
+int readyQueueEnqueue(ReadyQueue* queue, struct Process* process);
+int readyQueueEnqueueFront(ReadyQueue* queue, struct Process* process);
+// Inserta proceso al frente de la cola (para proceso privilegiado tecla A)
+
+struct Process* readyQueueDequeue(ReadyQueue* queue);
+
+struct Process* readyQueuePeek(ReadyQueue* queue);
+
+int readyQueueGetCount(ReadyQueue* queue);
+
+int readyQueueIsFull(ReadyQueue* queue);
+
+int readyQueueIsEmpty(ReadyQueue* queue);
+
+void readyQueueClear(ReadyQueue* queue);
+
+#endif
+
+=== END FILE: src/domain/scheduler/readyQueue.h ===
+
+=== BEGIN FILE: src/domain/scheduler/rebalancing.h ===
+// === src/domain/scheduler/rebalancing.h ===
+
+#ifndef REBALANCING_H
+#define REBALANCING_H
+
+#include "../../utils/constants.h"
+
+// Dynamic quantum rebalancer
+// Checks every 20 iterations if ready/waiting proportion is imbalanced
+// If reaches 75-25 threshold, adjusts quantum and sends alert when balanced
+typedef struct Rebalancer {
+    int iterationCount;                                 // Counter from 0 to iteracionesRebalanceo
+    int checkInterval;                                  // = iteracionesRebalanceo
+    float lastProportionReady;                          // Last proportion of ready processes
+    float lastProportionWaiting;                        // Last proportion of waiting processes
+    int quantumAdjustments;                             // Total number of quantum adjustments
+    int isBalanced;                                     // Flag: 1 if balanced, 0 if imbalanced
+    int alertPending;                                   // Flag: 1 if alert should be shown
+} Rebalancer;
+
+// Create rebalancer instance
+Rebalancer* rebalancerCreate(void);
+
+// Destroy rebalancer
+void rebalancerDestroy(Rebalancer* rebalancer);
+
+// Increment iteration counter
+void rebalancerTick(Rebalancer* rebalancer);
+
+// Check if rebalancer should perform check this iteration
+int rebalancerShouldCheck(Rebalancer* rebalancer);
+
+// Check if current proportion is imbalanced (75-25 threshold)
+int rebalancerIsImbalanced(Rebalancer* rebalancer, float proportionReady);
+
+// Suggest quantum delta based on imbalance (-/+)
+int rebalancerSuggestQuantumDelta(Rebalancer* rebalancer, float proportionReady);
+
+// Called when balance is restored, sets alert pending
+void rebalancerOnBalanceRestored(Rebalancer* rebalancer);
+
+// Check if alert is pending
+int rebalancerHasAlert(Rebalancer* rebalancer);
+
+// Clear pending alert
+void rebalancerClearAlert(Rebalancer* rebalancer);
+
+// Get total count of quantum adjustments made
+int rebalancerGetAdjustmentCount(Rebalancer* rebalancer);
+
+#endif
+
+=== END FILE: src/domain/scheduler/rebalancing.h ===
+
+=== BEGIN FILE: src/domain/scheduler/rrScheduler.h ===
+
+#ifndef RR_SCHEDULER_H
+#define RR_SCHEDULER_H
+
+#include "../../utils/constants.h"
+
+struct ProcessTable;
+struct Process;
+
+// Propietario exclusivo de ranking data
+typedef struct AgingRanking {
+    char processIds[totalRankingProcesos][idProcesoLen];
+    int wasteValues[totalRankingProcesos];
+    int count;
+} AgingRanking;
+
+typedef struct RrScheduler {
+    int currentQuantum;
+    int quantumHistory[historialAlgoritmoMaximo];
+    int historyIndex;
+    float proportionReady;
+    float proportionWaiting;
+    int iterationsSinceBalance;
+    AgingRanking agingRanking;
+    char privilegedProcessId[idProcesoLen];   // ID del proceso privilegiado (tecla A)
+    int hasPrivilegedProcess;                  // 1 si hay proceso privilegiado activo
+} RrScheduler;
+
+RrScheduler* rrSchedulerCreate(int quantum);
+
+void rrSchedulerDestroy(RrScheduler* scheduler);
+
+struct Process* rrSchedulerSelectNext(RrScheduler* scheduler, struct ProcessTable* table);
+
+void rrSchedulerOnQuantumExpired(RrScheduler* scheduler);
+
+void rrSchedulerUpdateProportions(RrScheduler* scheduler, struct ProcessTable* table);
+
+void rrSchedulerUpdateAgingRanking(RrScheduler* scheduler, struct ProcessTable* table);
+
+void rrSchedulerPrioritizeProcess(RrScheduler* scheduler, const char* processId);
+
+int rrSchedulerGetCurrentQuantum(RrScheduler* scheduler);
+
+#endif
+=== END FILE: src/domain/scheduler/rrScheduler.h ===
+
+=== BEGIN FILE: src/domain/scheduler/scheduler.h ===
+// === src/domain/scheduler/scheduler.h ===
+
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
+
+#include "../../utils/constants.h"
+
+struct ProcessTable;
+struct Process;
+struct FcfsScheduler;
+struct RrScheduler;
+
+typedef enum {
+    SchedulerAlgorithmFcfs,
+    SchedulerAlgorithmRr
+} SchedulerAlgorithm;
+
+// Solo referencia, no destruye FcfsScheduler y RrScheduler
+typedef struct Scheduler {
+    SchedulerAlgorithm currentAlgorithm;
+    struct FcfsScheduler* fcfsScheduler;
+    struct RrScheduler* rrScheduler;
+    int totalContextSwitches;
+    int cycleCount;
+} Scheduler;
+
+Scheduler* schedulerCreate(SchedulerAlgorithm algorithm);
+
+void schedulerDestroy(Scheduler* scheduler);
+
+struct Process* schedulerSelectNext(Scheduler* scheduler, struct ProcessTable* table);
+
+void schedulerOnContextSwitch(Scheduler* scheduler);
+
+void schedulerSetAlgorithm(Scheduler* scheduler, SchedulerAlgorithm algorithm);
+
+void schedulerSetFcfs(Scheduler* scheduler, struct FcfsScheduler* fcfs);
+// Asigna el planificador FCFS al scheduler
+
+void schedulerSetRr(Scheduler* scheduler, struct RrScheduler* rr);
+// Asigna el planificador RR al scheduler
+
+SchedulerAlgorithm schedulerGetAlgorithm(Scheduler* scheduler);
+
+int schedulerGetTotalContextSwitches(Scheduler* scheduler);
+
+#endif
+
+=== END FILE: src/domain/scheduler/scheduler.h ===
+
+=== BEGIN FILE: src/domain/stats/agingAnalysis.h ===
+// === src/domain/stats/agingAnalysis.h ===
+
+#ifndef AGING_ANALYSIS_H
+#define AGING_ANALYSIS_H
+
+#include "../../utils/constants.h"
+
+struct ProcessTable;
+
+typedef struct AgingAnalysis {
+    int samples[historialAlgoritmoMaximo];
+    int sampleCount;
+    float averageWaste;
+    float maxWaste;
+    float minWaste;
+} AgingAnalysis;
+
+AgingAnalysis* agingAnalysisCreate(void);
+void agingAnalysisDestroy(AgingAnalysis* analysis);
+void agingAnalysisCollectSample(AgingAnalysis* analysis, struct ProcessTable* table);
+void agingAnalysisCalculateStatistics(AgingAnalysis* analysis);
+float agingAnalysisGetAverageWaste(AgingAnalysis* analysis);
+float agingAnalysisGetMaxWaste(AgingAnalysis* analysis);
+int agingAnalysisGetSampleCount(AgingAnalysis* analysis);
+
+#endif
+=== END FILE: src/domain/stats/agingAnalysis.h ===
+
+=== BEGIN FILE: src/domain/stats/performanceBar.h ===
+// === src/domain/stats/performanceBar.h ===
+
+#ifndef PERFORMANCE_BAR_H
+#define PERFORMANCE_BAR_H
+
+#include "../../utils/constants.h"
+
+struct StatsCollector;
+
+typedef struct PerformanceBar {
+    float values[barrasHistorial];
+    float wasteValues[barrasHistorial];   // Desperdicio de CPU en cada barra histórica
+    int valueCount;
+    float currentValue;
+    float minValue;
+    float maxValue;
+} PerformanceBar;
+
+PerformanceBar* performanceBarCreate(void);
+
+void performanceBarDestroy(PerformanceBar* bar);
+
+void performanceBarAddValue(PerformanceBar* bar, float value);
+
+void performanceBarUpdate(PerformanceBar* bar, struct StatsCollector* collector);
+
+float performanceBarGetCurrent(PerformanceBar* bar);
+
+float performanceBarGetAverage(PerformanceBar* bar);
+
+void performanceBarReset(PerformanceBar* bar);
+
+#endif
+
+=== END FILE: src/domain/stats/performanceBar.h ===
+
+=== BEGIN FILE: src/domain/stats/statsCollector.h ===
+// === src/domain/stats/statsCollector.h ===
+
+#ifndef STATS_COLLECTOR_H
+#define STATS_COLLECTOR_H
+
+#include "../../utils/constants.h"
+
+struct ProcessTable;
+
+typedef struct StatsCollector {
+    long totalCpuCyclesExecuted;
+    float cpuUtilization;
+    long totalMemoryAllocated;
+    int internalWaste;
+    int externalWaste;
+    int totalPageFaults;
+    float fragmentation;
+    int totalContextSwitches;                           // Total de cambios de contexto
+    float avgWaitingTime;                               // Tiempo promedio de espera
+    float avgTurnaroundTime;                            // Tiempo promedio de respuesta
+    int totalIoOperations;                              // Total de operaciones de E/S
+    int algorithmChanges;                               // Número de cambios de algoritmo
+    int processesFinished;                              // Procesos que finalizaron
+    float avgProcessesFinishedPerCycle;                 // Promedio de procesos finalizados por ciclo
+    int processesRunning;              // Cantidad de procesos en ejecución actualmente
+    float avgTimeInExecution;          // Tiempo promedio en ejecución por proceso
+} StatsCollector;
+
+StatsCollector* statsCollectorCreate(void);
+
+void statsCollectorDestroy(StatsCollector* collector);
+
+void statsCollectorCollect(StatsCollector* collector, struct ProcessTable* table);
+
+void statsCollectorRecordCpuCycle(StatsCollector* collector);
+
+void statsCollectorRecordPageFault(StatsCollector* collector);
+
+void statsCollectorRecordMemoryAllocation(StatsCollector* collector, int size);
+
+void statsCollectorUpdateStatistics(StatsCollector* collector, struct ProcessTable* table);
+
+float statsCollectorGetCpuUtilization(StatsCollector* collector);
+
+#endif
+
+=== END FILE: src/domain/stats/statsCollector.h ===
+
+=== BEGIN FILE: src/infrastructure/bcpLog.h ===
+// === src/infrastructure/bcpLog.h ===
+
+#ifndef BCP_LOG_H
+#define BCP_LOG_H
+
+struct Logger;
+struct Bcp;
+
+// Solo referencia, no destruye Logger
+typedef struct BcpLog {
+    struct Logger* logger;
+} BcpLog;
+
+BcpLog* bcpLogCreate(struct Logger* logger);
+
+void bcpLogDestroy(BcpLog* log);
+
+void bcpLogRecordContextSwitch(BcpLog* log, struct Bcp* bcp);
+
+void bcpLogRecordQuantumExpired(BcpLog* log, struct Bcp* bcp);
+
+void bcpLogRecordPageSwap(BcpLog* log, struct Bcp* bcp, int swapAddress);
+
+void bcpLogFlush(BcpLog* log);
+
+void bcpLogRecordFull(BcpLog* log, struct Bcp* bcp);
+// Registra todas las variables del BCP (minimo 25) en el log
+
+#endif
+
+=== END FILE: src/infrastructure/bcpLog.h ===
+
+=== BEGIN FILE: src/infrastructure/logger.c ===
+// src/infrastructure/logger.c
+#include "logger.h"
+#include "../utils/timeHelper.h"
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+static const char* levelToString(LogLevel level) {
+    switch (level) {
+        case LogLevelDebug:    return "DEBUG";
+        case LogLevelInfo:     return "INFO";
+        case LogLevelWarning:  return "WARNING";
+        case LogLevelError:    return "ERROR";
+        case LogLevelCritical: return "CRITICAL";
+        default:               return "UNKNOWN";
+    }
+}
+
+Logger* loggerCreate(const char* fileName, LogLevel minLevel) {
+    if (!fileName) return NULL;
+    Logger* logger = (Logger*)malloc(sizeof(Logger));
+    if (!logger) return NULL;
+    logger->logFile = fopen(fileName, "a");
+    if (!logger->logFile) {
+        free(logger);
+        return NULL;
+    }
+    logger->minLevel = minLevel;
+    return logger;
+}
+
+void loggerDestroy(Logger* logger) {
+    if (logger) {
+        if (logger->logFile) fclose(logger->logFile);
+        free(logger);
+    }
+}
+
+void loggerLog(Logger* logger, LogLevel level, const char* message) {
+    if (!logger || !logger->logFile) return;
+    if (level < logger->minLevel) return;
+
+    long ms = timeHelperGetCurrentTime();
+    time_t sec = ms / 1000;
+    struct tm* tm_info = localtime(&sec);
+    char timeBuf[20];
+    strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", tm_info);
+
+    fprintf(logger->logFile, "[%s.%03ld] %s: %s\n", timeBuf, ms % 1000, levelToString(level), message);
+    fflush(logger->logFile);
+}
+
+void loggerLogFormat(Logger* logger, LogLevel level, const char* format, ...) {
+    if (!logger || !logger->logFile) return;
+    if (level < logger->minLevel) return;
+    va_list args;
+    va_start(args, format);
+    char buffer[tamanoBufferLog];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    loggerLog(logger, level, buffer);
+}
+
+void loggerFlush(Logger* logger) {
+    if (logger && logger->logFile) fflush(logger->logFile);
+}
+
+=== END FILE: src/infrastructure/logger.c ===
+
+=== BEGIN FILE: src/infrastructure/logger.h ===
+// === src/infrastructure/logger.h ===
+
+#ifndef LOGGER_H
+#define LOGGER_H
+
+#include <stdio.h>
+#include <stdarg.h>
+#include "../../utils/constants.h"
+
+typedef enum {
+    LogLevelDebug,
+    LogLevelInfo,
+    LogLevelWarning,
+    LogLevelError,
+    LogLevelCritical
+} LogLevel;
+
+// Propietario exclusivo de FILE
+typedef struct Logger {
+    FILE* logFile;
+    LogLevel minLevel;
+} Logger;
+
+Logger* loggerCreate(const char* fileName, LogLevel minLevel);
+
+void loggerDestroy(Logger* logger);
+
+void loggerLog(Logger* logger, LogLevel level, const char* message);
+
+void loggerLogFormat(Logger* logger, LogLevel level, const char* format, ...);
+// Escribe mensaje con formato printf en el archivo de log
+
+void loggerFlush(Logger* logger);
+
+#endif
+
+=== END FILE: src/infrastructure/logger.h ===
+
+=== BEGIN FILE: src/infrastructure/processLog.h ===
+// === src/infrastructure/processLog.h ===
+
+#ifndef PROCESS_LOG_H
+#define PROCESS_LOG_H
+
+struct Logger;
+struct Process;
+struct ProcessTable;
+
+// Solo referencia, no destruye Logger
+typedef struct ProcessLog {
+    struct Logger* logger;
+} ProcessLog;
+
+ProcessLog* processLogCreate(struct Logger* logger);
+
+void processLogDestroy(ProcessLog* log);
+
+void processLogRecordCreation(ProcessLog* log, struct Process* process);
+
+void processLogRecordTermination(ProcessLog* log, struct Process* process);
+
+void processLogRecordStateChange(ProcessLog* log, struct Process* process, int newState);
+
+void processLogFlush(ProcessLog* log);
+
+void processLogRecordTableSnapshot(ProcessLog* log, struct ProcessTable* table);
+// Registra todas las variables de la tabla de procesos (minimo 20) en el log
+
+#endif
+
+=== END FILE: src/infrastructure/processLog.h ===
+
+=== BEGIN FILE: src/main.c ===
+#include "src/business/systemController.h"
+
+int main() {
+    SystemController* controller = systemControllerCreate();
+    systemControllerInit(controller);
+    systemControllerRun(controller);
+    systemControllerDestroy(controller);
+    return 0;
+}
+=== END FILE: src/main.c ===
+
+=== BEGIN FILE: src/presentation/consoleIo.h ===
+// === src/presentation/consoleIo.h ===
+
+#ifndef CONSOLE_IO_H
+#define CONSOLE_IO_H
+
+// Low-level console input/output
+// Replaces GUI controller, handles non-blocking keypress detection for X and A
+
+// Initialize console I/O for non-blocking input
+void consoleIoInit(void);
+
+// Cleanup console I/O resources
+void consoleIoCleanup(void);
+
+// Check if key was pressed (non-blocking), returns 1 if key available, 0 otherwise
+int consoleIoKbhit(void);
+
+// Get single character from console, non-blocking
+char consoleIoGetChar(void);
+
+// Print text to console without newline
+void consoleIoPrint(const char* text);
+
+// Print text to console with newline
+void consoleIoPrintLine(const char* text);
+
+// Print labeled integer value
+void consoleIoPrintInt(const char* label, int value);
+
+// Print labeled float value
+void consoleIoPrintFloat(const char* label, float value);
+
+// Clear console screen
+void consoleIoClear(void);
+
+// Print separator line
+void consoleIoPrintSeparator(void);
+
+#endif
+
+=== END FILE: src/presentation/consoleIo.h ===
+
+=== BEGIN FILE: src/presentation/menu.h ===
+// === src/presentation/menu.h ===
+
+#ifndef MENU_H
+#define MENU_H
+
+#include "../utils/constants.h"
+
+struct PerformanceBar;
+struct StatsCollector;
+
+// Sistema de menú de texto en consola
+// Reemplaza GUI, maneja entrada de usuario para selección de algoritmo, quantum, teclas X y A
+
+// Muestra menú principal
+void menuShowMain(void);
+
+// Muestra opciones de selección de algoritmo
+void menuShowAlgorithmOptions(void);
+
+// Obtiene elección de algoritmo del usuario, retorna ID del algoritmo
+int menuGetAlgorithmChoice(void);
+
+// Obtiene valor de quantum ingresado por el usuario, retorna quantum
+int menuGetQuantumInput(void);
+
+// Muestra prompt para ingreso de quantum
+void menuShowQuantumPrompt(void);
+
+// Muestra alerta de balance con proporciones actuales y nuevo quantum
+void menuShowBalanceAlert(float proportionReady, float proportionWaiting, int newQuantum);
+
+// Muestra los 5 procesos más envejecidos
+void menuShowTop5Aged(const char ids[][idProcesoLen], const int wasteValues[], int count);
+
+// Muestra las 5 peores fuentes de desperdicio de memoria
+void menuShowTop5Wasters(const char ids[][idProcesoLen], const int wasteValues[], int count);
+
+// Obtiene ID de proceso privilegiado de la entrada del usuario
+int menuGetPrivilegedProcessId(char* outId, int maxLen);
+
+// Muestra resultados de procesamiento distribuido PVM
+void menuShowPvmResults(void);
+
+void menuShowPerformanceBars(const struct PerformanceBar* bar);
+// Muestra las 5 barras de aprovechamiento y desperdicio de CPU
+
+void menuShowMemoryStats(const struct StatsCollector* collector);
+// Muestra estadísticas de memoria: desperdicio interno, externo, fragmentación
+
+#endif
+
+=== END FILE: src/presentation/menu.h ===
+
+=== BEGIN FILE: src/presentation/uiStrings.c ===
+// src/presentation/uiStrings.c
+#include "uiStrings.h"
+#include <string.h>
+
+static const struct {
+    const char* key;
+    const char* value;
+} stringTable[] = {
+    {"titleSimulator", "OS Simulator"},
+    {"labelProcesses", "Processes"},
+    {"labelMemory", "Memory"},
+    {"labelCpu", "CPU"},
+    {"labelScheduler", "Scheduler"},
+    {"labelAlgorithm", "Algorithm"},
+    {"labelQuantum", "Quantum"},
+    {"labelUtilization", "Utilization"},
+    {"labelWaitingTime", "Waiting Time"},
+    {"labelTurnaroundTime", "Turnaround Time"},
+    {"labelPageFaults", "Page Faults"},
+    {"labelFragmentation", "Fragmentation"},
+    {"labelContextSwitches", "Context Switches"},
+    {"labelIoOperations", "I/O Operations"},
+    {"buttonStart", "Start"},
+    {"buttonPause", "Pause"},
+    {"buttonResume", "Resume"},
+    {"buttonStop", "Stop"},
+    {"buttonReset", "Reset"},
+    {"statusRunning", "Running"},
+    {"statusPaused", "Paused"},
+    {"statusStopped", "Stopped"},
+    {NULL, NULL}
+};
+
+const char* uiStringsGetLabel(const char* key) {
+    if (!key) return "";
+    for (int i = 0; stringTable[i].key != NULL; i++) {
+        if (strcmp(key, stringTable[i].key) == 0)
+            return stringTable[i].value;
+    }
+    return key;
+}
+
+=== END FILE: src/presentation/uiStrings.c ===
+
+=== BEGIN FILE: src/presentation/uiStrings.h ===
+// === src/presentation/uiStrings.h ===
+
+#ifndef UI_STRINGS_H
+#define UI_STRINGS_H
+
+#define uiTitleSimulator "OS Simulator"
+#define uiLabelProcesses "Processes"
+#define uiLabelMemory "Memory"
+#define uiLabelCpu "CPU"
+#define uiLabelScheduler "Scheduler"
+#define uiLabelAlgorithm "Algorithm"
+#define uiLabelQuantum "Quantum"
+#define uiLabelUtilization "Utilization"
+#define uiLabelWaitingTime "Waiting Time"
+#define uiLabelTurnaroundTime "Turnaround Time"
+#define uiLabelPageFaults "Page Faults"
+#define uiLabelFragmentation "Fragmentation"
+#define uiLabelContextSwitches "Context Switches"
+#define uiLabelIoOperations "I/O Operations"
+#define uiButtonStart "Start"
+#define uiButtonPause "Pause"
+#define uiButtonResume "Resume"
+#define uiButtonStop "Stop"
+#define uiButtonReset "Reset"
+#define uiStatusRunning "Running"
+#define uiStatusPaused "Paused"
+#define uiStatusStopped "Stopped"
+
+const char* uiStringsGetLabel(const char* key);
+
+#endif
+
+=== END FILE: src/presentation/uiStrings.h ===
+
+=== BEGIN FILE: src/utils/bcp.h ===
+// === src/domain/process/bcp.h ===
+
+#ifndef BCP_H
+#define BCP_H
+
+#include "../../utils/constants.h"
+
+typedef enum {
+    ProcessStateNew,
+    ProcessStateReady,
+    ProcessStateRunning,
+    ProcessStateWaitingIo,
+    ProcessStateSwap,
+    ProcessStateSuspended,
+    ProcessStateFinished
+} ProcessState;
+
+typedef struct Bcp {
+    char processId[idProcesoLen];
+    int pid;
+    ProcessState state;
+    int priority;
+    int totalCpuCycles;
+    int remainingCycles;
+    int arrivalTime;
+    int currentTimeSlice;
+    int contextSwitchTime;
+    int timeInExecution;
+    int timesExecuted;
+    int creationTime;
+    int startTime;
+    int finishTime;
+    int timeInWaiting;
+    int ageingTimeSlices;
+    int timesInIo;
+    int ioTimeRemaining;   // Tiempo restante en cola de E/S (1-100 * multiplicador)
+
+    // ============ I/O PHRASE HANDLING (NEW) ============
+    // Cuando proceso va a E/S: se lee una frase aleatoria de frases.txt
+    // La frase se divide en palabras que se verifican en memoria
+    char ioPhrase[tamanoFraseIo];        // Frase completa leída de frases.txt
+    char requiredWords[palabrasPorFrase][maxCaracteresPalabra]; // Las 5 palabras clave de la frase
+    int requiredWordsCount;    // Cuántas palabras requiere (típicamente 5)
+
+    int pageCount;
+    int memoryRequested;
+    int totalMemoryAllocated;
+    int assignedPages[maxPaginasPorProceso];
+    int quantumAssigned;
+    int quantumUsed;
+    float cpuWasteRatio;
+    int agingCounter;
+    int timesReturnedToReady;
+    int wastedCpuCycles;
+    int pageTableBase;
+    int swapAddress;
+    int ioOperationsPending;
+    int contextSwitchCount;
+} Bcp;
+
+// Propietario exclusivo de: phraseBuffer, requiredWords[][], assignedPages[]
+// Solo referencia: pageTableBase, swapAddress
+// Los campos numéricos (ioOperationsPending, etc.) son propiedad del BCP
+
+Bcp* bcpCreate(const char* processId, int pid);
+
+void bcpDestroy(Bcp* bcp);
+
+void bcpInitialize(Bcp* bcp, int priority, int executionTime, int arrivalTime);
+
+void bcpSetState(Bcp* bcp, ProcessState state);
+
+ProcessState bcpGetState(Bcp* bcp);
+
+void bcpIncrementContextSwitches(Bcp* bcp);
+
+void bcpUpdateRemainingTime(Bcp* bcp, int cycles);
+
+void bcpAddPage(Bcp* bcp, int pageIndex);
+
+void bcpAddPhrase(Bcp* bcp, const char* phrase);
+
+#endif
+
+=== END FILE: src/utils/bcp.h ===
+
+=== BEGIN FILE: src/utils/constants.h ===
+// === src/utils/constants.h ===
+
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+#define totalProcesos 250
+#define procesosEnEjecucion 150
+#define procesosEnEspera 100
+#define tamColaListos 250
+#define barrasHistorial 5
+#define idProcesoLen 16
+#define totalRankingProcesos 5
+#define maxMarcos 512
+#define palabrasPorPagina 20
+#define maxCaracteresPalabra 32
+#define maxSwap (maxMarcos * 2)
+#define maxPaginasPorProceso 32
+#define numColasEs 4
+#define multColaEs1 2
+#define multColaEs2 4
+#define multColaEs3 8
+#define multColaEs4 12
+#define ciclosCpuMin 0
+#define ciclosCpuMax 85000
+#define ciclosPorInstanciaMin 10
+#define ciclosPorInstanciaMax 70
+#define cambioContextoMin 10
+#define cambioContextoMax 30
+#define tiempoLlegadaMin 0
+#define tiempoLlegadaMax 800
+#define sleepCreacionMin 1
+#define sleepCreacionMax 50
+#define quantumDefault 20
+#define iteracionesRebalanceo 20
+#define umbralDesbalance 75
+#define palabrasPorFrase 5
+#define tamanoFraseIo 500
+#define pvmNumEsclavos 2
+#define longitudMaximaCadena 256
+#define tamanoBufferMensaje 1024
+#define tamanoBufferLog 2048
+#define historialAlgoritmoMaximo 1000
+#define marcosMin 8
+#define marcosMax 20
+#define tiempoEsMin 1
+#define tiempoEsMax 100
+#define growthListSize 20
+
+#endif
+
+=== END FILE: src/utils/constants.h ===
+
+=== BEGIN FILE: src/utils/errorHandler.c ===
+// src/utils/errorHandler.c
+#include "errorHandler.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+static const char* errorMessages[] = {
+    [ErrorCodeSuccess]                   = "Éxito",
+    [ErrorCodeMemoryAllocationFailed]    = "Fallo de asignación de memoria",
+    [ErrorCodeInvalidProcess]            = "Proceso inválido",
+    [ErrorCodeInvalidScheduler]          = "Planificador inválido",
+    [ErrorCodeSwapFull]                  = "Área de swap llena",
+    [ErrorCodeIoOperationFailed]         = "Operación de E/S fallida",
+    [ErrorCodeInvalidPageTable]          = "Tabla de páginas inválida",
+    [ErrorCodePageFaultUnrecoverable]    = "Fallo de página irrecuperable",
+    [ErrorCodeQueueFull]                 = "Cola llena",
+    [ErrorCodeQueueEmpty]                = "Cola vacía",
+    [ErrorCodeInvalidArgument]           = "Argumento inválido",
+    [ErrorCodeNodeConnectionFailed]      = "Conexión de nodo fallida",
+    [ErrorCodeMessageProtocolError]      = "Error de protocolo de mensajes",
+    [ErrorCodeFileOperationFailed]       = "Operación de archivo fallida",
+    [ErrorCodeSystemError]               = "Error del sistema"
+};
+
+void errorHandlerInit(void) {}
+
+void errorHandlerLog(ErrorCode code, const char* context) {
+    if (code < 0 || code >= sizeof(errorMessages)/sizeof(errorMessages[0])) {
+        fprintf(stderr, "[ERROR] Código desconocido: %d, Contexto: %s\n", code, context ? context : "(null)");
+        return;
+    }
+    const char* msg = errorMessages[code];
+    if (context && context[0] != '\0')
+        fprintf(stderr, "[ERROR] %s: %s\n", msg, context);
+    else
+        fprintf(stderr, "[ERROR] %s\n", msg);
+}
+
+const char* errorHandlerGetMessage(ErrorCode code) {
+    if (code < 0 || code >= sizeof(errorMessages)/sizeof(errorMessages[0]))
+        return "Código de error desconocido";
+    return errorMessages[code];
+}
+
+void errorHandlerCleanup(void) {}
+
+=== END FILE: src/utils/errorHandler.c ===
+
+=== BEGIN FILE: src/utils/errorHandler.h ===
+// === src/utils/errorHandler.h ===
+
+#ifndef ERROR_HANDLER_H
+#define ERROR_HANDLER_H
+
+typedef enum {
+    ErrorCodeSuccess,
+    ErrorCodeMemoryAllocationFailed,
+    ErrorCodeInvalidProcess,
+    ErrorCodeInvalidScheduler,
+    ErrorCodeSwapFull,
+    ErrorCodeIoOperationFailed,
+    ErrorCodeInvalidPageTable,
+    ErrorCodePageFaultUnrecoverable,
+    ErrorCodeQueueFull,
+    ErrorCodeQueueEmpty,
+    ErrorCodeInvalidArgument,
+    ErrorCodeNodeConnectionFailed,
+    ErrorCodeMessageProtocolError,
+    ErrorCodeFileOperationFailed,
+    ErrorCodeSystemError
+} ErrorCode;
+
+void errorHandlerInit(void);
+
+void errorHandlerLog(ErrorCode code, const char* context);
+
+const char* errorHandlerGetMessage(ErrorCode code);
+
+void errorHandlerCleanup(void);
+
+#endif
+
+=== END FILE: src/utils/errorHandler.h ===
+
+=== BEGIN FILE: src/utils/random.c ===
+// Implementación de funciones de aleatoriedad para el simulador
+// Cumple C99. Usa solo las constantes definidas en constants.h
+
+#include "random.h"
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+// Inicializa la semilla del generador. Si seed==0 usa time(NULL).
+void initRandom(unsigned int seed) {
+    unsigned int s = seed;
+    if (s == 0) {
+        s = (unsigned int)time(NULL);
+    }
+    srand(s);
+}
+
+// Retorna un entero aleatorio en [min, max] inclusive. Si min>max intercambia.
+int randomInt(int min, int max) {
+    if (min > max) {
+        int tmp = min;
+        min = max;
+        max = tmp;
+    }
+    int range = max - min + 1;
+    if (range <= 0) { // protección, aunque no debería ocurrir
+        return min;
+    }
+    return min + (rand() % range);
+}
+
+// Retorna un float aleatorio en [min, max). Si min>max intercambia.
+float randomFloat(float min, float max) {
+    if (min > max) {
+        float tmp = min;
+        min = max;
+        max = tmp;
+    }
+    float r = (float)rand() / ((float)RAND_MAX + 1.0f); // en [0,1)
+    return min + r * (max - min);
+}
+
+// Genera tiempos de llegada únicos entre tiempoLlegadaMin y tiempoLlegadaMax.
+// Usa una lista temporal con todos los valores posibles, los mezcla y toma
+// los primeros processCount. Si el rango es insuficiente o falla malloc,
+// cae en un respaldo que genera valores aleatorios sin garantía de unicidad.
+void generateUniqueArrivalTimes(int* arrivalTimes, int processCount) {
+    if (arrivalTimes == NULL || processCount <= 0) return;
+
+    int min = tiempoLlegadaMin;
+    int max = tiempoLlegadaMax;
+    int rangeSize = max - min + 1;
+
+    if (rangeSize >= processCount) {
+        // Intentar crear el array de todos los posibles tiempos
+        int *pool = (int*)malloc(sizeof(int) * (size_t)rangeSize);
+        if (pool == NULL) {
+            // Respaldo: generar aleatorios (no garantizados únicos)
+            for (int i = 0; i < processCount; ++i) {
+                arrivalTimes[i] = randomInt(min, max);
+            }
+            return;
+        }
+
+        // Llenar pool con todos los valores posibles
+        for (int i = 0; i < rangeSize; ++i) {
+            pool[i] = min + i;
+        }
+
+        // Fisher-Yates shuffle
+        for (int i = rangeSize - 1; i > 0; --i) {
+            int j = randomInt(0, i);
+            int tmp = pool[i];
+            pool[i] = pool[j];
+            pool[j] = tmp;
+        }
+
+        // Copiar los primeros processCount valores mezclados
+        for (int i = 0; i < processCount; ++i) {
+            arrivalTimes[i] = pool[i];
+        }
+
+        free(pool);
+        return;
+    }
+
+    // Si no hay suficientes valores únicos en el rango, generar aleatorios
+    for (int i = 0; i < processCount; ++i) {
+        arrivalTimes[i] = randomInt(min, max);
+    }
+}
+
+// Retorna ciclos CPU aleatorios usando las constantes.
+int randomCpuCycles(void) {
+    return randomInt(ciclosCpuMin, ciclosCpuMax);
+}
+
+// Retorna ciclos por instancia aleatorios usando las constantes.
+int randomCpuInstanceCycles(void) {
+    return randomInt(ciclosPorInstanciaMin, ciclosPorInstanciaMax);
+}
+
+// Retorna tiempo de cambio de contexto aleatorio usando las constantes.
+int randomContextSwitchTime(void) {
+    return randomInt(cambioContextoMin, cambioContextoMax);
+}
+
+// Lista circular de crecimiento de memoria.
+// Contiene growthListSize elementos: 15 ceros y 5 valores aleatorios 1-50.
+// Los 5 valores aleatorios se generan solo una vez y la lista se recorre
+// en orden circular en llamadas sucesivas.
+int randomMemoryGrowth(void) {
+    static int list[growthListSize];
+    static int initialized = 0;
+    static int idx = 0;
+
+    if (!initialized) {
+        initialized = 1;
+        // Primero llenar con 15 ceros y 5 valores aleatorios (1-50)
+        int zeros = growthListSize - 5;
+        int pos = 0;
+        for (int i = 0; i < zeros; ++i) {
+            list[pos++] = 0;
+        }
+        for (int i = 0; i < 5; ++i) {
+            list[pos++] = randomInt(1, 50);
+        }
+
+        // Mezclar la lista para distribuir los valores no-cero
+        for (int i = growthListSize - 1; i > 0; --i) {
+            int j = randomInt(0, i);
+            int tmp = list[i];
+            list[i] = list[j];
+            list[j] = tmp;
+        }
+        idx = 0;
+    }
+
+    int value = list[idx];
+    idx = (idx + 1) % growthListSize;
+    return value;
+}
+
+=== END FILE: src/utils/random.c ===
+
+=== BEGIN FILE: src/utils/random.h ===
+
+#ifndef RANDOM_H
+#define RANDOM_H
+
+#include "constants.h"
+
+void initRandom(unsigned int seed);
+
+int randomInt(int min, int max);
+
+float randomFloat(float min, float max);
+
+void generateUniqueArrivalTimes(int* arrivalTimes, int processCount);
+
+int randomCpuCycles(void);
+
+int randomCpuInstanceCycles(void);
+
+int randomContextSwitchTime(void);
+
+int randomMemoryGrowth(void);   // Retorna 0 (85% del tiempo) o valor 1-50 (15%)
+
+#endif
+=== END FILE: src/utils/random.h ===
+
+=== BEGIN FILE: src/utils/timeHelper.c ===
+// src/utils/timeHelper.c
+#include "timeHelper.h"
+#include <sys/time.h>
+#include <unistd.h>
+
+long timeHelperGetCurrentTime(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1000L + tv.tv_usec / 1000L;
+}
+
+long timeHelperGetElapsedTime(long startTime) {
+    return timeHelperGetCurrentTime() - startTime;
+}
+
+void timeHelperDelay(int milliseconds) {
+    if (milliseconds <= 0) return;
+    usleep(milliseconds * 1000);
+}
+
+void timeHelperReset(void) {}
+
+=== END FILE: src/utils/timeHelper.c ===
+
+=== BEGIN FILE: src/utils/timeHelper.h ===
+// === src/utils/timeHelper.h ===
+
+#ifndef TIME_HELPER_H
+#define TIME_HELPER_H
+
+long timeHelperGetCurrentTime(void);
+
+long timeHelperGetElapsedTime(long startTime);
+
+void timeHelperDelay(int milliseconds);
+
+void timeHelperReset(void);
+
+#endif
+
+=== END FILE: src/utils/timeHelper.h ===
+
+=== BEGIN FILE: src/utils/uniqueId.c ===
+// src/utils/uniqueId.c
+#include "uniqueId.h"
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+void generateProcessId(int processNumber, char* outId, size_t outSize) {
+    if (!outId || outSize == 0) return;
+    if (processNumber < 1) processNumber = 1;
+
+    char letter;
+    int num;
+    if (processNumber <= 100) {
+        letter = 'A';
+        num = processNumber;
+    } else if (processNumber <= 200) {
+        letter = 'B';
+        num = processNumber - 100;
+    } else {
+        letter = 'C';
+        num = processNumber - 200;
+    }
+    snprintf(outId, outSize, "%c-%d", letter, num);
+}
+
+int getNumericId(const char* id) {
+    if (!id) return -1;
+    if (strlen(id) < 3 || id[1] != '-') return -1;
+    char letter = toupper(id[0]);
+    int num = 0;
+    if (sscanf(id + 2, "%d", &num) != 1) return -1;
+    if (letter == 'A') return num;
+    if (letter == 'B') return 100 + num;
+    if (letter == 'C') return 200 + num;
+    return -1;
+}
+
+int isValidId(const char* id) {
+    int n = getNumericId(id);
+    return (n >= 1 && n <= totalProcesos);
+}
+
+void uniqueIdInit(void) {}
+void uniqueIdReset(void) {}
+
+=== END FILE: src/utils/uniqueId.c ===
+
+=== BEGIN FILE: src/utils/uniqueId.h ===
+
+#ifndef UNIQUE_ID_H
+#define UNIQUE_ID_H
+
+#include "constants.h"
+#include <stddef.h>
+
+void uniqueIdInit(void);
+void generateProcessId(int processNumber, char* outId, size_t outSize);
+int getNumericId(const char* id);
+int isValidId(const char* id);
+void uniqueIdReset(void);
+
+#endif
+=== END FILE: src/utils/uniqueId.h ===
+
+=== BEGIN FILE: src/utils/wordLoader.c ===
+// src/utils/wordLoader.c
+#include "wordLoader.h"
+#include "errorHandler.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_WORDS 100000
+
+static char** words = NULL;
+static int wordCount = 0;
+static FILE* file = NULL;
+
+static void extractWordsFromLine(char* line) {
+    char* token = strtok(line, " \t\n\r,.;:!?\"'()[]{}<>");
+    while (token != NULL) {
+        char* start = token;
+        while (*start && !isalnum((unsigned char)*start)) start++;
+        if (*start == '\0') {
+            token = strtok(NULL, " \t\n\r,.;:!?\"'()[]{}<>");
+            continue;
+        }
+        char* end = start + strlen(start) - 1;
+        while (end > start && !isalnum((unsigned char)*end)) end--;
+        *(end+1) = '\0';
+
+        if (wordCount < MAX_WORDS) {
+            words[wordCount] = strdup(start);
+            if (words[wordCount]) wordCount++;
+        } else break;
+        token = strtok(NULL, " \t\n\r,.;:!?\"'()[]{}<>");
+    }
+}
+
+int wordLoaderInit(const char* filePath) {
+    if (!filePath) {
+        errorHandlerLog(ErrorCodeInvalidArgument, "wordLoaderInit: ruta de archivo nula");
+        return -1;
+    }
+    file = fopen(filePath, "r");
+    if (!file) {
+        errorHandlerLog(ErrorCodeFileOperationFailed, "wordLoaderInit: no se pudo abrir el archivo");
+        return -1;
+    }
+    words = (char**)calloc(MAX_WORDS, sizeof(char*));
+    if (!words) {
+        fclose(file);
+        file = NULL;
+        errorHandlerLog(ErrorCodeMemoryAllocationFailed, "wordLoaderInit: fallo al asignar memoria para words");
+        return -1;
+    }
+    char line[1024];
+    while (fgets(line, sizeof(line), file))
+        extractWordsFromLine(line);
+    fclose(file);
+    file = NULL;
+    if (wordCount == 0) {
+        words[0] = strdup("default");
+        wordCount = 1;
+    }
+    return 0;
+}
+
+const char* wordLoaderGetRandom(void) {
+    if (!words || wordCount == 0) return "error";
+    int idx = rand() % wordCount;
+    return words[idx];
+}
+
+int wordLoaderGetCount(void) { return wordCount; }
+
+void wordLoaderCleanup(void) {
+    if (words) {
+        for (int i = 0; i < wordCount; i++) free(words[i]);
+        free(words);
+        words = NULL;
+    }
+    wordCount = 0;
+    if (file) { fclose(file); file = NULL; }
+}
+
+=== END FILE: src/utils/wordLoader.c ===
+
+=== BEGIN FILE: src/utils/wordLoader.h ===
+// === src/utils/wordLoader.h ===
+
+#ifndef WORD_LOADER_H
+#define WORD_LOADER_H
+
+int wordLoaderInit(const char* filePath);
+
+const char* wordLoaderGetRandom(void);
+
+int wordLoaderGetCount(void);
+
+void wordLoaderCleanup(void);
+
+#endif
+
+=== END FILE: src/utils/wordLoader.h ===
+
+=== MISSING IMPLEMENTATION FILES ===
+src/domain/distributed/pvmSlave.c
+src/presentation/menu.c
+src/presentation/consoleIo.c
+src/infrastructure/bcpLog.c
+src/infrastructure/processLog.c
+Note: These implementation files are referenced by headers or expected from project structure but are not present in the repository.
