@@ -1,5 +1,3 @@
-// === src/domain/distributed/messageProtocol.h ===
-
 #ifndef MESSAGE_PROTOCOL_H
 #define MESSAGE_PROTOCOL_H
 
@@ -12,7 +10,6 @@ typedef enum {
     MessageFinish
 } MessageType;
 
-// Propietario exclusivo de datos de mensaje
 typedef struct PvmMessage {
     int messageId;
     int sourceNodeId;
@@ -43,17 +40,11 @@ typedef struct AgingResults {
 } AgingResults;
 
 PvmMessage* packBcpMessage(int messageId, int sourceNodeId, int destinationNodeId, const void* bcpData, int dataSize);
-
 void unpackBcpMessage(PvmMessage* message, void* outBcpData, int maxSize);
-
 PvmMessage* packStatsMessage(int messageId, int sourceNodeId, int destinationNodeId, DistributedStats* stats);
-
 void unpackStatsMessage(PvmMessage* message, DistributedStats* outStats);
-
 PvmMessage* packAgingMessage(int messageId, int sourceNodeId, int destinationNodeId, AgingResults* aging);
-
 void unpackAgingMessage(PvmMessage* message, AgingResults* outAging);
-
 void pvmMessageDestroy(PvmMessage* message);
 
 #endif

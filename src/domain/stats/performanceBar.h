@@ -1,5 +1,3 @@
-// === src/domain/stats/performanceBar.h ===
-
 #ifndef PERFORMANCE_BAR_H
 #define PERFORMANCE_BAR_H
 
@@ -9,7 +7,7 @@ struct StatsCollector;
 
 typedef struct PerformanceBar {
     float values[barrasHistorial];
-    float wasteValues[barrasHistorial];   // Desperdicio de CPU en cada barra histórica
+    float wasteValues[barrasHistorial];
     int valueCount;
     float currentValue;
     float minValue;
@@ -17,17 +15,11 @@ typedef struct PerformanceBar {
 } PerformanceBar;
 
 PerformanceBar* performanceBarCreate(void);
-
 void performanceBarDestroy(PerformanceBar* bar);
-
 void performanceBarAddValue(PerformanceBar* bar, float value);
-
 void performanceBarUpdate(PerformanceBar* bar, struct StatsCollector* collector);
-
 float performanceBarGetCurrent(PerformanceBar* bar);
-
 float performanceBarGetAverage(PerformanceBar* bar);
-
 void performanceBarReset(PerformanceBar* bar);
 
 #endif

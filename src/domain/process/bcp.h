@@ -1,5 +1,3 @@
-// === src/domain/process/bcp.h ===
-
 #ifndef BCP_H
 #define BCP_H
 
@@ -33,10 +31,12 @@ typedef struct Bcp {
     int timeInWaiting;
     int ageingTimeSlices;
     int timesInIo;
-    int ioTimeRemaining;   // Tiempo restante en cola de E/S (1-100 * multiplicador)
-    char phraseBuffer[500];
+    int ioTimeRemaining;
+
+    char ioPhrase[tamanoFraseIo];
     char requiredWords[palabrasPorFrase][maxCaracteresPalabra];
     int requiredWordsCount;
+
     int pageCount;
     int memoryRequested;
     int totalMemoryAllocated;
@@ -53,26 +53,14 @@ typedef struct Bcp {
     int contextSwitchCount;
 } Bcp;
 
-// Propietario exclusivo de: phraseBuffer, requiredWords[][], assignedPages[]
-// Solo referencia: pageTableBase, swapAddress
-// Los campos numéricos (ioOperationsPending, etc.) son propiedad del BCP
-
 Bcp* bcpCreate(const char* processId, int pid);
-
 void bcpDestroy(Bcp* bcp);
-
 void bcpInitialize(Bcp* bcp, int priority, int executionTime, int arrivalTime);
-
 void bcpSetState(Bcp* bcp, ProcessState state);
-
 ProcessState bcpGetState(Bcp* bcp);
-
 void bcpIncrementContextSwitches(Bcp* bcp);
-
 void bcpUpdateRemainingTime(Bcp* bcp, int cycles);
-
 void bcpAddPage(Bcp* bcp, int pageIndex);
-
 void bcpAddPhrase(Bcp* bcp, const char* phrase);
 
 #endif

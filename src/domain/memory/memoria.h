@@ -1,5 +1,3 @@
-// === src/domain/memory/memoria.h ===
-
 #ifndef MEMORIA_H
 #define MEMORIA_H
 
@@ -10,7 +8,7 @@ typedef struct Marco {
     int size;
     int free;
     struct Pagina* page;
-    char processId[idProcesoLen];  
+    char processId[idProcesoLen];
 } Marco;
 
 typedef struct Pagina {
@@ -19,6 +17,7 @@ typedef struct Pagina {
     int enMemoria;
     int idMarco;
     int idProceso;
+    int swapAddress;
 } Pagina;
 
 typedef struct ProcessPageTable {
@@ -33,25 +32,15 @@ typedef struct PageDirectory {
 } PageDirectory;
 
 PageDirectory* pageDirectoryCreate(int totalPages);
-
 void pageDirectoryDestroy(PageDirectory* pageDir);
-
 ProcessPageTable* pageDirectoryGetProcessTable(PageDirectory* pageDir, int processIndex);
-
 Pagina* pageDirectoryGetPage(PageDirectory* pageDir, int pageNumber);
-
 void pageDirectorySetPageFrame(PageDirectory* pageDir, int pageNumber, int frameNumber);
-
 int pageDirectoryGetPageFrame(PageDirectory* pageDir, int pageNumber);
-
 void pageDirectoryMarkDirty(PageDirectory* pageDir, int pageNumber);
-
 void pageDirectoryMarkClean(PageDirectory* pageDir, int pageNumber);
-
 Marco* marcoCreate(int id);
-
 void marcoDestroy(Marco* marco);
-
 void marcoSetPage(Marco* marco, Pagina* pagina);
 
 #endif

@@ -1,5 +1,3 @@
-// === src/presentation/uiStrings.h ===
-
 #ifndef UI_STRINGS_H
 #define UI_STRINGS_H
 

@@ -1,5 +1,3 @@
-// === src/utils/constants.h ===
-
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
@@ -34,7 +32,12 @@
 #define iteracionesRebalanceo 20
 #define umbralDesbalance 75
 #define palabrasPorFrase 5
+#define tamanoFraseIo 500
+#ifndef pvmModeEnabled
+#define pvmModeEnabled 1
+#endif
 #define pvmNumEsclavos 2
+#define pvmSlaveHostsEnvVar "PVM_SLAVE_HOSTS"
 #define longitudMaximaCadena 256
 #define tamanoBufferMensaje 1024
 #define tamanoBufferLog 2048
@@ -44,5 +47,6 @@
 #define tiempoEsMin 1
 #define tiempoEsMax 100
 #define growthListSize 20
+#define retardoSimulacionMs 100 //20 default
 
 #endif
