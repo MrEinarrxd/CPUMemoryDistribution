@@ -28,6 +28,7 @@ typedef struct {
     int quantumAssigned;
     int quantumUsed;
     int timesReturnedToReady;
+    int wastedCpuCycles;
     float cpuWasteRatio;
 } RrProcessData;
 

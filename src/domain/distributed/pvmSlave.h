@@ -12,6 +12,8 @@ typedef struct PvmSlave {
     struct Process** assignedProcesses;
     int processCount;
     int maxProcesses;
+    int messagesReceived;
+    int messagesSent;
 } PvmSlave;
 
 PvmSlave* pvmSlaveInit(int masterTid, int maxProcesses);

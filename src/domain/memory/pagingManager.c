@@ -26,7 +26,33 @@ static void clearPage(Pagina* page) {
     page->enMemoria = 0;
     page->idMarco = -1;
     page->idProceso = -1;
+    page->swapAddress = -1;
     memset(page->words, 0, sizeof(page->words));
+}
+
+static int swapOutPage(PagingManager* manager, Pagina* page) {
+    if (!manager || !manager->swapManager || !page) return -1;
+    int simulatedPageToken = page->id;
+    int swapAddress = -1;
+    if (swapManagerWrite(manager->swapManager, &simulatedPageToken, 1, &swapAddress) != 0)
+        return -1;
+    page->swapAddress = swapAddress;
+    return 0;
+}
+
+static void freePageSwap(PagingManager* manager, Pagina* page) {
+    if (!manager || !manager->swapManager || !page || page->swapAddress < 0) return;
+    if (swapManagerFree(manager->swapManager, page->swapAddress) == 0)
+        page->swapAddress = -1;
+}
+
+static int swapInPage(PagingManager* manager, Pagina* page) {
+    if (!manager || !manager->swapManager || !page || page->swapAddress < 0) return 0;
+    int simulatedPageToken = 0;
+    if (swapManagerRead(manager->swapManager, page->swapAddress, &simulatedPageToken, 1) < 0)
+        return -1;
+    freePageSwap(manager, page);
+    return 0;
 }
 
 PagingManager* pagingManagerCreate(int totalPages, BitmapManager* bitmapManager) {
@@ -39,6 +65,7 @@ PagingManager* pagingManagerCreate(int totalPages, BitmapManager* bitmapManager)
     pm->totalPageFaults = 0;
     pm->internalWaste = 0;
     pm->externalWaste = 0;
+    pm->swapManager = NULL;
 
     // INICIALIZAR el reemplazo FIFO (evita page faults sin víctima)
     pm->fifoReplacement = fifoReplacementCreate(NULL, maxMarcos);
@@ -62,13 +89,14 @@ void pagingManagerDestroy(PagingManager* manager) {
 }
 
 void pagingManagerSetBitmapManager(PagingManager* manager, BitmapManager* bitmapManager) { if (manager) manager->bitmapManager = bitmapManager; }
+void pagingManagerSetSwapManager(PagingManager* manager, SwapManager* swapManager) { if (manager) manager->swapManager = swapManager; }
 
 int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int pageNumber, const char* missingWord) {
     if (!manager || !manager->pageDirectory || !manager->bitmapManager) return -1;
     if (processIndex < 0 || processIndex >= procesosEnEjecucion) return -1;
     if (pageNumber < 0 || pageNumber >= manager->pageDirectory->totalPages) return -1;
-    if (manager->pageDirectory->allPages[pageNumber].enMemoria &&
-        manager->pageDirectory->allPages[pageNumber].idMarco >= 0)
+    Pagina* requestedPage = &manager->pageDirectory->allPages[pageNumber];
+    if (requestedPage->enMemoria && requestedPage->idMarco >= 0)
         return 0;
 
     manager->totalPageFaults++;
@@ -78,6 +106,11 @@ int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int p
         while (victimPage >= 0) {
             int frame = pageDirectoryGetPageFrame(manager->pageDirectory, victimPage);
             if (frame >= 0) {
+                Pagina* victim = pageDirectoryGetPage(manager->pageDirectory, victimPage);
+                if (!victim || swapOutPage(manager, victim) != 0) {
+                    fifoReplacementAddPage(manager->fifoReplacement, victimPage);
+                    return -1;
+                }
                 int victimProcess = findProcessIndexByFrame(manager, frame);
                 bitmapManagerFreeFrame(manager->bitmapManager, frame);
                 if (victimProcess >= 0 && victimProcess < procesosEnEjecucion &&
@@ -91,8 +124,12 @@ int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int p
         }
     }
     if (newFrame < 0) return -1;
+    if (swapInPage(manager, requestedPage) != 0) {
+        bitmapManagerFreeFrame(manager->bitmapManager, newFrame);
+        return -1;
+    }
     pageDirectorySetPageFrame(manager->pageDirectory, pageNumber, newFrame);
-    manager->pageDirectory->allPages[pageNumber].idProceso = processIndex;
+    requestedPage->idProceso = processIndex;
     bitmapManagerSetFramePage(manager->bitmapManager, newFrame, pageNumber);
     manager->frameCountPerProcess[processIndex]++;
     if (manager->fifoReplacement) fifoReplacementAddPage(manager->fifoReplacement, pageNumber);
@@ -118,6 +155,7 @@ int pagingManagerAllocatePageForProcess(PagingManager* manager, int processIndex
         pt->pages[i]->id = pageId;
         pt->pages[i]->idMarco = -1;
         pt->pages[i]->enMemoria = 0;
+        pt->pages[i]->swapAddress = -1;
         memset(pt->pages[i]->words, 0, sizeof(pt->pages[i]->words));
     }
     manager->frameCountPerProcess[processIndex] = 0;
@@ -131,6 +169,7 @@ int pagingManagerDeallocatePagesForProcess(PagingManager* manager, int processIn
     for (int i = 0; i < pt->pageCount; i++) {
         Pagina* page = pt->pages ? pt->pages[i] : NULL;
         if (!page) continue;
+        freePageSwap(manager, page);
         if (page->idMarco >= 0 && manager->bitmapManager)
             bitmapManagerFreeFrame(manager->bitmapManager, page->idMarco);
         if (manager->fifoReplacement)
@@ -177,6 +216,7 @@ int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newF
         for (int i = newFrameCount; i < oldCount; i++) {
             Pagina* page = pt->pages[i];
             if (!page) continue;
+            freePageSwap(manager, page);
             if (page->idMarco >= 0 && manager->bitmapManager) {
                 bitmapManagerFreeFrame(manager->bitmapManager, page->idMarco);
                 if (manager->frameCountPerProcess[processIndex] > 0)
@@ -203,6 +243,7 @@ int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newF
         pt->pages[i]->idProceso = processIndex;
         pt->pages[i]->idMarco = -1;
         pt->pages[i]->enMemoria = 0;
+        pt->pages[i]->swapAddress = -1;
         memset(pt->pages[i]->words, 0, sizeof(pt->pages[i]->words));
     }
 

@@ -6,6 +6,19 @@
 #include <string.h>
 #include <stdlib.h>
 
+int menuGetExecutionMode(void) {
+    consoleIoClear();
+    consoleIoPrintLine("=== CPUMemoryDistribution Simulator ===");
+    consoleIoPrintLine("Seleccione modo de ejecucion:");
+    consoleIoPrintLine("1. LOCAL - sin PVM");
+    consoleIoPrintLine("2. DISTRIBUIDO - con PVM");
+    consoleIoPrint("Opcion: ");
+
+    char buffer[16];
+    if (!consoleIoReadLine(buffer, sizeof(buffer))) return 1;
+    return (buffer[0] == '2') ? 2 : 1;
+}
+
 void menuShowMain(void) {
     consoleIoClear();
     consoleIoPrintLine("=== SIMULADOR DE PLANIFICACIÓN CPU - MEMORIA ===");

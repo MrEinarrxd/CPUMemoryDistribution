@@ -42,7 +42,9 @@
 #include "../domain/stats/performanceBar.h"
 #include "../domain/stats/agingAnalysis.h"
 
+#if pvmModeEnabled
 #include "../domain/distributed/pvmMaster.h"
+#endif
 
 #include "../infrastructure/logger.h"
 #include "../infrastructure/bcpLog.h"
@@ -75,6 +77,7 @@ struct SystemController {
     BcpLog*                bcpLog;
     ProcessLog*            processLog;
     int                    running;
+    SystemRunMode          runMode;
     Process*               currentProcess;
 };
 
@@ -86,8 +89,18 @@ SystemController* systemControllerCreate(void) {
     }
     memset(ctrl, 0, sizeof(SystemController));
     ctrl->running = 0;
+    ctrl->runMode = SystemRunModeLocal;
     ctrl->currentProcess = NULL;
     return ctrl;
+}
+
+void systemControllerSetRunMode(SystemController* ctrl, SystemRunMode mode) {
+    if (!ctrl) return;
+    ctrl->runMode = (mode == SystemRunModePvm) ? SystemRunModePvm : SystemRunModeLocal;
+}
+
+SystemRunMode systemControllerGetRunMode(const SystemController* ctrl) {
+    return ctrl ? ctrl->runMode : SystemRunModeLocal;
 }
 
 int systemControllerInit(SystemController* ctrl) {
@@ -157,6 +170,7 @@ int systemControllerInit(SystemController* ctrl) {
 
     ctrl->pagingManager = pagingManagerCreate(maxMarcos, ctrl->bitmapManager);
     if (!ctrl->pagingManager) goto rollback_swap;
+    pagingManagerSetSwapManager(ctrl->pagingManager, ctrl->swapManager);
 
     ctrl->memoryResizer = memoryResizerCreate();
     if (!ctrl->memoryResizer) goto rollback_paging;
@@ -616,6 +630,17 @@ static void handleKeyA(SystemController* ctrl) {
 int systemControllerRun(SystemController* ctrl) {
     if (!ctrl) return -1;
     consoleIoInit();
+    int mode = menuGetExecutionMode();
+    if (mode == 2) {
+        systemControllerSetRunMode(ctrl, SystemRunModePvm);
+        consoleIoPrintLine("Modo PVM activado");
+        int ret = systemControllerRunPvm(ctrl);
+        consoleIoCleanup();
+        return ret;
+    }
+
+    systemControllerSetRunMode(ctrl, SystemRunModeLocal);
+    consoleIoPrintLine("Modo LOCAL activado");
     menuShowMain();
     if (ctrl->mainLogger) loggerLog(ctrl->mainLogger, LogLevelInfo, "Bucle de simulación iniciado.");
     while (ctrl->running) {
@@ -642,7 +667,7 @@ int systemControllerRun(SystemController* ctrl) {
             break;
         }
         if (!consoleIoKbhit()) {
-            timeHelperDelay(20);
+            timeHelperDelay(retardoSimulacionMs);
             continue;
         }
         char tecla = consoleIoGetChar();
@@ -695,6 +720,10 @@ int systemControllerRun(SystemController* ctrl) {
 
 int systemControllerRunPvm(SystemController* ctrl) {
     if (!ctrl) { errorHandlerLog(ErrorCodeInvalidArgument, "systemControllerRunPvm: ctrl es NULL"); return -1; }
+#if !pvmModeEnabled
+    consoleIoPrintLine("PVM no está habilitado en esta compilación.");
+    return -1;
+#else
     consoleIoPrintLine("Inicializando maestro PVM...");
     PvmMaster* master = pvmMasterInit();
     if (!master) { errorHandlerLog(ErrorCodeNodeConnectionFailed, "systemControllerRunPvm: no se pudo inicializar pvmMaster"); return -1; }
@@ -718,6 +747,7 @@ int systemControllerRunPvm(SystemController* ctrl) {
     pvmMasterCleanup(master);
     consoleIoPrintLine("Tareas distribuidas completadas.");
     return 0;
+#endif
 }
 
 int systemControllerHandleCommand(SystemController* ctrl, int command) {

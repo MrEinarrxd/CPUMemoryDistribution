@@ -1,3 +1,5 @@
+#define _DEFAULT_SOURCE
+
 #include "timeHelper.h"
 #include <sys/time.h>
 #include <unistd.h>

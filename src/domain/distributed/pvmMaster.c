@@ -30,6 +30,7 @@ typedef struct {
     int quantumAssigned;
     int quantumUsed;
     int timesReturnedToReady;
+    int wastedCpuCycles;
     float cpuWasteRatio;
 } RrProcessData;
 
@@ -65,6 +66,7 @@ static void bcpToRrProcessData(Bcp* bcp, RrProcessData* data) {
     data->quantumAssigned = bcp->quantumAssigned;
     data->quantumUsed = bcp->quantumUsed;
     data->timesReturnedToReady = bcp->timesReturnedToReady;
+    data->wastedCpuCycles = bcp->wastedCpuCycles;
     data->cpuWasteRatio = bcp->cpuWasteRatio;
 }
 
@@ -117,9 +119,30 @@ PvmMaster* pvmMasterInit(void) {
 
 int pvmMasterSpawnSlaves(PvmMaster* master) {
     if (!master) return -1;
-    int num = pvm_spawn("pvmSlave", NULL, 0, "", pvmNumEsclavos, master->slaveTids);
-    if (num < 0) { errorHandlerLog(ErrorCodeNodeConnectionFailed, "pvmMasterSpawnSlaves"); return -1; }
-    return num;
+    const char* hosts = getenv(pvmSlaveHostsEnvVar);
+    if (!hosts || hosts[0] == '\0') {
+        int num = pvm_spawn("pvmSlave", NULL, 0, "", pvmNumEsclavos, master->slaveTids);
+        if (num < 0) { errorHandlerLog(ErrorCodeNodeConnectionFailed, "pvmMasterSpawnSlaves"); return -1; }
+        return num;
+    }
+
+    char hostsCopy[longitudMaximaCadena];
+    strncpy(hostsCopy, hosts, sizeof(hostsCopy) - 1);
+    hostsCopy[sizeof(hostsCopy) - 1] = '\0';
+
+    int spawned = 0;
+    char* host = strtok(hostsCopy, ",");
+    while (host && spawned < pvmNumEsclavos) {
+        while (*host == ' ' || *host == '\t') host++;
+        int tid = 0;
+        int num = pvm_spawn("pvmSlave", NULL, PvmTaskHost, host, 1, &tid);
+        if (num == 1) master->slaveTids[spawned++] = tid;
+        host = strtok(NULL, ",");
+    }
+
+    if (spawned != pvmNumEsclavos)
+        errorHandlerLog(ErrorCodeNodeConnectionFailed, "pvmMasterSpawnSlaves: no se pudieron lanzar todos los hosts configurados");
+    return spawned;
 }
 
 void pvmMasterTask1Stats(PvmMaster* master) {

@@ -13,6 +13,7 @@ PageDirectory* pageDirectoryCreate(int totalPages) {
         pd->allPages[i].enMemoria = 0;
         pd->allPages[i].idMarco = -1;
         pd->allPages[i].idProceso = -1;
+        pd->allPages[i].swapAddress = -1;
     }
     for (int i = 0; i < procesosEnEjecucion; i++)
         pd->processTables[i].pages = NULL, pd->processTables[i].pageCount = 0;

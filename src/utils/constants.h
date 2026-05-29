@@ -25,7 +25,7 @@
 #define cambioContextoMin 10
 #define cambioContextoMax 30
 #define tiempoLlegadaMin 0
-#define tiempoLlegadaMax 800      // <-- CORREGIDO a 800
+#define tiempoLlegadaMax 800
 #define sleepCreacionMin 1
 #define sleepCreacionMax 50
 #define quantumDefault 20
@@ -33,7 +33,11 @@
 #define umbralDesbalance 75
 #define palabrasPorFrase 5
 #define tamanoFraseIo 500
+#ifndef pvmModeEnabled
+#define pvmModeEnabled 1
+#endif
 #define pvmNumEsclavos 2
+#define pvmSlaveHostsEnvVar "PVM_SLAVE_HOSTS"
 #define longitudMaximaCadena 256
 #define tamanoBufferMensaje 1024
 #define tamanoBufferLog 2048
@@ -43,5 +47,6 @@
 #define tiempoEsMin 1
 #define tiempoEsMax 100
 #define growthListSize 20
+#define retardoSimulacionMs 100 //20 default
 
 #endif

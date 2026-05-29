@@ -7,6 +7,7 @@ struct PerformanceBar;
 struct StatsCollector;
 
 void menuShowMain(void);
+int menuGetExecutionMode(void);
 void menuShowAlgorithmOptions(void);
 int menuGetAlgorithmChoice(void);
 int menuGetQuantumInput(void);

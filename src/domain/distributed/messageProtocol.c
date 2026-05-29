@@ -56,7 +56,7 @@ PvmMessage* packStatsMessage(int messageId, int sourceNodeId, int destinationNod
 
 void unpackStatsMessage(PvmMessage* message, DistributedStats* outStats) {
     if (!message || !outStats) return;
-    if (message->payloadSize >= sizeof(DistributedStats))
+    if (message->payloadSize >= (int)sizeof(DistributedStats))
         memcpy(outStats, message->payload, sizeof(DistributedStats));
     else
         memset(outStats, 0, sizeof(DistributedStats));
@@ -83,7 +83,7 @@ PvmMessage* packAgingMessage(int messageId, int sourceNodeId, int destinationNod
 
 void unpackAgingMessage(PvmMessage* message, AgingResults* outAging) {
     if (!message || !outAging) return;
-    if (message->payloadSize >= sizeof(AgingResults))
+    if (message->payloadSize >= (int)sizeof(AgingResults))
         memcpy(outAging, message->payload, sizeof(AgingResults));
     else
         memset(outAging, 0, sizeof(AgingResults));

@@ -17,6 +17,7 @@ typedef struct Pagina {
     int enMemoria;
     int idMarco;
     int idProceso;
+    int swapAddress;
 } Pagina;
 
 typedef struct ProcessPageTable {

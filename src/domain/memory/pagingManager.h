@@ -7,6 +7,7 @@ struct ProcessTable;
 struct PageDirectory;
 struct FifoReplacement;
 struct BitmapManager;
+struct SwapManager;
 
 typedef struct PagingManager {
     struct PageDirectory* pageDirectory;
@@ -15,12 +16,14 @@ typedef struct PagingManager {
     int internalWaste;
     int externalWaste;
     struct FifoReplacement* fifoReplacement;
+    struct SwapManager* swapManager;
     int frameCountPerProcess[procesosEnEjecucion];
 } PagingManager;
 
 PagingManager* pagingManagerCreate(int totalPages, struct BitmapManager* bitmapManager);
 void pagingManagerDestroy(PagingManager* manager);
 void pagingManagerSetBitmapManager(PagingManager* manager, struct BitmapManager* bitmapManager);
+void pagingManagerSetSwapManager(PagingManager* manager, struct SwapManager* swapManager);
 int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int pageNumber, const char* missingWord);
 int pagingManagerAllocatePageForProcess(PagingManager* manager, int processIndex, int pageCount);
 int pagingManagerDeallocatePagesForProcess(PagingManager* manager, int processIndex);
