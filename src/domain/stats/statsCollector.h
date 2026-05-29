@@ -7,8 +7,14 @@ struct ProcessTable;
 
 typedef struct StatsCollector {
     long totalCpuCyclesExecuted;
+    long totalCpuWasteCycles;
     float cpuUtilization;
+    float cpuWasteRatio;
     long totalMemoryAllocated;
+    int memoryUsedBlocks;
+    int memoryFreeBlocks;
+    int largestFreeRun;
+    int freeRunCount;
     int internalWaste;
     int externalWaste;
     int totalPageFaults;

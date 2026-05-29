@@ -6,6 +6,7 @@ struct ProcessTable;
 void processGeneratorInit(void);
 void processGeneratorRun(struct ProcessTable* table);
 struct Bcp* processGeneratorGetNext(void);
+struct Bcp* processGeneratorPeekNext(void);   // ← NUEVA
 int processGeneratorHasMore(void);
 void processGeneratorReset(void);
 int processGeneratorGetNextSleepTime(void);

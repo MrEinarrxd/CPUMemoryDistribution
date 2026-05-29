@@ -22,6 +22,7 @@ int ioCompletionHandlerProcess(IoCompletionHandler* handler, IoQueue* ioQueue,
     if (!handler || !ioQueue || !readyQueue) return 0;
     int completed = 0;
     for (int d = 0; d < numColasEs; d++) {
+        if (readyQueueIsFull(readyQueue)) break;
         Process* p = ioQueueGetFinished(ioQueue, d);
         while (p) {
             if (p->bcp) {
@@ -99,8 +100,6 @@ int ioCompletionHandlerProcess(IoCompletionHandler* handler, IoQueue* ioQueue,
                                             break;
                                         }
                                     }
-                                    // Actualizar contador en la tabla de procesos
-                                    if (processTable) processTable->totalPageFaults++;
                                 }
                             }
                             (void)found;
@@ -109,10 +108,18 @@ int ioCompletionHandlerProcess(IoCompletionHandler* handler, IoQueue* ioQueue,
                 }
 
                 bcp->ioOperationsPending = 0;
-                bcp->state = ProcessStateReady;
             }
-            readyQueueEnqueue(readyQueue, p);
-            completed++;
+            if (readyQueueEnqueue(readyQueue, p) == 0) {
+                if (p->bcp) bcpSetState(p->bcp, ProcessStateReady);
+                completed++;
+            } else {
+                if (p->bcp) {
+                    p->bcp->ioOperationsPending = 1;
+                    bcpSetState(p->bcp, ProcessStateWaitingIo);
+                }
+                break;
+            }
+            if (readyQueueIsFull(readyQueue)) break;
             p = ioQueueGetFinished(ioQueue, d);
         }
     }

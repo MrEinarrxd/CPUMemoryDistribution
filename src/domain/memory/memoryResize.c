@@ -16,7 +16,9 @@ void memoryResizerExecute(MemoryResizer* resizer, ProcessTable* table, PagingMan
     int activeIndices[procesosEnEjecucion];
     for (int i = 0; i < procesosEnEjecucion; i++) {
         Process* p = table->runningProcesses[i];
-        if (p && p->bcp && p->bcp->state != ProcessStateFinished) {
+        if (p && p->bcp &&
+            p->bcp->state != ProcessStateFinished &&
+            p->bcp->state != ProcessStateWaitingIo) {
             activeIndices[activeCount++] = i;
         }
     }
@@ -33,17 +35,27 @@ void memoryResizerExecute(MemoryResizer* resizer, ProcessTable* table, PagingMan
     int half = activeCount / 2;
     for (int i = 0; i < half; i++) {
         int idx = activeIndices[i];
-        int current = paging->frameCountPerProcess[idx];
+        Process* proc = table->runningProcesses[idx];
+        int current = (proc && proc->bcp && proc->bcp->pageCount > 0) ? proc->bcp->pageCount : marcosMin;
         int newCount = current / 2;
         if (newCount < marcosMin) newCount = marcosMin;
-        if (pagingManagerResizeFrames(paging, idx, newCount) == 0) resizer->successfulResizes++;
+        if (pagingManagerResizeFrames(paging, idx, newCount) == 0) {
+            Process* p = table->runningProcesses[idx];
+            if (p && p->bcp) p->bcp->pageCount = newCount;
+            resizer->successfulResizes++;
+        }
     }
     for (int i = half; i < activeCount; i++) {
         int idx = activeIndices[i];
-        int current = paging->frameCountPerProcess[idx];
+        Process* proc = table->runningProcesses[idx];
+        int current = (proc && proc->bcp && proc->bcp->pageCount > 0) ? proc->bcp->pageCount : marcosMin;
         int newCount = current * 2;
         if (newCount > marcosMax) newCount = marcosMax;
-        if (pagingManagerResizeFrames(paging, idx, newCount) == 0) resizer->successfulResizes++;
+        if (pagingManagerResizeFrames(paging, idx, newCount) == 0) {
+            Process* p = table->runningProcesses[idx];
+            if (p && p->bcp) p->bcp->pageCount = newCount;
+            resizer->successfulResizes++;
+        }
     }
     resizer->lastResizeCycle = table->currentCycle;
 }

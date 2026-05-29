@@ -51,13 +51,6 @@
 #include "../presentation/consoleIo.h"
 #include "../presentation/menu.h"
 
-// =============================================================================
-// systemControllerCreate
-// =============================================================================
-
-// -----------------------------------------------------------------------------
-// Estructura privada del controlador
-// -----------------------------------------------------------------------------
 struct SystemController {
     ProcessTable*          processTable;
     ReadyQueue*            readyQueue;
@@ -81,13 +74,10 @@ struct SystemController {
     Logger*                bcpLogger;
     BcpLog*                bcpLog;
     ProcessLog*            processLog;
-    int                    running;          // 1 = en marcha, 0 = detenido
-    Process*               currentProcess;   // proceso en CPU o NULL
+    int                    running;
+    Process*               currentProcess;
 };
 
-// =============================================================================
-// systemControllerCreate
-// =============================================================================
 SystemController* systemControllerCreate(void) {
     SystemController* ctrl = (SystemController*)malloc(sizeof(SystemController));
     if (!ctrl) {
@@ -100,49 +90,39 @@ SystemController* systemControllerCreate(void) {
     return ctrl;
 }
 
-// =============================================================================
-// systemControllerInit – crea e interconecta todos los subsistemas
-// =============================================================================
 int systemControllerInit(SystemController* ctrl) {
     if (!ctrl) return -1;
 
-    // 1. Utilidades globales
     initRandom(0);
     wordLoaderInit("libro1.odt");
     phraseLoaderInit("frases.odt");
 
-    // 2. Logs
     ctrl->mainLogger = loggerCreate("simulation.log", LogLevelInfo);
     if (!ctrl->mainLogger)
         fprintf(stderr, "[SystemController] Advertencia: no se pudo abrir simulation.log\n");
 
-    ctrl->bcpLogger = loggerCreate("bcp.log", LogLevelDebug);
+    ctrl->bcpLogger = loggerCreate("bcp.log", LogLevelInfo);  // CORREGIDO: era LogLevelDebug → genera 40GB
     if (!ctrl->bcpLogger)
         fprintf(stderr, "[SystemController] Advertencia: no se pudo abrir bcp.log\n");
 
     ctrl->bcpLog = bcpLogCreate(ctrl->bcpLogger);
     ctrl->processLog = processLogCreate(ctrl->mainLogger);
 
-    // 3. Cola de listos
     ctrl->readyQueue = readyQueueCreate();
     if (!ctrl->readyQueue) goto rollback_logs;
 
-    // 4. Colas de E/S (4 dispositivos)
     const int mult[numColasEs] = { multColaEs1, multColaEs2, multColaEs3, multColaEs4 };
     ctrl->ioQueue = ioQueueCreate(mult);
     if (!ctrl->ioQueue) goto rollback_readyqueue;
 
-    // 5. Tabla de procesos
     ctrl->processTable = processTableCreate();
     if (!ctrl->processTable) goto rollback_ioqueue;
     ctrl->processTable->readyQueue = ctrl->readyQueue;
     ctrl->processTable->ioQueue = ctrl->ioQueue;
 
-    // 6. Inicializar generador de procesos (sin crear procesos aún)
     processGeneratorInit();
     ctrl->processTable->totalProcesses = 0;
 
-    // 7. Planificadores
     ctrl->fcfsScheduler = fcfsSchedulerCreate();
     if (!ctrl->fcfsScheduler) goto rollback_proctable;
 
@@ -154,7 +134,6 @@ int systemControllerInit(SystemController* ctrl) {
     schedulerSetFcfs(ctrl->scheduler, ctrl->fcfsScheduler);
     schedulerSetRr(ctrl->scheduler, ctrl->rrScheduler);
 
-    // 8. Módulos auxiliares de planificación
     ctrl->rebalancer = rebalancerCreate();
     if (!ctrl->rebalancer) goto rollback_scheduler;
 
@@ -164,14 +143,12 @@ int systemControllerInit(SystemController* ctrl) {
     ctrl->algorithmSwitcher = algorithmSwitcherCreate(quantumDefault);
     if (!ctrl->algorithmSwitcher) goto rollback_preemption;
 
-    // 9. Subsistema de E/S
     ctrl->ioDispatcher = ioDispatcherCreate(ctrl->ioQueue);
     if (!ctrl->ioDispatcher) goto rollback_algoswitch;
 
     ctrl->ioCompletionHandler = ioCompletionHandlerCreate();
     if (!ctrl->ioCompletionHandler) goto rollback_iodispatch;
 
-    // 10. Subsistema de memoria
     ctrl->bitmapManager = bitmapManagerCreate(1);
     if (!ctrl->bitmapManager) goto rollback_iocomp;
 
@@ -184,7 +161,6 @@ int systemControllerInit(SystemController* ctrl) {
     ctrl->memoryResizer = memoryResizerCreate();
     if (!ctrl->memoryResizer) goto rollback_paging;
 
-    // 11. Estadísticas
     ctrl->statsCollector = statsCollectorCreate();
     if (!ctrl->statsCollector) goto rollback_resizer;
 
@@ -194,13 +170,11 @@ int systemControllerInit(SystemController* ctrl) {
     ctrl->agingAnalysis = agingAnalysisCreate();
     if (!ctrl->agingAnalysis) goto rollback_perfbar;
 
-    // 12. Todo listo
     ctrl->running = 1;
     if (ctrl->mainLogger)
         loggerLog(ctrl->mainLogger, LogLevelInfo, "SystemController inicializado correctamente.");
     return 0;
 
-    // Etiquetas de deshacer (rollback)
 rollback_perfbar:   performanceBarDestroy(ctrl->performanceBar);
 rollback_stats:     statsCollectorDestroy(ctrl->statsCollector);
 rollback_resizer:   memoryResizerDestroy(ctrl->memoryResizer);
@@ -228,19 +202,129 @@ rollback_logs:
     return -1;
 }
 
-// =============================================================================
-// systemControllerCycle – ejecuta un ciclo de simulación (modelo incremental)
-// =============================================================================
+static int findRunningSlot(SystemController* ctrl, Process* process) {
+    if (!ctrl || !process) return -1;
+    for (int i = 0; i < procesosEnEjecucion; i++)
+        if (ctrl->processTable->runningProcesses[i] == process) return i;
+    return -1;
+}
+
+static int findFreeRunningSlot(SystemController* ctrl) {
+    if (!ctrl) return -1;
+    for (int i = 0; i < procesosEnEjecucion; i++)
+        if (ctrl->processTable->runningProcesses[i] == NULL) return i;
+    return -1;
+}
+
+static int moveToNew(SystemController* ctrl, Process* process) {
+    if (!ctrl || !process || !process->bcp) return -1;
+    for (int i = 0; i < procesosEnEspera; i++) {
+        if (ctrl->processTable->newRequests[i] == NULL) {
+            ctrl->processTable->newRequests[i] = process;
+            bcpSetState(process->bcp, ProcessStateNew);
+            return 0;
+        }
+    }
+    return -1;
+}
+
+static int moveToReady(SystemController* ctrl, Process* process) {
+    if (!ctrl || !process || !process->bcp) return -1;
+    if (readyQueueEnqueue(ctrl->readyQueue, process) != 0) return -1;
+    bcpSetState(process->bcp, ProcessStateReady);
+    process->bcp->timesReturnedToReady++;
+    return 0;
+}
+
+static int moveToIo(SystemController* ctrl, Process* process, int device) {
+    if (!ctrl || !process || !process->bcp) return -1;
+    if (ioDispatcherDispatch(ctrl->ioDispatcher, process, device) != 0) return -1;
+    bcpSetState(process->bcp, ProcessStateWaitingIo);
+    return 0;
+}
+
+static void closePartialQuantum(SystemController* ctrl, Bcp* bcp, int quantum) {
+    if (!bcp || quantum <= 0) return;
+    if (bcp->quantumUsed > 0 && bcp->quantumUsed < quantum) {
+        int waste = quantum - bcp->quantumUsed;
+        bcp->wastedCpuCycles += waste;
+        bcp->cpuWasteRatio = (bcp->timeInExecution + bcp->wastedCpuCycles) > 0
+            ? (float)bcp->wastedCpuCycles / (float)(bcp->timeInExecution + bcp->wastedCpuCycles)
+            : 0.0f;
+        if (ctrl && ctrl->processTable)
+            ctrl->processTable->totalCpuWasteCycles += waste;
+    }
+    bcp->quantumUsed = 0;
+}
+
+static void syncSimulationMetrics(SystemController* ctrl) {
+    if (!ctrl || !ctrl->processTable) return;
+    ProcessTable* table = ctrl->processTable;
+
+    if (ctrl->pagingManager) {
+        table->totalPageFaults = pagingManagerGetPageFaultCount(ctrl->pagingManager);
+        table->internalWaste = pagingManagerGetInternalWaste(ctrl->pagingManager);
+        table->externalWaste = pagingManagerGetExternalWaste(ctrl->pagingManager);
+        table->fragmentation = pagingManagerGetFragmentation(ctrl->pagingManager);
+    }
+
+    if (ctrl->bitmapManager) {
+        bitmapManagerUpdateMetrics(ctrl->bitmapManager);
+        table->memoryUsedBlocks = bitmapManagerGetUsedBlocks(ctrl->bitmapManager);
+        table->memoryFreeBlocks = bitmapManagerGetFreeBlocks(ctrl->bitmapManager);
+        table->largestFreeRun = bitmapManagerGetLargestFreeRun(ctrl->bitmapManager);
+        table->freeRunCount = bitmapManagerGetFreeRunCount(ctrl->bitmapManager);
+    }
+
+    int accountedCpu = table->totalCpuCyclesExecuted + table->totalCpuWasteCycles;
+    table->cpuWasteRatio = accountedCpu > 0
+        ? (float)table->totalCpuWasteCycles / (float)accountedCpu
+        : 0.0f;
+}
+
+static void finishProcess(SystemController* ctrl, Process* process, int slot, int ciclo) {
+    if (!ctrl || !process || !process->bcp) return;
+    Bcp* bcp = process->bcp;
+    bcp->finishTime = ciclo;
+    bcp->quantumUsed = 0;
+    bcpSetState(bcp, ProcessStateFinished);
+    processDeactivate(process);
+    ctrl->processTable->totalWaitingTimeFinished += bcp->timeInWaiting;
+    ctrl->processTable->totalTurnaroundTimeFinished += bcp->finishTime - bcp->arrivalTime;
+    ctrl->processTable->totalExecutionTimeFinished += bcp->timeInExecution;
+    processTableIncrementFinished(ctrl->processTable);
+    if (ctrl->processLog) processLogRecordTermination(ctrl->processLog, process);
+    if (slot >= 0 && slot < procesosEnEjecucion)
+        ctrl->processTable->runningProcesses[slot] = NULL;
+    if (slot >= 0)
+        pagingManagerDeallocatePagesForProcess(ctrl->pagingManager, slot);
+    processDestroy(process);
+}
+
+static int hasPendingNewRequests(ProcessTable* table) {
+    if (!table) return 0;
+    for (int i = 0; i < procesosEnEspera; i++)
+        if (table->newRequests[i] != NULL) return 1;
+    return 0;
+}
+
+static int hasIoProcesses(ProcessTable* table) {
+    if (!table || !table->ioQueue) return 0;
+    for (int d = 0; d < numColasEs; d++)
+        if (table->ioQueue->devices[d].size > 0) return 1;
+    return 0;
+}
+
 int systemControllerCycle(SystemController* ctrl) {
     if (!ctrl || !ctrl->running) return -1;
 
-    // 1. Avanzar el reloj
     ctrl->processTable->currentCycle++;
     int ciclo = ctrl->processTable->currentCycle;
 
-    // DEBUG: mostrar estado cada 50 ciclos
-    if (ciclo % 50 == 0) {
-        fprintf(stderr, "[DEBUG] Ciclo %d | Cola Listos: %d | Procesos Total: %d | Finalizados: %d | CPU cycles: %d\n",
+    // DEBUG cada 200 ciclos (solo en compilación DEBUG_VERBOSE)
+#ifdef DEBUG_VERBOSE
+    if (ciclo % 200 == 0) {
+        fprintf(stderr, "[DEBUG] Ciclo %d | Listos: %d | Total: %d | Finalizados: %d | CPU cycles: %d\n",
                ciclo,
                readyQueueGetCount(ctrl->readyQueue),
                ctrl->processTable->totalProcesses,
@@ -248,131 +332,94 @@ int systemControllerCycle(SystemController* ctrl) {
                ctrl->processTable->totalCpuCyclesExecuted);
         fflush(stderr);
     }
+#endif
 
     // -------------------------------------------------------------------------
-    // 2. Admitir nuevos procesos mediante processGeneratorGetNext() (generador incremental)
+    // 2. Admitir nuevos procesos usando peek (NO extraer si aún no toca)
     // -------------------------------------------------------------------------
     while (processGeneratorHasMore()) {
-        Bcp* bcp = processGeneratorGetNext();
+        Bcp* bcp = processGeneratorPeekNext();
+        if (!bcp) break;
+        if (bcp->arrivalTime > ciclo) break;
+        bcp = processGeneratorGetNext();
         if (!bcp) break;
 
-        // Si el proceso no toca aún, no lo procesamos (asume arrivalTimes ordenados)
-        if (bcp->arrivalTime > ciclo) break;
-
-        Process* proc = processCreate(bcp->processId, bcp->pid);
+        // CORREGIDO: usar processCreateWithBcp evita crear y descartar un BCP innecesario
+        Process* proc = processCreateWithBcp(bcp);
         if (!proc) {
-            fprintf(stderr, "[SystemController] Fallo processCreate para %s\n", bcp->processId);
+            fprintf(stderr, "[SystemController] Fallo processCreateWithBcp para %s\n", bcp->processId);
             continue;
         }
-        proc->bcp = bcp;
         processActivate(proc);
         ctrl->processTable->totalProcesses++;
 
-        int slot = -1;
-        for (int i = 0; i < procesosEnEjecucion; i++) {
-            if (ctrl->processTable->runningProcesses[i] == NULL) {
-                slot = i;
-                break;
-            }
-        }
+        int slot = findFreeRunningSlot(ctrl);
 
-        if (slot != -1) {
+        if (slot != -1 && !readyQueueIsFull(ctrl->readyQueue)) {
             ctrl->processTable->runningProcesses[slot] = proc;
-            bcpSetState(bcp, ProcessStateReady);
-            if (readyQueueEnqueue(ctrl->readyQueue, proc) != 0) {
-                if (ctrl->mainLogger)
+            if (moveToReady(ctrl, proc) == 0) {
+                if (pagingManagerAllocatePageForProcess(ctrl->pagingManager, slot, bcp->pageCount) != 0 &&
+                    ctrl->mainLogger)
                     loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
-                        "Cola de listos llena al admitir %s en ciclo %d",
-                        bcp->processId, ciclo);
-            }
-            pagingManagerAllocatePageForProcess(ctrl->pagingManager, slot, bcp->pageCount);
-            if (ctrl->processLog)
-                processLogRecordCreation(ctrl->processLog, proc);
-        } else {
-            for (int i = 0; i < procesosEnEspera; i++) {
-                if (ctrl->processTable->newRequests[i] == NULL) {
-                    ctrl->processTable->newRequests[i] = proc;
-                    bcpSetState(bcp, ProcessStateNew);
-                    break;
+                        "No se pudo inicializar tabla de paginas para %s", bcp->processId);
+                if (ctrl->processLog)
+                    processLogRecordCreation(ctrl->processLog, proc);
+            } else {
+                ctrl->processTable->runningProcesses[slot] = NULL;
+                bcpSetState(bcp, ProcessStateNew);
+                if (moveToNew(ctrl, proc) != 0) {
+                    ctrl->processTable->totalProcesses--;
+                    processDestroy(proc);
                 }
             }
+        } else {
+            if (moveToNew(ctrl, proc) != 0) {
+                fprintf(stderr, "[ERROR] No hay espacio para admitir proceso %s\n", bcp->processId);
+                ctrl->processTable->totalProcesses--;
+                processDestroy(proc);
+            }
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 3. Admitir procesos cuyo tiempo de llegada se ha cumplido (procesos ya creados)
-    // -------------------------------------------------------------------------
-    // 3a. Procesos que ya están en runningProcesses pero aún en estado New
-    for (int i = 0; i < procesosEnEjecucion; i++) {
-        Process* p = ctrl->processTable->runningProcesses[i];
-        if (!p || !p->bcp) continue;
-        if (p->bcp->state != ProcessStateNew) continue;
-        if (p->bcp->arrivalTime > ciclo) continue;
-
-        bcpSetState(p->bcp, ProcessStateReady);
-        if (readyQueueEnqueue(ctrl->readyQueue, p) != 0) {
-            if (ctrl->mainLogger)
-                loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
-                    "Cola de listos llena al admitir %s en ciclo %d",
-                    p->bcp->processId, ciclo);
-        }
-        pagingManagerAllocatePageForProcess(ctrl->pagingManager, i, p->bcp->pageCount);
-        if (ctrl->processLog)
-            processLogRecordCreation(ctrl->processLog, p);
-    }
-
-    // 3b. Mover procesos desde newRequests a runningProcesses cuando corresponda
+    // 3. Mover desde newRequests a runningProcesses solo cuando tambien puede entrar a ready.
     for (int i = 0; i < procesosEnEspera; i++) {
         Process* espera = ctrl->processTable->newRequests[i];
         if (!espera || !espera->bcp) continue;
         if (espera->bcp->arrivalTime > ciclo) continue;
+        if (readyQueueIsFull(ctrl->readyQueue)) break;
 
-        int slotLibre = -1;
-        for (int j = 0; j < procesosEnEjecucion; j++) {
-            if (ctrl->processTable->runningProcesses[j] == NULL) {
-                slotLibre = j;
-                break;
-            }
-        }
+        int slotLibre = findFreeRunningSlot(ctrl);
         if (slotLibre == -1) continue;
 
         ctrl->processTable->runningProcesses[slotLibre] = espera;
-        ctrl->processTable->newRequests[i] = NULL;
-
-        bcpSetState(espera->bcp, ProcessStateReady);
-        if (readyQueueEnqueue(ctrl->readyQueue, espera) != 0) {
-            if (ctrl->mainLogger)
+        if (moveToReady(ctrl, espera) == 0) {
+            ctrl->processTable->newRequests[i] = NULL;
+            if (pagingManagerAllocatePageForProcess(ctrl->pagingManager, slotLibre, espera->bcp->pageCount) != 0 &&
+                ctrl->mainLogger)
                 loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
-                    "Cola de listos llena al admitir %s desde espera", espera->bcp->processId);
+                    "No se pudo inicializar tabla de paginas para %s", espera->bcp->processId);
+            if (ctrl->processLog)
+                processLogRecordCreation(ctrl->processLog, espera);
+        } else {
+            ctrl->processTable->runningProcesses[slotLibre] = NULL;
+            bcpSetState(espera->bcp, ProcessStateNew);
         }
-        pagingManagerAllocatePageForProcess(ctrl->pagingManager, slotLibre, espera->bcp->pageCount);
-        if (ctrl->processLog)
-            processLogRecordCreation(ctrl->processLog, espera);
     }
 
-    // -------------------------------------------------------------------------
     // 4. Finalización de E/S
-    // -------------------------------------------------------------------------
     ioCompletionHandlerProcess(ctrl->ioCompletionHandler, ctrl->ioQueue, ctrl->readyQueue,
                                ctrl->pagingManager, ctrl->processTable);
 
-    // -------------------------------------------------------------------------
-    // 5. Seleccionar el próximo proceso a ejecutar
-    // -------------------------------------------------------------------------
+    // 5. Seleccionar el próximo proceso
     Process* actual = schedulerSelectNext(ctrl->scheduler, ctrl->processTable);
 
-    // Incrementar tiempo de espera para todos los procesos en estado Ready
     for (int i = 0; i < procesosEnEjecucion; i++) {
         Process* p = ctrl->processTable->runningProcesses[i];
-        if (p && p->bcp && p->bcp->state == ProcessStateReady) {
-            p->bcp->timeInWaiting++;
-        }
+        if (p && p->bcp && p->bcp->state == ProcessStateReady) p->bcp->timeInWaiting++;
     }
     for (int i = 0; i < procesosEnEspera; i++) {
         Process* p = ctrl->processTable->newRequests[i];
-        if (p && p->bcp && p->bcp->state == ProcessStateReady) {
-            p->bcp->timeInWaiting++;
-        }
+        if (p && p->bcp && p->bcp->state == ProcessStateReady) p->bcp->timeInWaiting++;
     }
 
     if (actual && actual->bcp) {
@@ -380,15 +427,8 @@ int systemControllerCycle(SystemController* ctrl) {
         bcpSetState(bcp, ProcessStateRunning);
         ctrl->currentProcess = actual;
 
-        // 5a. Ejecutar una ráfaga de CPU
         int instancia = randomCpuInstanceCycles();
-        if (instancia > bcp->remainingCycles)
-            instancia = bcp->remainingCycles;
-
-        // DEBUG: mostrar proceso ejecutándose
-        fprintf(stderr, "[DEBUG] Ejecutando %s: instancia=%d, remainingCycles=%d → %d\n",
-               bcp->processId, instancia, bcp->remainingCycles, bcp->remainingCycles - instancia);
-        fflush(stderr);
+        if (instancia > bcp->remainingCycles) instancia = bcp->remainingCycles;
 
         bcpUpdateRemainingTime(bcp, instancia);
         bcp->timeInExecution += instancia;
@@ -396,109 +436,80 @@ int systemControllerCycle(SystemController* ctrl) {
         bcp->timesExecuted++;
         ctrl->processTable->totalCpuCyclesExecuted += instancia;
 
-        // Crecimiento dinámico de memoria: con probabilidad ~25% el proceso solicita más páginas
+        int procIdx = findRunningSlot(ctrl, actual);
+
+        // Crecimiento dinámico de memoria
         {
             int growth = randomMemoryGrowth();
             if (growth > 0) {
-                int procIdx = -1;
-                for (int gi = 0; gi < procesosEnEjecucion; gi++) {
-                    if (ctrl->processTable->runningProcesses[gi] == actual) { procIdx = gi; break; }
-                }
                 if (procIdx >= 0) {
-                    int newPages = ctrl->pagingManager->frameCountPerProcess[procIdx] + growth;
+                    int newPages = bcp->pageCount + growth;
                     if (newPages > maxPaginasPorProceso) newPages = maxPaginasPorProceso;
-                    pagingManagerResizeFrames(ctrl->pagingManager, procIdx, newPages);
-                    bcp->pageCount = newPages;
-                }
-            }
-        }
-        if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) {
-            int quantum = rrSchedulerGetCurrentQuantum(ctrl->rrScheduler);
-            if (bcp->quantumUsed > quantum) {
-                // No debería pasar, pero por seguridad
-                bcp->wastedCpuCycles += 0;
-            } else {
-                int waste = quantum - bcp->quantumUsed;
-                if (waste > 0) {
-                    bcp->wastedCpuCycles += waste;
+                    if (pagingManagerResizeFrames(ctrl->pagingManager, procIdx, newPages) == 0)
+                        bcp->pageCount = newPages;
                 }
             }
         }
 
-        // 5b. Coste de cambio de contexto
         bcp->contextSwitchTime = randomContextSwitchTime();
         bcpIncrementContextSwitches(bcp);
         ctrl->processTable->totalContextSwitches++;
         schedulerOnContextSwitch(ctrl->scheduler);
         if (ctrl->bcpLog) bcpLogRecordContextSwitch(ctrl->bcpLog, bcp);
 
-        // 5c. Decidir si el proceso solicita E/S (probabilidad 30%)
         if (bcp->remainingCycles > 0 && randomInt(0, 100) < 30) {
             bcp->ioOperationsPending = 1;
             ioDispatcherLoadRandomPhrase(actual);
         }
 
-        // 5d. Verificar expiración del quantum (solo en RR)
-        if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) {
-            int quantum = rrSchedulerGetCurrentQuantum(ctrl->rrScheduler);
-            if (bcp->quantumUsed >= quantum) {
-                bcp->quantumUsed = 0;
-                rrSchedulerOnQuantumExpired(ctrl->rrScheduler);
-                if (ctrl->bcpLog) bcpLogRecordQuantumExpired(ctrl->bcpLog, bcp);
-
-                if (bcp->remainingCycles > 0 && bcp->ioOperationsPending == 0) {
-                    bcpSetState(bcp, ProcessStateReady);
-                    readyQueueEnqueue(ctrl->readyQueue, actual);
-                }
-                ctrl->currentProcess = NULL;
-            }
-        }
-
-        // 5e. Proceso terminado
         if (bcp->remainingCycles <= 0) {
-            bcp->finishTime = ciclo;
-            bcpSetState(bcp, ProcessStateFinished);
-            processDeactivate(actual);
-            processTableIncrementFinished(ctrl->processTable);
-            if (ctrl->processLog)
-                processLogRecordTermination(ctrl->processLog, actual);
+            if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr)
+                closePartialQuantum(ctrl, bcp, rrSchedulerGetCurrentQuantum(ctrl->rrScheduler));
+            finishProcess(ctrl, actual, procIdx, ciclo);
+            ctrl->currentProcess = NULL;
 
-            int procIdx = -1;
-            for (int j = 0; j < procesosEnEjecucion; j++) {
-                if (ctrl->processTable->runningProcesses[j] == actual) {
-                    procIdx = j;
-                    ctrl->processTable->runningProcesses[j] = NULL;
-                    break;
-                }
-            }
-            if (procIdx >= 0) {
-                pagingManagerDeallocatePagesForProcess(ctrl->pagingManager, procIdx);
-            } else if (ctrl->mainLogger) {
-                loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
-                    "No se encontró índice de proceso para liberar memoria de %s",
-                    bcp->processId);
+        } else if (bcp->ioOperationsPending > 0) {
+            int dispositivo = bcp->timesInIo % numColasEs;
+            if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr)
+                closePartialQuantum(ctrl, bcp, rrSchedulerGetCurrentQuantum(ctrl->rrScheduler));
+            if (moveToIo(ctrl, actual, dispositivo) == 0) {
+                bcp->timesInIo++;
+                ctrl->processTable->totalIoOperations++;
+            } else {
+                bcp->ioOperationsPending = 0;
+                if (moveToReady(ctrl, actual) != 0)
+                    bcpSetState(bcp, ProcessStateRunning);
             }
             ctrl->currentProcess = NULL;
 
-        // 5f. Enviar a E/S si hay operaciones pendientes
-        } else if (bcp->ioOperationsPending > 0) {
-            bcpSetState(bcp, ProcessStateWaitingIo);
-            int dispositivo = bcp->timesInIo % numColasEs;
-            bcp->timesInIo++;
-            ctrl->processTable->totalIoOperations++;
-            ioDispatcherDispatch(ctrl->ioDispatcher, actual, dispositivo);
+        } else if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr &&
+                   bcp->quantumUsed >= rrSchedulerGetCurrentQuantum(ctrl->rrScheduler)) {
+            bcp->quantumUsed = 0;
+            rrSchedulerOnQuantumExpired(ctrl->rrScheduler);
+            if (ctrl->bcpLog) bcpLogRecordQuantumExpired(ctrl->bcpLog, bcp);
+            if (moveToReady(ctrl, actual) != 0)
+                bcpSetState(bcp, ProcessStateRunning);
+            ctrl->currentProcess = NULL;
+
+        } else {
+            if (moveToReady(ctrl, actual) != 0)
+                bcpSetState(bcp, ProcessStateRunning);
             ctrl->currentProcess = NULL;
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 6. Avanzar los relojes de E/S
-    // -------------------------------------------------------------------------
+    if (ctrl->currentProcess != NULL) {
+        Bcp* pendingBcp = ctrl->currentProcess->bcp;
+        if (pendingBcp && pendingBcp->remainingCycles > 0) {
+            if (moveToReady(ctrl, ctrl->currentProcess) != 0) {
+                bcpSetState(pendingBcp, ProcessStateRunning);
+            }
+        }
+        ctrl->currentProcess = NULL;
+    }
+
     ioDispatcherTick(ctrl->ioDispatcher);
 
-    // -------------------------------------------------------------------------
-    // 7. Rebalanceo dinámico de quantum
-    // -------------------------------------------------------------------------
     rebalancerTick(ctrl->rebalancer);
     if (rebalancerShouldCheck(ctrl->rebalancer)) {
         rrSchedulerUpdateProportions(ctrl->rrScheduler, ctrl->processTable);
@@ -506,7 +517,7 @@ int systemControllerCycle(SystemController* ctrl) {
         if (rebalancerIsImbalanced(ctrl->rebalancer, propListos)) {
             int delta = rebalancerSuggestQuantumDelta(ctrl->rebalancer, propListos);
             int nuevoQuantum = ctrl->rrScheduler->currentQuantum + delta;
-            if (nuevoQuantum < 1) nuevoQuantum = 1;
+            if (nuevoQuantum < 5) nuevoQuantum = 5;  // CORREGIDO: mínimo 5 (1 causaba 250 ctx-switches/ciclo)
             ctrl->rrScheduler->currentQuantum = nuevoQuantum;
             rebalancerOnBalanceRestored(ctrl->rebalancer);
             menuShowBalanceAlert(ctrl->rrScheduler->proportionReady,
@@ -515,43 +526,42 @@ int systemControllerCycle(SystemController* ctrl) {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 8. Cambio automático de algoritmo
-    // -------------------------------------------------------------------------
     if (algorithmSwitcherShouldSwitch(ctrl->algorithmSwitcher, ctrl->scheduler, ctrl->processTable)) {
         algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
         ctrl->processTable->algorithmChangeCount++;
     }
 
-    // -------------------------------------------------------------------------
-    // 9. Actualizar ranking de envejecimiento (solo RR)
-    // -------------------------------------------------------------------------
     if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr)
         rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
 
-    // -------------------------------------------------------------------------
-    // 10. Redimensionar memoria periódicamente
-    // -------------------------------------------------------------------------
     if (ciclo % growthListSize == 0)
         memoryResizerExecute(ctrl->memoryResizer, ctrl->processTable, ctrl->pagingManager);
 
-    // -------------------------------------------------------------------------
-    // 11. Recolectar estadísticas
-    // -------------------------------------------------------------------------
+    processTableUpdateAverages(ctrl->processTable);
+    syncSimulationMetrics(ctrl);
     statsCollectorCollect(ctrl->statsCollector, ctrl->processTable);
     performanceBarUpdate(ctrl->performanceBar, ctrl->statsCollector);
     agingAnalysisCollectSample(ctrl->agingAnalysis, ctrl->processTable);
-    processTableUpdateAverages(ctrl->processTable);
+
+    // CONDICIÓN DE PARADA: esperar a que el generador haya entregado todos los
+    // procesos Y todos hayan terminado (evita finalización prematura).
+    if (!processGeneratorHasMore()
+        && ctrl->processTable->finishedProcesses >= ctrl->processTable->totalProcesses
+        && ctrl->processTable->totalProcesses > 0
+        && !hasPendingNewRequests(ctrl->processTable)
+        && readyQueueIsEmpty(ctrl->readyQueue)
+        && !hasIoProcesses(ctrl->processTable)
+        && ctrl->currentProcess == NULL) {
+        if (ctrl->mainLogger)
+            loggerLog(ctrl->mainLogger, LogLevelInfo, "Todos los procesos terminados. Finalizando simulación.");
+        ctrl->running = 0;
+    }
 
     return 0;
 }
 
-// =============================================================================
-// systemControllerDestroy – libera todos los recursos
-// =============================================================================
 void systemControllerDestroy(SystemController* ctrl) {
     if (!ctrl) return;
-
     if (ctrl->agingAnalysis)        agingAnalysisDestroy(ctrl->agingAnalysis);
     if (ctrl->performanceBar)       performanceBarDestroy(ctrl->performanceBar);
     if (ctrl->statsCollector)       statsCollectorDestroy(ctrl->statsCollector);
@@ -567,7 +577,6 @@ void systemControllerDestroy(SystemController* ctrl) {
     if (ctrl->scheduler)            schedulerDestroy(ctrl->scheduler);
     if (ctrl->rrScheduler)          rrSchedulerDestroy(ctrl->rrScheduler);
     if (ctrl->fcfsScheduler)        fcfsSchedulerDestroy(ctrl->fcfsScheduler);
-
     processGeneratorCleanup();
     if (ctrl->processTable)         processTableDestroy(ctrl->processTable);
     if (ctrl->ioQueue)              ioQueueDestroy(ctrl->ioQueue);
@@ -576,120 +585,90 @@ void systemControllerDestroy(SystemController* ctrl) {
     if (ctrl->bcpLog)               bcpLogDestroy(ctrl->bcpLog);
     if (ctrl->bcpLogger)            loggerDestroy(ctrl->bcpLogger);
     if (ctrl->mainLogger)           loggerDestroy(ctrl->mainLogger);
-
     wordLoaderCleanup();
     phraseLoaderCleanup();
     free(ctrl);
 }
 
-// =============================================================================
-// Manejadores internos de teclas (estáticos)
-// =============================================================================
 static void handleKeyX(SystemController* ctrl) {
     consoleIoClear();
     menuShowAlgorithmOptions();
-    int opcion = menuGetAlgorithmChoice();   // 1=FCFS, 2=RR, 0=cancelar
+    int opcion = menuGetAlgorithmChoice();
     if (opcion == 0) return;
-
-    if (opcion == 1 || opcion == 2) {
-        systemControllerHandleCommand(ctrl, opcion);
-    }
+    if (opcion == 1 || opcion == 2) systemControllerHandleCommand(ctrl, opcion);
 }
 
 static void handleKeyA(SystemController* ctrl) {
     rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
     AgingRanking* r = &ctrl->rrScheduler->agingRanking;
-
     consoleIoClear();
     menuShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
     menuShowTop5Wasters((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
-
     char idElegido[idProcesoLen];
     memset(idElegido, 0, sizeof(idElegido));
-
     if (menuGetPrivilegedProcessId(idElegido, idProcesoLen) > 0 && idElegido[0] != '\0') {
         rrSchedulerPrioritizeProcess(ctrl->rrScheduler, idElegido);
         if (ctrl->mainLogger)
-            loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
-                "Tecla A: proceso %s marcado como privilegiado.", idElegido);
+            loggerLogFormat(ctrl->mainLogger, LogLevelInfo, "Tecla A: proceso %s marcado como privilegiado.", idElegido);
     }
 }
 
-// =============================================================================
-// systemControllerRun – bucle principal de simulación
-// =============================================================================
 int systemControllerRun(SystemController* ctrl) {
     if (!ctrl) return -1;
-
     consoleIoInit();
     menuShowMain();
-
-    if (ctrl->mainLogger)
-        loggerLog(ctrl->mainLogger, LogLevelInfo, "Bucle de simulación iniciado.");
-
+    if (ctrl->mainLogger) loggerLog(ctrl->mainLogger, LogLevelInfo, "Bucle de simulación iniciado.");
     while (ctrl->running) {
         int ret = systemControllerCycle(ctrl);
         if (ret != 0) {
-            if (ctrl->mainLogger)
-                loggerLogFormat(ctrl->mainLogger, LogLevelError,
-                    "systemControllerCycle devolvió %d en ciclo %d. Abortando.",
-                    ret, ctrl->processTable->currentCycle);
+            if (ctrl->mainLogger) loggerLogFormat(ctrl->mainLogger, LogLevelError,
+                "systemControllerCycle devolvió %d en ciclo %d. Abortando.", ret, ctrl->processTable->currentCycle);
             ctrl->running = 0;
             break;
         }
-
         if (ctrl->processTable->currentCycle % 10 == 0) {
             consoleIoClear();
             menuShowPerformanceBars(ctrl->performanceBar);
             menuShowMemoryStats(ctrl->statsCollector);
         }
-
         if (ctrl->processTable->totalProcesses > 0 &&
-            ctrl->processTable->finishedProcesses >= ctrl->processTable->totalProcesses) {
-            if (ctrl->mainLogger)
-                loggerLog(ctrl->mainLogger, LogLevelInfo, "Todos los procesos terminaron. Simulación finalizada.");
+            ctrl->processTable->finishedProcesses >= ctrl->processTable->totalProcesses &&
+            !processGeneratorHasMore() &&
+            !hasPendingNewRequests(ctrl->processTable) &&
+            readyQueueIsEmpty(ctrl->readyQueue) &&
+            !hasIoProcesses(ctrl->processTable)) {
+            if (ctrl->mainLogger) loggerLog(ctrl->mainLogger, LogLevelInfo, "Todos los procesos terminaron. Simulación finalizada.");
             ctrl->running = 0;
             break;
         }
-
         if (!consoleIoKbhit()) {
             timeHelperDelay(20);
             continue;
         }
-
         char tecla = consoleIoGetChar();
         switch (tecla) {
-            case 'X': case 'x':
-                handleKeyX(ctrl);
-                break;
+            case 'X': case 'x': handleKeyX(ctrl); break;
             case 'A': case 'a':
-                if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr)
-                    handleKeyA(ctrl);
-                else
-                    consoleIoPrintLine("El ranking de envejecimiento solo está disponible en modo RR.");
+                if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) handleKeyA(ctrl);
+                else consoleIoPrintLine("El ranking de envejecimiento solo está disponible en modo RR.");
                 break;
             case 'P': case 'p': {
                 consoleIoPrintLine("[PAUSADO] Presione P nuevamente para reanudar...");
                 char reanudar = 0;
                 while (reanudar != 'P' && reanudar != 'p') {
                     if (consoleIoKbhit()) reanudar = consoleIoGetChar();
-                    else                  timeHelperDelay(50);
+                    else timeHelperDelay(50);
                 }
                 consoleIoPrintLine("[REANUDADO]");
                 break;
             }
             case 'Q': case 'q': case 27:
-                if (ctrl->mainLogger)
-                    loggerLog(ctrl->mainLogger, LogLevelInfo, "Usuario solicitó detener la simulación.");
+                if (ctrl->mainLogger) loggerLog(ctrl->mainLogger, LogLevelInfo, "Usuario solicitó detener la simulación.");
                 ctrl->running = 0;
                 break;
-            default:
-                systemControllerHandleCommand(ctrl, (int)tecla);
-                break;
+            default: systemControllerHandleCommand(ctrl, (int)tecla); break;
         }
     }
-
-    // Resumen final
     consoleIoClear();
     if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) {
         rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
@@ -705,106 +684,69 @@ int systemControllerRun(SystemController* ctrl) {
     consoleIoPrintInt("Cambios de contexto:   ", ctrl->processTable->totalContextSwitches);
     consoleIoPrintInt("Cambios de algoritmo:  ", ctrl->processTable->algorithmChangeCount);
     consoleIoPrintSeparator();
-
     if (ctrl->mainLogger) {
         loggerLog(ctrl->mainLogger, LogLevelInfo, "Bucle de simulación finalizado.");
         loggerFlush(ctrl->mainLogger);
     }
     if (ctrl->bcpLogger) loggerFlush(ctrl->bcpLogger);
-
     consoleIoCleanup();
     return 0;
 }
 
-// =============================================================================
-// Ejecución de tareas distribuidas PVM
-// =============================================================================
 int systemControllerRunPvm(SystemController* ctrl) {
-    if (!ctrl) {
-        errorHandlerLog(ErrorCodeInvalidArgument, "systemControllerRunPvm: ctrl es NULL");
-        return -1;
-    }
-
+    if (!ctrl) { errorHandlerLog(ErrorCodeInvalidArgument, "systemControllerRunPvm: ctrl es NULL"); return -1; }
     consoleIoPrintLine("Inicializando maestro PVM...");
     PvmMaster* master = pvmMasterInit();
-    if (!master) {
-        errorHandlerLog(ErrorCodeNodeConnectionFailed,
-                       "systemControllerRunPvm: no se pudo inicializar pvmMaster");
-        return -1;
-    }
-
-    // Asignar referencias a processTable y rrScheduler
+    if (!master) { errorHandlerLog(ErrorCodeNodeConnectionFailed, "systemControllerRunPvm: no se pudo inicializar pvmMaster"); return -1; }
     master->processTable = ctrl->processTable;
     master->rrScheduler = ctrl->rrScheduler;
-
-    // Lanzar esclavos
     consoleIoPrintLine("Lanzando procesos esclavos...");
     int numEsclavos = pvmMasterSpawnSlaves(master);
     if (numEsclavos != pvmNumEsclavos) {
-        errorHandlerLog(ErrorCodeNodeConnectionFailed,
-                       "systemControllerRunPvm: no se pudieron lanzar todos los esclavos");
+        errorHandlerLog(ErrorCodeNodeConnectionFailed, "systemControllerRunPvm: no se pudieron lanzar todos los esclavos");
         pvmMasterCleanup(master);
         return -1;
     }
-
     consoleIoPrintLine("Ejecutando Tarea 1: Estadísticas de procesos...");
     pvmMasterTask1Stats(master);
-
     consoleIoPrintLine("Ejecutando Tarea 2: Análisis de Round-Robin...");
     pvmMasterTask2Aging(master);
-
     consoleIoPrintLine("Integrando resultados...");
     pvmMasterIntegrateResults(master);
-
     consoleIoPrintLine("Imprimiendo resultados finales...");
     pvmMasterPrintResults(master);
-
-    // Limpieza
     pvmMasterCleanup(master);
     consoleIoPrintLine("Tareas distribuidas completadas.");
     return 0;
 }
 
 int systemControllerHandleCommand(SystemController* ctrl, int command) {
-    if (!ctrl || !ctrl->scheduler || !ctrl->rrScheduler || !ctrl->algorithmSwitcher || !ctrl->processTable)
-        return -1;
-
+    if (!ctrl || !ctrl->scheduler || !ctrl->rrScheduler || !ctrl->algorithmSwitcher || !ctrl->processTable) return -1;
     switch (command) {
-        case 1: {
+        case 1:
             algorithmSwitcherSetNext(ctrl->algorithmSwitcher, SchedulerAlgorithmFcfs);
             algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
             ctrl->processTable->algorithmChangeCount++;
-            if (ctrl->mainLogger)
-                loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
-                                "Comando 1: cambio manual a FCFS");
+            if (ctrl->mainLogger) loggerLogFormat(ctrl->mainLogger, LogLevelInfo, "Comando 1: cambio manual a FCFS");
             return 0;
-        }
-        case 2: {
+        case 2:
             menuShowQuantumPrompt();
             int quantum = menuGetQuantumInput();
-            if (quantum > 0) {
-                ctrl->rrScheduler->currentQuantum = quantum;
-            }
+            if (quantum > 0) ctrl->rrScheduler->currentQuantum = quantum;
             algorithmSwitcherSetNext(ctrl->algorithmSwitcher, SchedulerAlgorithmRr);
             algorithmSwitcherApply(ctrl->algorithmSwitcher, ctrl->scheduler);
             ctrl->processTable->algorithmChangeCount++;
-            if (ctrl->mainLogger)
-                loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
-                                "Comando 2: cambio manual a RR con quantum %d", quantum);
+            if (ctrl->mainLogger) loggerLogFormat(ctrl->mainLogger, LogLevelInfo, "Comando 2: cambio manual a RR con quantum %d", quantum);
             return 0;
-        }
         case 3: {
             char processId[idProcesoLen];
             memset(processId, 0, sizeof(processId));
             if (menuGetPrivilegedProcessId(processId, idProcesoLen) > 0 && processId[0] != '\0') {
                 rrSchedulerPrioritizeProcess(ctrl->rrScheduler, processId);
-                if (ctrl->mainLogger)
-                    loggerLogFormat(ctrl->mainLogger, LogLevelInfo,
-                                    "Comando 3: proceso %s privilegiado", processId);
+                if (ctrl->mainLogger) loggerLogFormat(ctrl->mainLogger, LogLevelInfo, "Comando 3: proceso %s privilegiado", processId);
             }
             return 0;
         }
-        default:
-            return -1;
+        default: return -1;
     }
 }

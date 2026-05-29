@@ -11,7 +11,13 @@ void statsCollectorDestroy(StatsCollector* collector) { free(collector); }
 void statsCollectorCollect(StatsCollector* collector, ProcessTable* table) {
     if (!collector || !table) return;
     collector->totalCpuCyclesExecuted = table->totalCpuCyclesExecuted;
+    collector->totalCpuWasteCycles = table->totalCpuWasteCycles;
     collector->cpuUtilization = table->cpuUtilization;
+    collector->cpuWasteRatio = table->cpuWasteRatio;
+    collector->memoryUsedBlocks = table->memoryUsedBlocks;
+    collector->memoryFreeBlocks = table->memoryFreeBlocks;
+    collector->largestFreeRun = table->largestFreeRun;
+    collector->freeRunCount = table->freeRunCount;
     collector->totalContextSwitches = table->totalContextSwitches;
     collector->avgWaitingTime = table->avgWaitingTime;
     collector->avgTurnaroundTime = table->avgTurnaroundTime;

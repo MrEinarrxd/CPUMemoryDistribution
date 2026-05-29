@@ -10,6 +10,15 @@ ProcessTable* processTableCreate(void) {
     table->finishedProcesses = 0;
     table->currentCycle = 0;
     table->totalCpuCyclesExecuted = 0;
+    table->totalCpuWasteCycles = 0;
+    table->cpuWasteRatio = 0.0f;
+    table->memoryUsedBlocks = 0;
+    table->memoryFreeBlocks = 0;
+    table->largestFreeRun = 0;
+    table->freeRunCount = 0;
+    table->totalWaitingTimeFinished = 0;
+    table->totalTurnaroundTimeFinished = 0;
+    table->totalExecutionTimeFinished = 0;
     table->totalContextSwitches = 0;
     table->algorithmChangeCount = 0;
     table->totalIoOperations = 0;
@@ -76,34 +85,30 @@ void processTableIncrementFinished(ProcessTable* table) { if (table) table->fini
 void processTableUpdateAverages(ProcessTable* table) {
     if (!table) return;
     int finished = table->finishedProcesses;
-    if (finished == 0) return;
-    float totalWaiting = 0.0f, totalTurnaround = 0.0f;
-    for (int i = 0; i < procesosEnEjecucion; i++) {
-        Process* p = table->runningProcesses[i];
-        if (p && p->bcp && p->bcp->state == ProcessStateFinished) {
-            totalWaiting += p->bcp->timeInWaiting;
-            totalTurnaround += (p->bcp->finishTime - p->bcp->arrivalTime);
-        }
+    if (finished > 0) {
+        table->avgWaitingTime = (float)table->totalWaitingTimeFinished / finished;
+        table->avgTurnaroundTime = (float)table->totalTurnaroundTimeFinished / finished;
     }
-    for (int i = 0; i < procesosEnEspera; i++) {
-        Process* p = table->newRequests[i];
-        if (p && p->bcp && p->bcp->state == ProcessStateFinished) {
-            totalWaiting += p->bcp->timeInWaiting;
-            totalTurnaround += (p->bcp->finishTime - p->bcp->arrivalTime);
-        }
-    }
-    table->avgWaitingTime = totalWaiting / finished;
-    table->avgTurnaroundTime = totalTurnaround / finished;
 
     if (table->currentCycle > 0) {
-        table->cpuUtilization = (float)table->totalCpuCyclesExecuted / (float)table->currentCycle;
+        float capacity = (float)table->currentCycle * (float)ciclosPorInstanciaMax;
+        table->cpuUtilization = capacity > 0.0f
+            ? (float)table->totalCpuCyclesExecuted / capacity
+            : 0.0f;
         if (table->cpuUtilization > 1.0f) table->cpuUtilization = 1.0f;
+        if (table->cpuUtilization < 0.0f) table->cpuUtilization = 0.0f;
+
+        int accountedCpu = table->totalCpuCyclesExecuted + table->totalCpuWasteCycles;
+        table->cpuWasteRatio = accountedCpu > 0
+            ? (float)table->totalCpuWasteCycles / (float)accountedCpu
+            : 0.0f;
         
-        // DEBUG: mostrar el cálculo cada 50 ciclos
+#ifdef DEBUG_VERBOSE
         if (table->currentCycle % 50 == 0) {
             fprintf(stderr, "[DEBUG STATS] Ciclo: %d | totalCpuCyclesExecuted: %d | Utilización: %.4f (%.1f%%)\n",
                    table->currentCycle, table->totalCpuCyclesExecuted, table->cpuUtilization, table->cpuUtilization * 100.0f);
             fflush(stderr);
         }
+#endif
     }
 }

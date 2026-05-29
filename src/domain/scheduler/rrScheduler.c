@@ -33,13 +33,14 @@ Process* rrSchedulerSelectNext(RrScheduler* scheduler, ProcessTable* table) {
         for (int i = 0; i < size; i++) {
             Process* p = rq->processes[(rq->head + i) % tamColaListos];
             if (p && p->bcp && strcmp(p->bcp->processId, scheduler->privilegedProcessId) == 0) {
-                // Extraerlo
+                // Extraerlo desplazando elementos a la izquierda
                 for (int j = i; j < size - 1; j++) {
                     int cur = (rq->head + j) % tamColaListos;
                     int next = (rq->head + j + 1) % tamColaListos;
                     rq->processes[cur] = rq->processes[next];
                 }
                 rq->tail = (rq->tail - 1 + tamColaListos) % tamColaListos;
+                rq->processes[rq->tail] = NULL;
                 rq->count--;
                 scheduler->hasPrivilegedProcess = 0;
                 memset(scheduler->privilegedProcessId, 0, idProcesoLen);

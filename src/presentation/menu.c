@@ -4,6 +4,7 @@
 #include "../domain/stats/statsCollector.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 void menuShowMain(void) {
     consoleIoClear();
@@ -21,15 +22,16 @@ void menuShowAlgorithmOptions(void) {
     consoleIoPrintLine("0. Cancelar");
 }
 int menuGetAlgorithmChoice(void) {
-    char c = getchar(); while (getchar() != '\n');
+    char c = consoleIoGetChar();
     if (c == '1') return 1;
     if (c == '2') return 2;
     return 0;
 }
 int menuGetQuantumInput(void) {
     consoleIoPrint("Ingrese quantum: ");
-    int q; scanf("%d", &q); while (getchar() != '\n');
-    return q;
+    char buffer[32];
+    if (!consoleIoReadLine(buffer, sizeof(buffer))) return 0;
+    return atoi(buffer);
 }
 void menuShowQuantumPrompt(void) { consoleIoPrintLine("Ingrese el quantum para RR:"); }
 void menuShowBalanceAlert(float proportionReady, float proportionWaiting, int newQuantum) {
@@ -52,7 +54,7 @@ void menuShowTop5Wasters(const char ids[][idProcesoLen], const int wasteValues[]
 }
 int menuGetPrivilegedProcessId(char* outId, int maxLen) {
     consoleIoPrint("Ingrese ID del proceso a privilegiar: ");
-    if (fgets(outId, maxLen, stdin)) {
+    if (consoleIoReadLine(outId, maxLen)) {
         size_t len = strlen(outId);
         if (len > 0 && outId[len-1] == '\n') outId[len-1] = '\0';
         return 1;
@@ -82,9 +84,13 @@ void menuShowPerformanceBars(const struct PerformanceBar* bar) {
 void menuShowMemoryStats(const struct StatsCollector* collector) {
     if (!collector) return;
     consoleIoPrintLine("=== ESTADÍSTICAS DE MEMORIA ===");
+    consoleIoPrintInt("Marcos usados: ", collector->memoryUsedBlocks);
+    consoleIoPrintInt("Marcos libres: ", collector->memoryFreeBlocks);
+    consoleIoPrintInt("Mayor hueco libre: ", collector->largestFreeRun);
+    consoleIoPrintInt("Huecos libres: ", collector->freeRunCount);
     consoleIoPrintInt("Desperdicio interno: ", collector->internalWaste);
     consoleIoPrintInt("Desperdicio externo: ", collector->externalWaste);
-    consoleIoPrintFloat("Fragmentación: ", collector->fragmentation);
+    consoleIoPrintFloat("Fragmentación externa %: ", collector->fragmentation * 100.0f);
     consoleIoPrintInt("Fallos de página: ", collector->totalPageFaults);
 }
 

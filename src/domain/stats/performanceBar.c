@@ -28,8 +28,11 @@ void performanceBarAddValue(PerformanceBar* bar, float value) {
 void performanceBarUpdate(PerformanceBar* bar, StatsCollector* collector) {
     if (!bar || !collector) return;
     float utilization = statsCollectorGetCpuUtilization(collector);
-    float waste = 1.0f - utilization;
+    float waste = collector->cpuWasteRatio;
+    if (utilization < 0.0f) utilization = 0.0f;
+    if (utilization > 1.0f) utilization = 1.0f;
     if (waste < 0.0f) waste = 0.0f;
+    if (waste > 1.0f) waste = 1.0f;
     // Actualizar values y wasteValues sincrónicamente con un solo contador
     if (bar->valueCount < barrasHistorial) {
         bar->values[bar->valueCount] = utilization;

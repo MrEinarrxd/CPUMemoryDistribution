@@ -58,12 +58,15 @@ Process* ioQueueGetFinished(IoQueue* queue, int deviceId) {
         int idx = (dev->head + i) % dev->capacity;
         Process* p = dev->items[idx];
         if (p && p->bcp && p->bcp->ioTimeRemaining == 0) {
+            for (int j = i; j < dev->size - 1; j++) {
+                int cur = (dev->head + j) % dev->capacity;
+                int next = (dev->head + j + 1) % dev->capacity;
+                dev->items[cur] = dev->items[next];
+            }
             int lastIdx = (dev->head + dev->size - 1) % dev->capacity;
-            dev->items[idx] = dev->items[lastIdx];
             dev->items[lastIdx] = NULL;
             dev->size--;
-            if (lastIdx == dev->tail)
-                dev->tail = (dev->tail - 1 + dev->capacity) % dev->capacity;
+            dev->tail = (dev->tail - 1 + dev->capacity) % dev->capacity;
             return p;
         }
     }

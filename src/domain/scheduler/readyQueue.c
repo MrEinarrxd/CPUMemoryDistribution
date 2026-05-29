@@ -1,6 +1,17 @@
 #include "readyQueue.h"
 #include "../process/process.h"
 #include <stdlib.h>
+#ifdef DEBUG_VERBOSE
+#include <stdio.h>
+static int readyQueueContains(ReadyQueue* queue, Process* process) {
+    if (!queue || !process) return 0;
+    for (int i = 0; i < queue->count; i++) {
+        int idx = (queue->head + i) % tamColaListos;
+        if (queue->processes[idx] == process) return 1;
+    }
+    return 0;
+}
+#endif
 
 ReadyQueue* readyQueueCreate(void) {
     ReadyQueue* q = (ReadyQueue*)calloc(1, sizeof(ReadyQueue));
@@ -12,6 +23,12 @@ void readyQueueDestroy(ReadyQueue* queue) { free(queue); }
 int readyQueueEnqueue(ReadyQueue* queue, Process* process) {
     if (!queue || !process) return -1;
     if (queue->count >= tamColaListos) return -1;
+#ifdef DEBUG_VERBOSE
+    if (readyQueueContains(queue, process)) {
+        fprintf(stderr, "[ReadyQueue] proceso duplicado ignorado: %p\n", (void*)process);
+        return -1;
+    }
+#endif
     queue->processes[queue->tail] = process;
     queue->tail = (queue->tail + 1) % tamColaListos;
     queue->count++;
@@ -21,6 +38,12 @@ int readyQueueEnqueue(ReadyQueue* queue, Process* process) {
 int readyQueueEnqueueFront(ReadyQueue* queue, Process* process) {
     if (!queue || !process) return -1;
     if (queue->count >= tamColaListos) return -1;
+#ifdef DEBUG_VERBOSE
+    if (readyQueueContains(queue, process)) {
+        fprintf(stderr, "[ReadyQueue] proceso duplicado ignorado: %p\n", (void*)process);
+        return -1;
+    }
+#endif
     queue->head = (queue->head - 1 + tamColaListos) % tamColaListos;
     queue->processes[queue->head] = process;
     queue->count++;

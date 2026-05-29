@@ -27,6 +27,7 @@ int pagingManagerDeallocatePagesForProcess(PagingManager* manager, int processIn
 int pagingManagerGetPageFaultCount(PagingManager* manager);
 int pagingManagerGetInternalWaste(PagingManager* manager);
 int pagingManagerGetExternalWaste(PagingManager* manager);
+float pagingManagerGetFragmentation(PagingManager* manager);
 void pagingManagerSetReplacement(PagingManager* manager, struct FifoReplacement* fifo);
 int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newFrameCount);
 

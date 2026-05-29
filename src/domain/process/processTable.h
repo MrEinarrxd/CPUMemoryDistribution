@@ -19,6 +19,15 @@ typedef struct ProcessTable {
     int currentCycle;
     int simulationStartTime;
     int totalCpuCyclesExecuted;
+    int totalCpuWasteCycles;
+    float cpuWasteRatio;
+    int memoryUsedBlocks;
+    int memoryFreeBlocks;
+    int largestFreeRun;
+    int freeRunCount;
+    int totalWaitingTimeFinished;
+    int totalTurnaroundTimeFinished;
+    int totalExecutionTimeFinished;
     int totalContextSwitches;
     int algorithmChangeCount;
     int totalIoOperations;

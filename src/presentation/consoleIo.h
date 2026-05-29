@@ -3,6 +3,9 @@
 
 void consoleIoInit(void);
 void consoleIoCleanup(void);
+void consoleIoSetRawMode(void);
+void consoleIoSetNormalMode(void);
+int consoleIoReadLine(char* buffer, int maxLen);
 int consoleIoKbhit(void);
 char consoleIoGetChar(void);
 void consoleIoPrint(const char* text);
