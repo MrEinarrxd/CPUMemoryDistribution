@@ -1,5 +1,9 @@
 /*
 
+gcc -std=c11 -Wall -Wextra -DpvmModeEnabled=1 -I./src \
+  $(find src -name '*.c' ! -name 'pvmSlave.c') \
+  -o sim_pvm -lpvm3
+
 export PVM_SLAVE_HOSTS=slave1,slave2
 ./sim_pvm
 
