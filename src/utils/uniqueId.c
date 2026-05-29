@@ -1,4 +1,3 @@
-// src/utils/uniqueId.c
 #include "uniqueId.h"
 #include <stdio.h>
 #include <string.h>
@@ -7,7 +6,6 @@
 void generateProcessId(int processNumber, char* outId, size_t outSize) {
     if (!outId || outSize == 0) return;
     if (processNumber < 1) processNumber = 1;
-
     char letter;
     int num;
     if (processNumber <= 100) {

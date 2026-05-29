@@ -1,4 +1,3 @@
-// src/presentation/uiStrings.c
 #include "uiStrings.h"
 #include <string.h>
 

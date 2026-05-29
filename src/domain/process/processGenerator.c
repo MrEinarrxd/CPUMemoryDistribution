@@ -1,12 +1,9 @@
-// === src/domain/process/processGenerator.c ===
-
 #include "processGenerator.h"
 #include "bcp.h"
 #include "../../utils/random.h"
 #include "../../utils/uniqueId.h"
 #include "../../utils/constants.h"
 #include "processTable.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -17,7 +14,7 @@ typedef struct ArrivalPair {
 } ArrivalPair;
 
 static Bcp** g_bcpArray = NULL;
-static int* g_arrivalTimes = NULL; // sorted arrival times
+static int* g_arrivalTimes = NULL;
 static int g_nextIndex = 0;
 
 static int arrivalPairCmp(const void* a, const void* b) {
@@ -30,17 +27,14 @@ static int arrivalPairCmp(const void* a, const void* b) {
 
 void processGeneratorInit(void) {
     if (g_bcpArray != NULL) {
-        // already initialized
         g_nextIndex = 0;
         return;
     }
-
     g_bcpArray = (Bcp**)calloc(totalProcesos, sizeof(Bcp*));
     if (!g_bcpArray) {
         g_nextIndex = 0;
         return;
     }
-
     g_arrivalTimes = (int*)calloc(totalProcesos, sizeof(int));
     if (!g_arrivalTimes) {
         free(g_bcpArray);
@@ -48,7 +42,6 @@ void processGeneratorInit(void) {
         g_nextIndex = 0;
         return;
     }
-
     int* tempArrivals = (int*)calloc(totalProcesos, sizeof(int));
     if (!tempArrivals) {
         free(g_arrivalTimes);
@@ -58,9 +51,7 @@ void processGeneratorInit(void) {
         g_nextIndex = 0;
         return;
     }
-
     generateUniqueArrivalTimes(tempArrivals, totalProcesos);
-
     ArrivalPair* pairs = (ArrivalPair*)malloc(sizeof(ArrivalPair) * totalProcesos);
     if (!pairs) {
         free(tempArrivals);
@@ -71,22 +62,16 @@ void processGeneratorInit(void) {
         g_nextIndex = 0;
         return;
     }
-
     for (int i = 0; i < totalProcesos; ++i) {
         pairs[i].arrival = tempArrivals[i];
         pairs[i].idx = i;
     }
-
     qsort(pairs, totalProcesos, sizeof(ArrivalPair), arrivalPairCmp);
-
-    // create BCPs in arrival order
     for (int i = 0; i < totalProcesos; ++i) {
         char pidStr[idProcesoLen];
         generateProcessId(i + 1, pidStr, (size_t)idProcesoLen);
-
         Bcp* bcp = bcpCreate(pidStr, i + 1);
         if (!bcp) {
-            // allocation failure: cleanup partial
             for (int j = 0; j < i; ++j) {
                 if (g_bcpArray[j]) bcpDestroy(g_bcpArray[j]);
             }
@@ -99,11 +84,6 @@ void processGeneratorInit(void) {
             g_nextIndex = 0;
             return;
         }
-
-        // zero any remaining fields to be safe
-        // bcpCreate is expected to allocate and zero-initialize some fields,
-        // but ensure unset fields are zeroed where needed
-        // set required fields
         bcp->pid = i + 1;
         bcp->arrivalTime = pairs[i].arrival;
         bcp->totalCpuCycles = randomCpuCycles();
@@ -111,27 +91,20 @@ void processGeneratorInit(void) {
         bcp->priority = 0;
         bcp->pageCount = randomInt(1, maxPaginasPorProceso);
         bcp->state = ProcessStateNew;
-
-        // other numeric fields default to 0; ensure by clearing if necessary
-        // (we avoid memset over entire struct because bcpCreate may set processId)
-
         g_bcpArray[i] = bcp;
         g_arrivalTimes[i] = bcp->arrivalTime;
     }
-
     free(pairs);
     free(tempArrivals);
-
     g_nextIndex = 0;
 }
 
 void processGeneratorRun(struct ProcessTable* table) {
-    // Deprecated in incremental model. For backward compatibility,
-    // simply iterate through all generated BCPs to ensure creation.
     if (!g_bcpArray) processGeneratorInit();
     while (processGeneratorHasMore()) {
         (void)processGeneratorGetNext();
     }
+    (void)table;
 }
 
 struct Bcp* processGeneratorGetNext(void) {
@@ -147,30 +120,12 @@ int processGeneratorHasMore(void) {
     return g_nextIndex < totalProcesos;
 }
 
-void processGeneratorReset(void) {
-    g_nextIndex = 0;
-}
-
-int processGeneratorGetNextSleepTime(void) {
-    return randomInt(sleepCreacionMin, sleepCreacionMax);
-}
-
-void processGeneratorAssignUniqueIds(struct ProcessTable* table, int count) {
-    (void)table; (void)count; // stub
-}
-
-void processGeneratorAssignUniqueArrivalTimes(struct ProcessTable* table, int count) {
-    (void)table; (void)count; // stub
-}
-
-void processGeneratorAssignCpuCycles(struct ProcessTable* table, int count) {
-    (void)table; (void)count; // stub
-}
-
-void processGeneratorAssignMemory(struct ProcessTable* table, int count) {
-    (void)table; (void)count; // stub
-}
-
+void processGeneratorReset(void) { g_nextIndex = 0; }
+int processGeneratorGetNextSleepTime(void) { return randomInt(sleepCreacionMin, sleepCreacionMax); }
+void processGeneratorAssignUniqueIds(struct ProcessTable* table, int count) { (void)table; (void)count; }
+void processGeneratorAssignUniqueArrivalTimes(struct ProcessTable* table, int count) { (void)table; (void)count; }
+void processGeneratorAssignCpuCycles(struct ProcessTable* table, int count) { (void)table; (void)count; }
+void processGeneratorAssignMemory(struct ProcessTable* table, int count) { (void)table; (void)count; }
 void processGeneratorCleanup(void) {
     if (g_bcpArray) {
         for (int i = 0; i < totalProcesos; ++i) {
@@ -188,3 +143,5 @@ void processGeneratorCleanup(void) {
     }
     g_nextIndex = 0;
 }
+
+//Parte 5 – Dominio: Planificación (Schedulers)

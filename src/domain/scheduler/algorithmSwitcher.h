@@ -1,5 +1,3 @@
-// === src/domain/scheduler/algorithmSwitcher.h ===
-
 #ifndef ALGORITHM_SWITCHER_H
 #define ALGORITHM_SWITCHER_H
 
@@ -17,17 +15,11 @@ typedef struct AlgorithmSwitcher {
 } AlgorithmSwitcher;
 
 AlgorithmSwitcher* algorithmSwitcherCreate(int switchThreshold);
-
 void algorithmSwitcherDestroy(AlgorithmSwitcher* switcher);
-
-int algorithmSwitcherShouldSwitch(AlgorithmSwitcher* switcher, struct Scheduler* scheduler);
-
+int algorithmSwitcherShouldSwitch(AlgorithmSwitcher* switcher, struct Scheduler* scheduler, struct ProcessTable* table);
 void algorithmSwitcherSetNext(AlgorithmSwitcher* switcher, SchedulerAlgorithm nextAlgorithm);
-
 SchedulerAlgorithm algorithmSwitcherGetNext(AlgorithmSwitcher* switcher);
-
 void algorithmSwitcherApply(AlgorithmSwitcher* switcher, struct Scheduler* scheduler);
-
 int algorithmSwitcherGetChangeCount(AlgorithmSwitcher* switcher);
 
 #endif

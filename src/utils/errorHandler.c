@@ -1,4 +1,3 @@
-// src/utils/errorHandler.c
 #include "errorHandler.h"
 #include <stdio.h>
 #include <stdlib.h>

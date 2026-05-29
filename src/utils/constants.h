@@ -1,5 +1,3 @@
-// === src/utils/constants.h ===
-
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
@@ -27,7 +25,7 @@
 #define cambioContextoMin 10
 #define cambioContextoMax 30
 #define tiempoLlegadaMin 0
-#define tiempoLlegadaMax 800
+#define tiempoLlegadaMax 10
 #define sleepCreacionMin 1
 #define sleepCreacionMax 50
 #define quantumDefault 20

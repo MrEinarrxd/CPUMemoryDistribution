@@ -1,8 +1,12 @@
-#include "src/business/systemController.h"
+#include "business/systemController.h"
 
 int main() {
     SystemController* controller = systemControllerCreate();
-    systemControllerInit(controller);
+    if (!controller) return 1;
+    if (systemControllerInit(controller) != 0) {
+        systemControllerDestroy(controller);
+        return 1;
+    }
     systemControllerRun(controller);
     systemControllerDestroy(controller);
     return 0;

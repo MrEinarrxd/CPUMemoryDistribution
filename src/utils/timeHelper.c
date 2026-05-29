@@ -1,4 +1,3 @@
-// src/utils/timeHelper.c
 #include "timeHelper.h"
 #include <sys/time.h>
 #include <unistd.h>

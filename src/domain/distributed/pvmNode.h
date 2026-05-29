@@ -1,5 +1,3 @@
-// === src/domain/distributed/pvmNode.h ===
-
 #ifndef PVM_NODE_H
 #define PVM_NODE_H
 
@@ -17,17 +15,11 @@ typedef struct PvmNode {
 } PvmNode;
 
 PvmNode* pvmNodeCreate(int nodeId, const char* nodeName);
-
 void pvmNodeDestroy(PvmNode* node);
-
 int pvmNodeSendMessage(PvmNode* node, struct PvmMessage* message);
-
 struct PvmMessage* pvmNodeReceiveMessage(PvmNode* node);
-
 int pvmNodeIsActive(PvmNode* node);
-
 void pvmNodeActivate(PvmNode* node);
-
 void pvmNodeDeactivate(PvmNode* node);
 
 #endif

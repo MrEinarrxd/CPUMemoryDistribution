@@ -1,5 +1,3 @@
-// === src/domain/scheduler/fcfsScheduler.h ===
-
 #ifndef FCFS_SCHEDULER_H
 #define FCFS_SCHEDULER_H
 
@@ -12,11 +10,8 @@ typedef struct FcfsScheduler {
 } FcfsScheduler;
 
 FcfsScheduler* fcfsSchedulerCreate(void);
-
 void fcfsSchedulerDestroy(FcfsScheduler* scheduler);
-
 struct Process* fcfsSchedulerSelectNext(FcfsScheduler* scheduler, struct ProcessTable* table);
-
 void fcfsSchedulerOnContextSwitch(FcfsScheduler* scheduler);
 
 #endif

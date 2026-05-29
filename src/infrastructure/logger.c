@@ -1,4 +1,3 @@
-// src/infrastructure/logger.c
 #include "logger.h"
 #include "../utils/timeHelper.h"
 #include <stdio.h>
@@ -41,13 +40,11 @@ void loggerDestroy(Logger* logger) {
 void loggerLog(Logger* logger, LogLevel level, const char* message) {
     if (!logger || !logger->logFile) return;
     if (level < logger->minLevel) return;
-
     long ms = timeHelperGetCurrentTime();
     time_t sec = ms / 1000;
     struct tm* tm_info = localtime(&sec);
     char timeBuf[20];
     strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", tm_info);
-
     fprintf(logger->logFile, "[%s.%03ld] %s: %s\n", timeBuf, ms % 1000, levelToString(level), message);
     fflush(logger->logFile);
 }

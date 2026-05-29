@@ -1,4 +1,3 @@
-
 #ifndef RR_SCHEDULER_H
 #define RR_SCHEDULER_H
 
@@ -7,7 +6,6 @@
 struct ProcessTable;
 struct Process;
 
-// Propietario exclusivo de ranking data
 typedef struct AgingRanking {
     char processIds[totalRankingProcesos][idProcesoLen];
     int wasteValues[totalRankingProcesos];
@@ -22,24 +20,17 @@ typedef struct RrScheduler {
     float proportionWaiting;
     int iterationsSinceBalance;
     AgingRanking agingRanking;
-    char privilegedProcessId[idProcesoLen];   // ID del proceso privilegiado (tecla A)
-    int hasPrivilegedProcess;                  // 1 si hay proceso privilegiado activo
+    char privilegedProcessId[idProcesoLen];
+    int hasPrivilegedProcess;
 } RrScheduler;
 
 RrScheduler* rrSchedulerCreate(int quantum);
-
 void rrSchedulerDestroy(RrScheduler* scheduler);
-
 struct Process* rrSchedulerSelectNext(RrScheduler* scheduler, struct ProcessTable* table);
-
 void rrSchedulerOnQuantumExpired(RrScheduler* scheduler);
-
 void rrSchedulerUpdateProportions(RrScheduler* scheduler, struct ProcessTable* table);
-
 void rrSchedulerUpdateAgingRanking(RrScheduler* scheduler, struct ProcessTable* table);
-
 void rrSchedulerPrioritizeProcess(RrScheduler* scheduler, const char* processId);
-
 int rrSchedulerGetCurrentQuantum(RrScheduler* scheduler);
 
 #endif

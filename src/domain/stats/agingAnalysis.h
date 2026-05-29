@@ -1,5 +1,3 @@
-// === src/domain/stats/agingAnalysis.h ===
-
 #ifndef AGING_ANALYSIS_H
 #define AGING_ANALYSIS_H
 
