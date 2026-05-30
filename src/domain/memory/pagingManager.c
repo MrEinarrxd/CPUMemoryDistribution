@@ -3,6 +3,7 @@
 #include "memoria.h"
 #include "fifoReplacement.h"
 #include "swapManager.h"
+#include "../../utils/wordLoader.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -53,6 +54,17 @@ static int swapInPage(PagingManager* manager, Pagina* page) {
         return -1;
     freePageSwap(manager, page);
     return 0;
+}
+
+static void loadPageWords(Pagina* page) {
+    if (!page) return;
+    for (int i = 0; i < palabrasPorPagina; i++) {
+        if (page->words[i][0] == '\0') {
+            const char* word = wordLoaderGetRandom();
+            strncpy(page->words[i], word, maxCaracteresPalabra - 1);
+            page->words[i][maxCaracteresPalabra - 1] = '\0';
+        }
+    }
 }
 
 PagingManager* pagingManagerCreate(int totalPages, BitmapManager* bitmapManager) {
@@ -130,6 +142,7 @@ int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int p
     }
     pageDirectorySetPageFrame(manager->pageDirectory, pageNumber, newFrame);
     requestedPage->idProceso = processIndex;
+    loadPageWords(requestedPage);
     bitmapManagerSetFramePage(manager->bitmapManager, newFrame, pageNumber);
     manager->frameCountPerProcess[processIndex]++;
     if (manager->fifoReplacement) fifoReplacementAddPage(manager->fifoReplacement, pageNumber);
@@ -139,8 +152,8 @@ int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int p
 
 int pagingManagerAllocatePageForProcess(PagingManager* manager, int processIndex, int pageCount) {
     if (!manager || processIndex < 0 || processIndex >= procesosEnEjecucion) return -1;
-    if (pageCount < 1) pageCount = 1;
-    if (pageCount > maxPaginasPorProceso) pageCount = maxPaginasPorProceso;
+    if (pageCount < marcosMin) pageCount = marcosMin;
+    if (pageCount > marcosMax) pageCount = marcosMax;
     ProcessPageTable* pt = pageDirectoryGetProcessTable(manager->pageDirectory, processIndex);
     if (!pt) return -1;
     if (pt->pages) free(pt->pages);
@@ -157,6 +170,7 @@ int pagingManagerAllocatePageForProcess(PagingManager* manager, int processIndex
         pt->pages[i]->enMemoria = 0;
         pt->pages[i]->swapAddress = -1;
         memset(pt->pages[i]->words, 0, sizeof(pt->pages[i]->words));
+        loadPageWords(pt->pages[i]);
     }
     manager->frameCountPerProcess[processIndex] = 0;
     return 0;
@@ -188,8 +202,15 @@ int pagingManagerDeallocatePagesForProcess(PagingManager* manager, int processIn
 
 int pagingManagerGetPageFaultCount(PagingManager* manager) { return manager ? manager->totalPageFaults : 0; }
 int pagingManagerGetInternalWaste(PagingManager* manager) {
-    if (!manager || !manager->bitmapManager) return manager ? manager->internalWaste : 0;
-    manager->internalWaste = bitmapManagerGetInternalWaste(manager->bitmapManager);
+    if (!manager || !manager->pageDirectory) return manager ? manager->internalWaste : 0;
+    int emptyWordSlots = 0;
+    for (int i = 0; i < manager->pageDirectory->totalPages; i++) {
+        Pagina* page = &manager->pageDirectory->allPages[i];
+        if (!page->enMemoria) continue;
+        for (int w = 0; w < palabrasPorPagina; w++)
+            if (page->words[w][0] == '\0') emptyWordSlots++;
+    }
+    manager->internalWaste = emptyWordSlots;
     return manager->internalWaste;
 }
 int pagingManagerGetExternalWaste(PagingManager* manager) {
@@ -204,8 +225,8 @@ float pagingManagerGetFragmentation(PagingManager* manager) {
 void pagingManagerSetReplacement(PagingManager* manager, FifoReplacement* fifo) { if (manager) manager->fifoReplacement = fifo; }
 int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newFrameCount) {
     if (!manager || processIndex < 0 || processIndex >= procesosEnEjecucion) return -1;
-    if (newFrameCount < 1) newFrameCount = 1;
-    if (newFrameCount > maxPaginasPorProceso) newFrameCount = maxPaginasPorProceso;
+    if (newFrameCount < marcosMin) newFrameCount = marcosMin;
+    if (newFrameCount > marcosMax) newFrameCount = marcosMax;
     ProcessPageTable* pt = pageDirectoryGetProcessTable(manager->pageDirectory, processIndex);
     if (!pt) return -1;
 
@@ -245,6 +266,7 @@ int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newF
         pt->pages[i]->enMemoria = 0;
         pt->pages[i]->swapAddress = -1;
         memset(pt->pages[i]->words, 0, sizeof(pt->pages[i]->words));
+        loadPageWords(pt->pages[i]);
     }
 
     pt->pageCount = newFrameCount;

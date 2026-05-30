@@ -28,11 +28,11 @@ void processLogRecordTableSnapshot(ProcessLog* log, ProcessTable* table) {
     /* Linea 1: contadores de ciclo y procesos (10 variables) */
     loggerLogFormat(log->logger, LogLevelInfo,
         "TABLA[1/2]: ciclos=%d simStart=%d totalProc=%d finished=%d"
-        " ctxSwitches=%d algoChanges=%d ioOps=%d cpuCyclesExec=%d"
+        " ctxSwitches=%d ctxSwitchTime=%d algoChanges=%d ioOps=%d cpuCyclesExec=%d"
         " pageFaults=%d itersSinceBalance=%d",
         table->currentCycle, table->simulationStartTime,
         table->totalProcesses, table->finishedProcesses,
-        table->totalContextSwitches, table->algorithmChangeCount,
+        table->totalContextSwitches, table->totalContextSwitchTime, table->algorithmChangeCount,
         table->totalIoOperations, table->totalCpuCyclesExecuted,
         table->totalPageFaults, table->iterationsSinceBalance);
     /* Linea 2: metricas de rendimiento y memoria (10 variables) */

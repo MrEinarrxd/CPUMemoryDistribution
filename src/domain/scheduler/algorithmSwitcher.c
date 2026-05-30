@@ -80,8 +80,10 @@ int algorithmSwitcherShouldSwitch(AlgorithmSwitcher* switcher, Scheduler* schedu
             switcher->nextAlgorithm = SchedulerAlgorithmRr;
         else
             switcher->nextAlgorithm = SchedulerAlgorithmFcfs;
+        switcher->shouldSwitchAlgorithm = 1;
         return 1;
     }
+    switcher->shouldSwitchAlgorithm = 0;
     return 0;
 }
 
@@ -94,6 +96,7 @@ SchedulerAlgorithm algorithmSwitcherGetNext(AlgorithmSwitcher* switcher) {
 void algorithmSwitcherApply(AlgorithmSwitcher* switcher, Scheduler* scheduler) {
     if (!switcher || !scheduler) return;
     schedulerSetAlgorithm(scheduler, switcher->nextAlgorithm);
+    switcher->shouldSwitchAlgorithm = 0;
     switcher->algorithmChangeCount++;
 }
 int algorithmSwitcherGetChangeCount(AlgorithmSwitcher* switcher) { return switcher ? switcher->algorithmChangeCount : 0; }

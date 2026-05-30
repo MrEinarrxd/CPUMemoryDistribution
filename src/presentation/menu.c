@@ -105,6 +105,9 @@ void menuShowMemoryStats(const struct StatsCollector* collector) {
     consoleIoPrintInt("Desperdicio externo: ", collector->externalWaste);
     consoleIoPrintFloat("Fragmentación externa %: ", collector->fragmentation * 100.0f);
     consoleIoPrintInt("Fallos de página: ", collector->totalPageFaults);
+    consoleIoPrintInt("Procesos en ejecución: ", collector->processesRunning);
+    consoleIoPrintFloat("Finalizados/ciclo: ", collector->avgProcessesFinishedPerCycle);
+    consoleIoPrintFloat("Tiempo prom. ejecución: ", collector->avgTimeInExecution);
 }
 
 //Parte 4 – Dominio: Procesos

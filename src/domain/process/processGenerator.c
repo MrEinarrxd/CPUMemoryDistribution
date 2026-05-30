@@ -99,7 +99,11 @@ void processGeneratorInit(void) {
         bcp->totalCpuCycles = randomCpuCycles();
         bcp->remainingCycles = bcp->totalCpuCycles;
         bcp->priority = 0;
-        bcp->pageCount = randomInt(1, maxPaginasPorProceso);
+        bcp->pageCount = randomInt(marcosMin, marcosMax);
+        bcp->memoryRequested = bcp->pageCount * palabrasPorPagina;
+        bcp->totalMemoryAllocated = bcp->memoryRequested;
+        bcp->pageTableBase = (i % procesosEnEjecucion) * maxPaginasPorProceso;
+        bcp->creationTime = pairs[i].arrival + processGeneratorGetNextSleepTime();
         bcp->state = ProcessStateNew;
         g_bcpArray[i] = bcp;
         g_arrivalTimes[i] = bcp->arrivalTime;

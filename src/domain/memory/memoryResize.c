@@ -41,7 +41,12 @@ void memoryResizerExecute(MemoryResizer* resizer, ProcessTable* table, PagingMan
         if (newCount < marcosMin) newCount = marcosMin;
         if (pagingManagerResizeFrames(paging, idx, newCount) == 0) {
             Process* p = table->runningProcesses[idx];
-            if (p && p->bcp) p->bcp->pageCount = newCount;
+            if (p && p->bcp) {
+                p->bcp->pageCount = newCount;
+                p->bcp->memoryRequested = newCount * palabrasPorPagina;
+                p->bcp->totalMemoryAllocated = p->bcp->memoryRequested;
+                p->bcp->pageTableBase = idx * maxPaginasPorProceso;
+            }
             resizer->successfulResizes++;
         }
     }
@@ -53,7 +58,12 @@ void memoryResizerExecute(MemoryResizer* resizer, ProcessTable* table, PagingMan
         if (newCount > marcosMax) newCount = marcosMax;
         if (pagingManagerResizeFrames(paging, idx, newCount) == 0) {
             Process* p = table->runningProcesses[idx];
-            if (p && p->bcp) p->bcp->pageCount = newCount;
+            if (p && p->bcp) {
+                p->bcp->pageCount = newCount;
+                p->bcp->memoryRequested = newCount * palabrasPorPagina;
+                p->bcp->totalMemoryAllocated = p->bcp->memoryRequested;
+                p->bcp->pageTableBase = idx * maxPaginasPorProceso;
+            }
             resizer->successfulResizes++;
         }
     }

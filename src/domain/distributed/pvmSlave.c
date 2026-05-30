@@ -1,43 +1,32 @@
-// src/domain/distributed/pvmSlave.c
-// Implementación del proceso esclavo PVM.
-// Compila como ejecutable independiente: gcc pvmSlave.c -o pvmSlave -lpvm3
-
 #include "pvmSlave.h"
 #include "messageProtocol.h"
-#include "../../utils/errorHandler.h"
+#include "../process/bcp.h"
 #include "../../utils/constants.h"
 #include <pvm3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-// ── Tipos locales ────────────────────────────────────────────
 typedef struct {
-    int pid;
     char processId[idProcesoLen];
-    int state;
-    int remainingCycles;
-    int totalCpuCycles;
-    int timesInIo;
-    int wastedCpuCycles;
-} BcpSummary;
+    int primary;
+    int secondary;
+} RankingEntry;
 
-typedef struct {
-    int pid;
-    char processId[idProcesoLen];
-    int quantumAssigned;
-    int quantumUsed;
-    int timesReturnedToReady;
-    int wastedCpuCycles;
-    float cpuWasteRatio;
-} RrProcessData;
+static int compareRankingEntries(const void* a, const void* b) {
+    const RankingEntry* A = (const RankingEntry*)a;
+    const RankingEntry* B = (const RankingEntry*)b;
+    int diff = B->primary - A->primary;
+    if (diff != 0) return diff;
+    diff = B->secondary - A->secondary;
+    return (diff != 0) ? diff : strcmp(A->processId, B->processId);
+}
 
-// ── Ciclo de vida ─────────────────────────────────────────────
 PvmSlave* pvmSlaveInit(int masterTid, int maxProcesses) {
     PvmSlave* slave = (PvmSlave*)calloc(1, sizeof(PvmSlave));
     if (!slave) return NULL;
-    slave->masterTid  = masterTid;
-    slave->slaveTid   = pvm_mytid();
+    slave->masterTid = masterTid;
+    slave->slaveTid = pvm_mytid();
     slave->maxProcesses = maxProcesses;
     return slave;
 }
@@ -48,137 +37,225 @@ int pvmSlaveConnect(PvmSlave* slave) {
 }
 
 PvmMessage* pvmSlaveReceiveData(PvmSlave* slave) {
-    if (!slave) return NULL;
-    struct timeval timeout = {10, 0};
-    int ret = pvm_trecv(-1, -1, &timeout);
-    if (ret <= 0) return NULL;
-    PvmMessage* msg = (PvmMessage*)malloc(sizeof(PvmMessage));
-    if (!msg) return NULL;
-    pvm_upkbyte((char*)msg, sizeof(PvmMessage), 1);
-    slave->messagesReceived++;
-    return msg;
+    (void)slave;
+    return NULL;
 }
 
 int pvmSlaveSendData(PvmSlave* slave, PvmMessage* message) {
-    if (!slave || !message) return -1;
-    pvm_initsend(PvmDataDefault);
-    pvm_pkbyte((char*)message, sizeof(PvmMessage), 1);
-    int ret = pvm_send(slave->masterTid, message->messageType);
-    if (ret >= 0) slave->messagesSent++;
-    return ret;
+    (void)slave;
+    (void)message;
+    return -1;
 }
 
-void pvmSlaveAssignProcess(PvmSlave* slave, struct Process* process) { (void)slave; (void)process; }
-int  pvmSlaveProcessCount(PvmSlave* slave) { return slave ? slave->processCount : 0; }
+void pvmSlaveAssignProcess(PvmSlave* slave, struct Process* process) {
+    (void)slave;
+    (void)process;
+}
+
+int pvmSlaveProcessCount(PvmSlave* slave) {
+    return slave ? slave->processCount : 0;
+}
 
 void pvmSlaveCleanup(PvmSlave* slave) {
-    if (slave) { pvm_exit(); free(slave); }
+    if (slave) {
+        pvm_exit();
+        free(slave);
+    }
 }
 
-// ── Tarea 1: estadísticas parciales ──────────────────────────
-void pvmSlaveRunTask1(PvmSlave* slave) {
-    if (!slave) return;
-
-    PvmMessage* incoming = pvmSlaveReceiveData(slave);
-    if (!incoming) {
-        fprintf(stderr, "[Slave] Task1: no se recibio mensaje del master\n");
-        return;
+static BcpSummary* receiveStatsPayload(int* outCount) {
+    int count = 0;
+    pvm_upkint(&count, 1, 1);
+    if (count < 0 || count > totalProcesos) count = 0;
+    BcpSummary* rows = (BcpSummary*)calloc((count > 0) ? count : 1, sizeof(BcpSummary));
+    if (!rows) {
+        *outCount = 0;
+        return NULL;
     }
-
-    int count = incoming->payloadSize / (int)sizeof(BcpSummary);
-    BcpSummary* summaries = (BcpSummary*)malloc(incoming->payloadSize);
-    if (!summaries) { pvmMessageDestroy(incoming); return; }
-    memcpy(summaries, incoming->payload, incoming->payloadSize);
-    pvmMessageDestroy(incoming);
-
-    DistributedStats stats = {0};
-    long totalRemaining = 0;
-
     for (int i = 0; i < count; i++) {
-        // state: 6 = ProcessStateFinished
-        if (summaries[i].state == 6) {
+        pvm_upkint(&rows[i].pid, 1, 1);
+        pvm_upkstr(rows[i].processId);
+        pvm_upkint(&rows[i].state, 1, 1);
+        pvm_upkint(&rows[i].remainingCycles, 1, 1);
+        pvm_upkint(&rows[i].totalCpuCycles, 1, 1);
+        pvm_upkint(&rows[i].timeInExecution, 1, 1);
+        pvm_upkint(&rows[i].timesInIo, 1, 1);
+        pvm_upkint(&rows[i].wastedCpuCycles, 1, 1);
+    }
+    *outCount = count;
+    return rows;
+}
+
+static RrProcessData* receiveAgingPayload(int* outCount) {
+    int count = 0;
+    pvm_upkint(&count, 1, 1);
+    if (count < 0 || count > totalProcesos) count = 0;
+    RrProcessData* rows = (RrProcessData*)calloc((count > 0) ? count : 1, sizeof(RrProcessData));
+    if (!rows) {
+        *outCount = 0;
+        return NULL;
+    }
+    for (int i = 0; i < count; i++) {
+        pvm_upkint(&rows[i].pid, 1, 1);
+        pvm_upkstr(rows[i].processId);
+        pvm_upkint(&rows[i].remainingCycles, 1, 1);
+        pvm_upkint(&rows[i].totalCpuCycles, 1, 1);
+        pvm_upkint(&rows[i].timeInExecution, 1, 1);
+        pvm_upkint(&rows[i].quantumAssigned, 1, 1);
+        pvm_upkint(&rows[i].quantumUsed, 1, 1);
+        pvm_upkint(&rows[i].timesReturnedToReady, 1, 1);
+        pvm_upkint(&rows[i].wastedCpuCycles, 1, 1);
+        pvm_upkfloat(&rows[i].cpuWasteRatio, 1, 1);
+    }
+    *outCount = count;
+    return rows;
+}
+
+static DistributedStats calculateStats(const BcpSummary* rows, int count) {
+    DistributedStats stats;
+    memset(&stats, 0, sizeof(stats));
+    RankingEntry wasters[totalProcesos];
+    int wasterCount = 0;
+
+    stats.processCount = count;
+    for (int i = 0; i < count; i++) {
+        stats.totalAssignedCycles += rows[i].totalCpuCycles;
+        stats.totalExecutedCycles += rows[i].timeInExecution;
+        stats.totalIoOperations += rows[i].timesInIo;
+
+        if (rows[i].state == ProcessStateFinished) {
             stats.totalProcessesFinished++;
         } else {
-            // state: 3 = ProcessStateWaitingIo
-            if (summaries[i].state == 3) stats.totalProcessesWaiting++;
-            if (summaries[i].timesInIo > 0) stats.totalIoOperations++;
-            totalRemaining += summaries[i].remainingCycles;
+            stats.activeCount++;
+            stats.totalRemainingCycles += rows[i].remainingCycles;
+            if (rows[i].state == ProcessStateWaitingIo) stats.totalProcessesWaiting++;
         }
+
+        strncpy(wasters[wasterCount].processId, rows[i].processId, idProcesoLen - 1);
+        wasters[wasterCount].processId[idProcesoLen - 1] = '\0';
+        wasters[wasterCount].primary = rows[i].wastedCpuCycles;
+        wasters[wasterCount].secondary = 0;
+        wasterCount++;
     }
 
-    int active = count - stats.totalProcessesFinished;
-    stats.avgRemainingCycles = (active > 0) ? (int)(totalRemaining / active) : 0;
+    stats.avgRemainingCycles = (stats.activeCount > 0)
+        ? (int)(stats.totalRemainingCycles / stats.activeCount) : 0;
+    stats.avgCpuUtilization = (stats.totalAssignedCycles > 0)
+        ? (float)stats.totalExecutedCycles / (float)stats.totalAssignedCycles : 0.0f;
 
-    // Aproximación de utilización: fracción de ciclos ejecutados
-    long totalAssigned = 0;
-    for (int i = 0; i < count; i++)
-        totalAssigned += summaries[i].totalCpuCycles;
-    long totalDone = totalAssigned - totalRemaining;
-    stats.avgCpuUtilization = (totalAssigned > 0)
-        ? (float)totalDone / (float)totalAssigned : 0.0f;
-
-    free(summaries);
-
-    PvmMessage* reply = packStatsMessage(0, slave->slaveTid, slave->masterTid, &stats);
-    if (reply) {
-        pvmSlaveSendData(slave, reply);
-        pvmMessageDestroy(reply);
+    qsort(wasters, wasterCount, sizeof(wasters[0]), compareRankingEntries);
+    stats.topWastersCount = (wasterCount < totalRankingProcesos) ? wasterCount : totalRankingProcesos;
+    for (int i = 0; i < stats.topWastersCount; i++) {
+        strncpy(stats.topWastersIds[i], wasters[i].processId, idProcesoLen - 1);
+        stats.topWastersIds[i][idProcesoLen - 1] = '\0';
+        stats.topWastersCpuWaste[i] = wasters[i].primary;
     }
+    return stats;
 }
 
-// ── Tarea 2: envejecimiento y desperdicio ─────────────────────
-void pvmSlaveRunTask2(PvmSlave* slave) {
-    if (!slave) return;
-
-    PvmMessage* incoming = pvmSlaveReceiveData(slave);
-    if (!incoming) {
-        fprintf(stderr, "[Slave] Task2: no se recibio mensaje del master\n");
-        return;
-    }
-
-    int count = incoming->payloadSize / (int)sizeof(RrProcessData);
-    RrProcessData* rrData = (RrProcessData*)malloc(incoming->payloadSize);
-    if (!rrData) { pvmMessageDestroy(incoming); return; }
-    memcpy(rrData, incoming->payload, incoming->payloadSize);
-    pvmMessageDestroy(incoming);
-
-    AgingResults aging = {0};
+static AgingResults calculateAging(const RrProcessData* rows, int count) {
+    AgingResults aging;
+    memset(&aging, 0, sizeof(aging));
+    RankingEntry aged[totalProcesos];
+    RankingEntry wasters[totalProcesos];
     float totalUtil = 0.0f;
 
-    // Ordenar por desperdicio descendente para obtener top-5
-    for (int i = 0; i < count - 1; i++) {
-        for (int j = i + 1; j < count; j++) {
-            if (rrData[j].wastedCpuCycles > rrData[i].wastedCpuCycles) {
-                RrProcessData tmp = rrData[i];
-                rrData[i] = rrData[j];
-                rrData[j] = tmp;
-            }
-        }
+    for (int i = 0; i < count; i++) {
+        strncpy(aged[i].processId, rows[i].processId, idProcesoLen - 1);
+        aged[i].processId[idProcesoLen - 1] = '\0';
+        aged[i].primary = rows[i].timesReturnedToReady;
+        aged[i].secondary = rows[i].remainingCycles;
+
+        strncpy(wasters[i].processId, rows[i].processId, idProcesoLen - 1);
+        wasters[i].processId[idProcesoLen - 1] = '\0';
+        wasters[i].primary = rows[i].wastedCpuCycles;
+        wasters[i].secondary = 0;
+
+        aging.totalReturnsToReady += rows[i].timesReturnedToReady;
+        float utilization = 1.0f - rows[i].cpuWasteRatio;
+        if (utilization < 0.0f) utilization = 0.0f;
+        if (utilization > 1.0f) utilization = 1.0f;
+        totalUtil += utilization;
     }
 
-    int top = (count < totalRankingProcesos) ? count : totalRankingProcesos;
-    for (int i = 0; i < top; i++) {
-        memcpy(aging.topAgedIds[i], rrData[i].processId, idProcesoLen);
-        aging.topAgedCpuWaste[i] = rrData[i].wastedCpuCycles;
-        memcpy(aging.topWastersIds[i], rrData[i].processId, idProcesoLen);
-        aging.topWastersCpuWaste[i] = rrData[i].wastedCpuCycles;
-        aging.totalReturnsToReady += rrData[i].timesReturnedToReady;
-        totalUtil += rrData[i].cpuWasteRatio;
-    }
-    aging.topAgedCount   = top;
-    aging.topWastersCount = top;
-    aging.avgCpuUtilizationPerSlave = (top > 0) ? totalUtil / top : 0.0f;
+    qsort(aged, count, sizeof(aged[0]), compareRankingEntries);
+    qsort(wasters, count, sizeof(wasters[0]), compareRankingEntries);
 
-    free(rrData);
-
-    PvmMessage* reply = packAgingMessage(0, slave->slaveTid, slave->masterTid, &aging);
-    if (reply) {
-        pvmSlaveSendData(slave, reply);
-        pvmMessageDestroy(reply);
+    aging.topAgedCount = (count < totalRankingProcesos) ? count : totalRankingProcesos;
+    for (int i = 0; i < aging.topAgedCount; i++) {
+        strncpy(aging.topAgedIds[i], aged[i].processId, idProcesoLen - 1);
+        aging.topAgedIds[i][idProcesoLen - 1] = '\0';
+        aging.topAgedReturns[i] = aged[i].primary;
+        aging.topAgedRemainingCycles[i] = aged[i].secondary;
     }
+
+    aging.topWastersCount = (count < totalRankingProcesos) ? count : totalRankingProcesos;
+    for (int i = 0; i < aging.topWastersCount; i++) {
+        strncpy(aging.topWastersIds[i], wasters[i].processId, idProcesoLen - 1);
+        aging.topWastersIds[i][idProcesoLen - 1] = '\0';
+        aging.topWastersCpuWaste[i] = wasters[i].primary;
+    }
+
+    aging.avgCpuUtilizationPerSlave = (count > 0) ? totalUtil / count : 0.0f;
+    return aging;
 }
 
-// ── main del esclavo (ejecutable independiente) ───────────────
+static int sendStatsResponse(PvmSlave* slave, const DistributedStats* stats) {
+    pvm_initsend(PvmDataDefault);
+    pvm_pkint((int*)&stats->processCount, 1, 1);
+    pvm_pkint((int*)&stats->activeCount, 1, 1);
+    pvm_pkint((int*)&stats->totalProcessesFinished, 1, 1);
+    pvm_pkint((int*)&stats->totalProcessesWaiting, 1, 1);
+    pvm_pkint((int*)&stats->avgRemainingCycles, 1, 1);
+    pvm_pklong((long*)&stats->totalRemainingCycles, 1, 1);
+    pvm_pklong((long*)&stats->totalAssignedCycles, 1, 1);
+    pvm_pklong((long*)&stats->totalExecutedCycles, 1, 1);
+    pvm_pkint((int*)&stats->totalIoOperations, 1, 1);
+    pvm_pkfloat((float*)&stats->avgCpuUtilization, 1, 1);
+    pvm_pkint((int*)&stats->topWastersCount, 1, 1);
+    for (int i = 0; i < stats->topWastersCount && i < totalRankingProcesos; i++) {
+        pvm_pkstr((char*)stats->topWastersIds[i]);
+        pvm_pkint((int*)&stats->topWastersCpuWaste[i], 1, 1);
+    }
+    return pvm_send(slave->masterTid, PvmTagStatsResponse);
+}
+
+static int sendAgingResponse(PvmSlave* slave, const AgingResults* aging) {
+    pvm_initsend(PvmDataDefault);
+    pvm_pkint((int*)&aging->topAgedCount, 1, 1);
+    for (int i = 0; i < aging->topAgedCount && i < totalRankingProcesos; i++) {
+        pvm_pkstr((char*)aging->topAgedIds[i]);
+        pvm_pkint((int*)&aging->topAgedReturns[i], 1, 1);
+        pvm_pkint((int*)&aging->topAgedRemainingCycles[i], 1, 1);
+    }
+    pvm_pkint((int*)&aging->topWastersCount, 1, 1);
+    for (int i = 0; i < aging->topWastersCount && i < totalRankingProcesos; i++) {
+        pvm_pkstr((char*)aging->topWastersIds[i]);
+        pvm_pkint((int*)&aging->topWastersCpuWaste[i], 1, 1);
+    }
+    pvm_pkfloat((float*)&aging->avgCpuUtilizationPerSlave, 1, 1);
+    pvm_pkint((int*)&aging->totalReturnsToReady, 1, 1);
+    return pvm_send(slave->masterTid, PvmTagAgingResponse);
+}
+
+void pvmSlaveRunTask1(PvmSlave* slave) {
+    int count = 0;
+    BcpSummary* rows = receiveStatsPayload(&count);
+    if (!rows) return;
+    DistributedStats stats = calculateStats(rows, count);
+    free(rows);
+    sendStatsResponse(slave, &stats);
+}
+
+void pvmSlaveRunTask2(PvmSlave* slave) {
+    int count = 0;
+    RrProcessData* rows = receiveAgingPayload(&count);
+    if (!rows) return;
+    AgingResults aging = calculateAging(rows, count);
+    free(rows);
+    sendAgingResponse(slave, &aging);
+}
+
 int main(void) {
     int masterTid = pvm_parent();
     if (masterTid < 0) {
@@ -188,78 +265,33 @@ int main(void) {
     }
 
     PvmSlave* slave = pvmSlaveInit(masterTid, totalProcesos);
-    if (!slave) { pvm_exit(); return 1; }
+    if (!slave) {
+        pvm_exit();
+        return 1;
+    }
 
     fprintf(stderr, "[Slave TID=%d] Listo, esperando tareas...\n", slave->slaveTid);
 
-    // El master envía dos mensajes: uno para Tarea 1, otro para Tarea 2.
-    // Se procesan en orden de llegada usando el tipo del mensaje.
-    for (int task = 0; task < 2; task++) {
-        struct timeval timeout = {15, 0};
-        int ret = pvm_trecv(-1, -1, &timeout);
-        if (ret <= 0) {
-            fprintf(stderr, "[Slave] Timeout esperando tarea %d\n", task + 1);
-            break;
+    int running = 1;
+    while (running) {
+        int buf = pvm_recv(masterTid, -1);
+        if (buf <= 0) break;
+        int bytes = 0, tag = 0, tid = 0;
+        pvm_bufinfo(buf, &bytes, &tag, &tid);
+        switch (tag) {
+            case PvmTagStatsRequest:
+                pvmSlaveRunTask1(slave);
+                break;
+            case PvmTagAgingRequest:
+                pvmSlaveRunTask2(slave);
+                break;
+            case PvmTagFinish:
+                running = 0;
+                break;
+            default:
+                fprintf(stderr, "[Slave] Tag desconocido: %d\n", tag);
+                break;
         }
-        PvmMessage* msg = (PvmMessage*)malloc(sizeof(PvmMessage));
-        if (!msg) break;
-        pvm_upkbyte((char*)msg, sizeof(PvmMessage), 1);
-
-        // Reinyectar en el PvmSlave para que pvmSlaveRunTaskX lo lea
-        // Usamos un mensaje dummy como "prefetch" y lo procesamos aquí directamente
-        if (msg->messageType == MessageBcpSnapshot && task == 0) {
-            // Reutilizar la lógica de Task1 inlineada
-            int count = msg->payloadSize / (int)sizeof(BcpSummary);
-            BcpSummary* summaries = (BcpSummary*)malloc(msg->payloadSize);
-            if (summaries) {
-                memcpy(summaries, msg->payload, msg->payloadSize);
-                DistributedStats stats = {0};
-                long totalRemaining = 0;
-                for (int i = 0; i < count; i++) {
-                    if (summaries[i].state == 6) { stats.totalProcessesFinished++; continue; }
-                    if (summaries[i].state == 3) stats.totalProcessesWaiting++;
-                    if (summaries[i].timesInIo > 0) stats.totalIoOperations++;
-                    totalRemaining += summaries[i].remainingCycles;
-                }
-                int active = count - stats.totalProcessesFinished;
-                stats.avgRemainingCycles = (active > 0) ? (int)(totalRemaining / active) : 0;
-                long totalAssigned = 0;
-                for (int i = 0; i < count; i++) totalAssigned += summaries[i].totalCpuCycles;
-                long done = totalAssigned - totalRemaining;
-                stats.avgCpuUtilization = (totalAssigned > 0) ? (float)done / totalAssigned : 0.0f;
-                free(summaries);
-                PvmMessage* reply = packStatsMessage(0, slave->slaveTid, masterTid, &stats);
-                if (reply) { pvmSlaveSendData(slave, reply); pvmMessageDestroy(reply); }
-            }
-        } else if (msg->messageType == MessageBcpSnapshot && task == 1) {
-            int count = msg->payloadSize / (int)sizeof(RrProcessData);
-            RrProcessData* rrData = (RrProcessData*)malloc(msg->payloadSize);
-            if (rrData) {
-                memcpy(rrData, msg->payload, msg->payloadSize);
-                AgingResults aging = {0};
-                float totalUtil = 0.0f;
-                for (int i = 0; i < count - 1; i++)
-                    for (int j = i+1; j < count; j++)
-                        if (rrData[j].wastedCpuCycles > rrData[i].wastedCpuCycles) {
-                            RrProcessData tmp = rrData[i]; rrData[i] = rrData[j]; rrData[j] = tmp;
-                        }
-                int top = (count < totalRankingProcesos) ? count : totalRankingProcesos;
-                for (int i = 0; i < top; i++) {
-                    memcpy(aging.topAgedIds[i], rrData[i].processId, idProcesoLen);
-                    aging.topAgedCpuWaste[i] = rrData[i].wastedCpuCycles;
-                    memcpy(aging.topWastersIds[i], rrData[i].processId, idProcesoLen);
-                    aging.topWastersCpuWaste[i] = rrData[i].wastedCpuCycles;
-                    aging.totalReturnsToReady += rrData[i].timesReturnedToReady;
-                    totalUtil += rrData[i].cpuWasteRatio;
-                }
-                aging.topAgedCount = aging.topWastersCount = top;
-                aging.avgCpuUtilizationPerSlave = (top > 0) ? totalUtil / top : 0.0f;
-                free(rrData);
-                PvmMessage* reply = packAgingMessage(0, slave->slaveTid, masterTid, &aging);
-                if (reply) { pvmSlaveSendData(slave, reply); pvmMessageDestroy(reply); }
-            }
-        }
-        pvmMessageDestroy(msg);
     }
 
     pvmSlaveCleanup(slave);

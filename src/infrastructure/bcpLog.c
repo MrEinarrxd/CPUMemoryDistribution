@@ -26,7 +26,7 @@ void bcpLogFlush(BcpLog* log) { if (log && log->logger) loggerFlush(log->logger)
 void bcpLogRecordFull(BcpLog* log, Bcp* bcp) {
     if (!log || !log->logger || !bcp) return;
     /* Linea 1: identificacion y planificacion (13 variables) */
-    loggerLogFormat(log->logger, LogLevelDebug,
+    loggerLogFormat(log->logger, LogLevelInfo,
         "BCP[1/2]: id=%s pid=%d state=%d prio=%d totalCpu=%d remaining=%d"
         " arrival=%d creationTime=%d startTime=%d finishTime=%d"
         " timeInExec=%d timeInWaiting=%d timesExecuted=%d",
@@ -35,7 +35,7 @@ void bcpLogRecordFull(BcpLog* log, Bcp* bcp) {
         bcp->arrivalTime, bcp->creationTime, bcp->startTime, bcp->finishTime,
         bcp->timeInExecution, bcp->timeInWaiting, bcp->timesExecuted);
     /* Linea 2: quantum, memoria, E/S y envejecimiento (12 variables) */
-    loggerLogFormat(log->logger, LogLevelDebug,
+    loggerLogFormat(log->logger, LogLevelInfo,
         "BCP[2/2]: id=%s quantumAssigned=%d quantumUsed=%d wastedCycles=%d"
         " cpuWasteRatio=%.4f agingCounter=%d timesReturned=%d ageingSlices=%d"
         " ctxSwitches=%d ctxSwitchTime=%d timesInIo=%d ioTimeRemaining=%d"

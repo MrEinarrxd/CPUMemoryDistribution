@@ -11,6 +11,7 @@ ProcessTable* processTableCreate(void) {
     table->currentCycle = 0;
     table->totalCpuCyclesExecuted = 0;
     table->totalCpuWasteCycles = 0;
+    table->totalContextSwitchTime = 0;
     table->cpuWasteRatio = 0.0f;
     table->memoryUsedBlocks = 0;
     table->memoryFreeBlocks = 0;
@@ -98,7 +99,7 @@ void processTableUpdateAverages(ProcessTable* table) {
         if (table->cpuUtilization > 1.0f) table->cpuUtilization = 1.0f;
         if (table->cpuUtilization < 0.0f) table->cpuUtilization = 0.0f;
 
-        int accountedCpu = table->totalCpuCyclesExecuted + table->totalCpuWasteCycles;
+        int accountedCpu = table->totalCpuCyclesExecuted + table->totalCpuWasteCycles + table->totalContextSwitchTime;
         table->cpuWasteRatio = accountedCpu > 0
             ? (float)table->totalCpuWasteCycles / (float)accountedCpu
             : 0.0f;

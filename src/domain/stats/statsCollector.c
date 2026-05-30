@@ -12,6 +12,7 @@ void statsCollectorCollect(StatsCollector* collector, ProcessTable* table) {
     if (!collector || !table) return;
     collector->totalCpuCyclesExecuted = table->totalCpuCyclesExecuted;
     collector->totalCpuWasteCycles = table->totalCpuWasteCycles;
+    collector->totalContextSwitchTime = table->totalContextSwitchTime;
     collector->cpuUtilization = table->cpuUtilization;
     collector->cpuWasteRatio = table->cpuWasteRatio;
     collector->memoryUsedBlocks = table->memoryUsedBlocks;
@@ -30,6 +31,9 @@ void statsCollectorCollect(StatsCollector* collector, ProcessTable* table) {
     collector->fragmentation = table->fragmentation;
     int cycles = table->currentCycle;
     if (cycles > 0) collector->avgProcessesFinishedPerCycle = (float)collector->processesFinished / cycles;
+    collector->avgTimeInExecution = table->finishedProcesses > 0
+        ? (float)table->totalExecutionTimeFinished / table->finishedProcesses
+        : 0.0f;
     int running = 0;
     for (int i = 0; i < procesosEnEjecucion; i++)
         if (table->runningProcesses[i] && table->runningProcesses[i]->bcp && table->runningProcesses[i]->bcp->state != ProcessStateFinished)

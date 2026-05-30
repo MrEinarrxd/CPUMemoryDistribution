@@ -2,10 +2,11 @@
 
 gcc -std=c11 -Wall -Wextra -DpvmModeEnabled=1 -I./src \
   $(find src -name '*.c' ! -name 'pvmSlave.c') \
-  -o sim_pvm -lpvm3
+  -o simPvm -lpvm3
 
-export PVM_SLAVE_HOSTS=slave1,slave2
-./sim_pvm
+export PVM_SLAVE_HOSTS=192.168.100.98,192.168.100.97
+export PVM_SLAVE_EXEC=/home/master/Documents/GitHub/CPUMemoryDistribution/pvmSlave
+./simPvm
 
 */
 

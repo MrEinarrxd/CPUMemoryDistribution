@@ -42,12 +42,9 @@ Process* rrSchedulerSelectNext(RrScheduler* scheduler, ProcessTable* table) {
                 rq->tail = (rq->tail - 1 + tamColaListos) % tamColaListos;
                 rq->processes[rq->tail] = NULL;
                 rq->count--;
-                scheduler->hasPrivilegedProcess = 0;
-                memset(scheduler->privilegedProcessId, 0, idProcesoLen);
                 return p;
             }
         }
-        scheduler->hasPrivilegedProcess = 0;
     }
     
     return readyQueueDequeue(rq);
@@ -76,38 +73,56 @@ void rrSchedulerUpdateProportions(RrScheduler* scheduler, ProcessTable* table) {
 
 void rrSchedulerUpdateAgingRanking(RrScheduler* scheduler, ProcessTable* table) {
     if (!scheduler || !table) return;
-    typedef struct { char id[idProcesoLen]; int waste; } Entry;
-    Entry entries[totalProcesos];
+    typedef struct { char id[idProcesoLen]; int primary; int secondary; } Entry;
+    Entry aged[totalProcesos];
+    Entry wasters[totalProcesos];
     int count = 0;
     
     for (int i = 0; i < procesosEnEjecucion; i++) {
         Process* p = table->runningProcesses[i];
         if (p && p->bcp && p->bcp->state != ProcessStateFinished && p->bcp->timesExecuted > 0) {
-            strcpy(entries[count].id, p->bcp->processId);
-            entries[count].waste = p->bcp->wastedCpuCycles;
+            strcpy(aged[count].id, p->bcp->processId);
+            aged[count].primary = p->bcp->timesReturnedToReady;
+            aged[count].secondary = p->bcp->remainingCycles;
+            strcpy(wasters[count].id, p->bcp->processId);
+            wasters[count].primary = p->bcp->wastedCpuCycles;
+            wasters[count].secondary = 0;
             count++;
         }
     }
     for (int i = 0; i < procesosEnEspera; i++) {
         Process* p = table->newRequests[i];
         if (p && p->bcp && p->bcp->state != ProcessStateFinished && p->bcp->timesExecuted > 0) {
-            strcpy(entries[count].id, p->bcp->processId);
-            entries[count].waste = p->bcp->wastedCpuCycles;
+            strcpy(aged[count].id, p->bcp->processId);
+            aged[count].primary = p->bcp->timesReturnedToReady;
+            aged[count].secondary = p->bcp->remainingCycles;
+            strcpy(wasters[count].id, p->bcp->processId);
+            wasters[count].primary = p->bcp->wastedCpuCycles;
+            wasters[count].secondary = 0;
             count++;
         }
     }
     
-    for (int i = 0; i < count - 1; i++)
-        for (int j = i+1; j < count; j++)
-            if (entries[j].waste > entries[i].waste) {
-                Entry tmp = entries[i]; entries[i] = entries[j]; entries[j] = tmp;
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = i+1; j < count; j++) {
+            if (aged[j].primary > aged[i].primary ||
+                (aged[j].primary == aged[i].primary && aged[j].secondary > aged[i].secondary)) {
+                Entry tmp = aged[i]; aged[i] = aged[j]; aged[j] = tmp;
             }
+            if (wasters[j].primary > wasters[i].primary) {
+                Entry tmp = wasters[i]; wasters[i] = wasters[j]; wasters[j] = tmp;
+            }
+        }
+    }
     
     int top = count < totalRankingProcesos ? count : totalRankingProcesos;
     scheduler->agingRanking.count = top;
+    scheduler->agingRanking.wasterCount = top;
     for (int i = 0; i < top; i++) {
-        strcpy(scheduler->agingRanking.processIds[i], entries[i].id);
-        scheduler->agingRanking.wasteValues[i] = entries[i].waste;
+        strcpy(scheduler->agingRanking.processIds[i], aged[i].id);
+        scheduler->agingRanking.wasteValues[i] = aged[i].primary;
+        strcpy(scheduler->agingRanking.wasterProcessIds[i], wasters[i].id);
+        scheduler->agingRanking.wasterWasteValues[i] = wasters[i].primary;
     }
 }
 
