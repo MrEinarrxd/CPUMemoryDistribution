@@ -1,6 +1,6 @@
 #include "memoryResize.h"
 #include "pagingManager.h"
-#include "../process/processTable.h"
+#include "../core/processTable.h"
 #include <stdlib.h>
 
 MemoryResizer* memoryResizerCreate(void) {
@@ -8,6 +8,14 @@ MemoryResizer* memoryResizerCreate(void) {
     return mr;
 }
 void memoryResizerDestroy(MemoryResizer* resizer) { free(resizer); }
+
+static int normalizeEvenPageCount(int pageCount) {
+    if (pageCount < marcosMin) pageCount = marcosMin;
+    if (pageCount > marcosMax) pageCount = marcosMax;
+    if ((pageCount % 2) != 0) pageCount++;
+    if (pageCount > marcosMax) pageCount = marcosMax;
+    return pageCount;
+}
 
 void memoryResizerExecute(MemoryResizer* resizer, ProcessTable* table, PagingManager* paging) {
     if (!resizer || !table || !paging) return;
@@ -37,8 +45,7 @@ void memoryResizerExecute(MemoryResizer* resizer, ProcessTable* table, PagingMan
         int idx = activeIndices[i];
         Process* proc = table->runningProcesses[idx];
         int current = (proc && proc->bcp && proc->bcp->pageCount > 0) ? proc->bcp->pageCount : marcosMin;
-        int newCount = current / 2;
-        if (newCount < marcosMin) newCount = marcosMin;
+        int newCount = normalizeEvenPageCount(current / 2);
         if (pagingManagerResizeFrames(paging, idx, newCount) == 0) {
             Process* p = table->runningProcesses[idx];
             if (p && p->bcp) p->bcp->pageCount = newCount;
@@ -49,8 +56,7 @@ void memoryResizerExecute(MemoryResizer* resizer, ProcessTable* table, PagingMan
         int idx = activeIndices[i];
         Process* proc = table->runningProcesses[idx];
         int current = (proc && proc->bcp && proc->bcp->pageCount > 0) ? proc->bcp->pageCount : marcosMin;
-        int newCount = current * 2;
-        if (newCount > marcosMax) newCount = marcosMax;
+        int newCount = normalizeEvenPageCount(current * 2);
         if (pagingManagerResizeFrames(paging, idx, newCount) == 0) {
             Process* p = table->runningProcesses[idx];
             if (p && p->bcp) p->bcp->pageCount = newCount;
@@ -59,8 +65,6 @@ void memoryResizerExecute(MemoryResizer* resizer, ProcessTable* table, PagingMan
     }
     resizer->lastResizeCycle = table->currentCycle;
 }
-void memoryResizerReduceProcess(MemoryResizer* resizer, PagingManager* paging, int processIndex) { (void)resizer; (void)paging; (void)processIndex; }
-void memoryResizerDuplicateProcess(MemoryResizer* resizer, PagingManager* paging, int processIndex) { (void)resizer; (void)paging; (void)processIndex; }
 int memoryResizerGetFrameCount(PagingManager* paging, int processIndex) { return paging ? paging->frameCountPerProcess[processIndex] : 0; }
 int memoryResizerGetAttempts(MemoryResizer* resizer) { return resizer ? resizer->resizeAttempts : 0; }
 int memoryResizerGetSuccessful(MemoryResizer* resizer) { return resizer ? resizer->successfulResizes : 0; }

@@ -1,0 +1,214 @@
+GUIA PARA USAR PVM CON ESTE PROYECTO
+====================================
+
+Objetivo
+--------
+Usar este PC como master y dos laptops como slaves, aunque los usuarios sean
+distintos:
+
+- Este PC: usuario master, ejecuta CPUMemoryDistributionSimulator.
+- Laptop 1: usuario damian.
+- Laptop 2: usuario master por ahora, luego puede ser kim.
+
+La opcion recomendada es configurar aliases SSH en el master y poner simSlave
+en el PATH de cada laptop.
+
+
+1. Crear llave SSH en el master
+-------------------------------
+En este PC master:
+
+    ssh-keygen
+
+Puedes presionar Enter en todo si no quieres una clave para la llave.
+
+
+2. Copiar la llave a cada laptop
+--------------------------------
+Cambia las IP por las IP reales de tus laptops:
+
+    ssh-copy-id damian@IP_LAPTOP_DAMIAN
+    ssh-copy-id master@IP_LAPTOP_2
+
+Cuando la segunda laptop pase a usuario kim:
+
+    ssh-copy-id kim@IP_LAPTOP_2
+
+Prueba que el acceso no pida contrasena:
+
+    ssh damian@IP_LAPTOP_DAMIAN hostname
+    ssh master@IP_LAPTOP_2 hostname
+
+
+3. Crear aliases SSH en el master
+---------------------------------
+En este PC:
+
+    nano ~/.ssh/config
+
+Agrega:
+
+    Host laptop-damian
+        HostName IP_LAPTOP_DAMIAN
+        User damian
+
+    Host laptop-2
+        HostName IP_LAPTOP_2
+        User master
+
+Si luego la segunda laptop usa usuario kim, cambia solo esa entrada:
+
+    Host laptop-2
+        HostName IP_LAPTOP_2
+        User kim
+
+Guarda y prueba:
+
+    ssh laptop-damian hostname
+    ssh laptop-2 hostname
+
+
+4. Compilar el proyecto en el master
+------------------------------------
+En este PC:
+
+    cd /home/master/Documents/GitHub/CPUMemoryDistribution
+    make -B
+
+Debe generar:
+
+    ./CPUMemoryDistributionSimulator
+    ./simSlave
+
+
+5. Copiar simSlave a las laptops
+--------------------------------
+En cada laptop usaremos ~/bin/simSlave.
+
+Desde el master:
+
+    ssh laptop-damian "mkdir -p ~/bin"
+    scp ./simSlave laptop-damian:~/bin/simSlave
+    ssh laptop-damian "chmod +x ~/bin/simSlave"
+
+Para la segunda laptop:
+
+    ssh laptop-2 "mkdir -p ~/bin"
+    scp ./simSlave laptop-2:~/bin/simSlave
+    ssh laptop-2 "chmod +x ~/bin/simSlave"
+
+
+6. Asegurar que ~/bin esta en PATH
+----------------------------------
+Desde el master:
+
+    ssh laptop-damian 'echo $PATH'
+    ssh laptop-2 'echo $PATH'
+
+Si no aparece /home/damian/bin o /home/master/bin, agrega esto:
+
+    ssh laptop-damian 'echo "export PATH=\$HOME/bin:\$PATH" >> ~/.bashrc'
+    ssh laptop-2 'echo "export PATH=\$HOME/bin:\$PATH" >> ~/.bashrc'
+
+Prueba:
+
+    ssh laptop-damian "which simSlave"
+    ssh laptop-2 "which simSlave"
+
+Debe responder algo parecido a:
+
+    /home/damian/bin/simSlave
+    /home/master/bin/simSlave
+
+
+7. Instalar e iniciar PVM
+-------------------------
+En los tres equipos debe estar instalado PVM.
+
+En Ubuntu/Debian:
+
+    sudo apt install pvm pvm-dev
+
+En el master:
+
+    export PVM_RSH=ssh
+    pvm
+
+Dentro de la consola de PVM:
+
+    add laptop-damian
+    add laptop-2
+    conf
+    quit
+
+El comando conf debe mostrar el master y las dos laptops.
+
+
+8. Ejecutar el simulador con PVM real
+-------------------------------------
+En el master:
+
+    cd /home/master/Documents/GitHub/CPUMemoryDistribution
+
+    export PVM_RSH=ssh
+    export PVM_SLAVE_HOSTS=laptop-damian,laptop-2
+    export PVM_SLAVE_EXEC=simSlave
+
+    ./CPUMemoryDistributionSimulator
+
+Elige:
+
+    1. Simulacion completa con PVM real
+
+
+9. Verificacion rapida si algo falla
+------------------------------------
+Ejecuta estas pruebas desde el master:
+
+    ssh laptop-damian hostname
+    ssh laptop-2 hostname
+    ssh laptop-damian "which simSlave"
+    ssh laptop-2 "which simSlave"
+
+Luego:
+
+    pvm
+
+Dentro de PVM:
+
+    conf
+
+Para apagar PVM:
+
+    halt
+
+
+Errores comunes
+---------------
+- "falta export PVM_SLAVE_HOSTS":
+  No exportaste PVM_SLAVE_HOSTS en el master.
+
+- "pvmd no esta corriendo":
+  No iniciaste PVM con el comando pvm.
+
+- "pvm_spawn fallo":
+  PVM no encuentra simSlave, el archivo no tiene permisos de ejecucion,
+  el host no esta agregado con add, o SSH no entra sin contrasena.
+
+- "Permission denied":
+  Revisa ssh-copy-id y permisos de ~/bin/simSlave.
+
+
+Resumen para este caso
+----------------------
+Usa estos valores en el master:
+
+    export PVM_RSH=ssh
+    export PVM_SLAVE_HOSTS=laptop-damian,laptop-2
+    export PVM_SLAVE_EXEC=simSlave
+
+Cuando la segunda laptop cambie de master a kim, actualiza ~/.ssh/config:
+
+    Host laptop-2
+        HostName IP_LAPTOP_2
+        User kim

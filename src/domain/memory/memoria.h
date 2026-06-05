@@ -37,8 +37,6 @@ ProcessPageTable* pageDirectoryGetProcessTable(PageDirectory* pageDir, int proce
 Pagina* pageDirectoryGetPage(PageDirectory* pageDir, int pageNumber);
 void pageDirectorySetPageFrame(PageDirectory* pageDir, int pageNumber, int frameNumber);
 int pageDirectoryGetPageFrame(PageDirectory* pageDir, int pageNumber);
-void pageDirectoryMarkDirty(PageDirectory* pageDir, int pageNumber);
-void pageDirectoryMarkClean(PageDirectory* pageDir, int pageNumber);
 Marco* marcoCreate(int id);
 void marcoDestroy(Marco* marco);
 void marcoSetPage(Marco* marco, Pagina* pagina);

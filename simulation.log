@@ -1,0 +1,1126 @@
+[2026-06-05 14:27:03.029] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:27:14.745] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:27:14.745] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:27:14.746] INFO: Proceso creado: A-1
+[2026-06-05 14:27:14.948] INFO: Proceso creado: A-2
+[2026-06-05 14:27:15.048] INFO: Proceso creado: A-3
+[2026-06-05 14:27:15.250] INFO: Proceso creado: A-4
+[2026-06-05 14:27:15.654] INFO: Proceso creado: A-5
+[2026-06-05 14:27:16.357] INFO: Proceso creado: A-6
+[2026-06-05 14:27:16.660] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=6 finished=0 ctxSwitches=12 ctxSwitchTime=238 algoChanges=0 ioOps=6 cpuCyclesExec=460 pageFaults=0 itersSinceBalance=0
+[2026-06-05 14:27:16.660] INFO: TABLA[2/2]: cpuUtil=0.3286 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=25 readyProp=0.0000 waitProp=1.0000 shouldSwitch=0
+[2026-06-05 14:27:16.962] INFO: Proceso creado: A-7
+[2026-06-05 14:27:17.264] INFO: Proceso creado: A-8
+[2026-06-05 14:27:18.572] INFO: Proceso creado: A-9
+[2026-06-05 14:27:18.674] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=9 finished=0 ctxSwitches=18 ctxSwitchTime=374 algoChanges=0 ioOps=10 cpuCyclesExec=668 pageFaults=4 itersSinceBalance=0
+[2026-06-05 14:27:18.674] INFO: TABLA[2/2]: cpuUtil=0.2386 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=30 readyProp=0.0000 waitProp=1.0000 shouldSwitch=0
+[2026-06-05 14:27:19.177] INFO: Proceso creado: A-10
+[2026-06-05 14:27:19.513] INFO: Proceso creado: A-11
+[2026-06-05 14:27:19.614] INFO: Proceso creado: A-12
+[2026-06-05 14:27:19.715] INFO: Proceso creado: A-13
+[2026-06-05 14:27:19.916] INFO: Proceso creado: A-14
+[2026-06-05 14:27:20.017] INFO: Proceso creado: A-15
+[2026-06-05 14:27:20.219] INFO: Proceso creado: A-16
+[2026-06-05 14:27:20.421] INFO: Proceso creado: A-17
+[2026-06-05 14:27:20.724] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=17 finished=0 ctxSwitches=34 ctxSwitchTime=702 algoChanges=0 ioOps=11 cpuCyclesExec=1418 pageFaults=8 itersSinceBalance=20
+[2026-06-05 14:27:20.724] INFO: TABLA[2/2]: cpuUtil=0.3376 avgWait=0.00 avgTurn=0.00 frag=0.0020 intWaste=0 extWaste=1 quantum=30 readyProp=0.4706 waitProp=0.5294 shouldSwitch=0
+[2026-06-05 14:27:20.925] INFO: Proceso creado: A-18
+[2026-06-05 14:27:21.430] INFO: Proceso creado: A-19
+[2026-06-05 14:27:21.934] INFO: Proceso creado: A-20
+[2026-06-05 14:27:22.035] INFO: Proceso creado: A-21
+[2026-06-05 14:27:22.338] INFO: Proceso creado: A-22
+[2026-06-05 14:27:22.439] INFO: Proceso creado: A-23
+[2026-06-05 14:27:22.642] INFO: Proceso creado: A-24
+[2026-06-05 14:27:22.743] INFO: Proceso creado: A-25
+[2026-06-05 14:27:22.744] INFO: TABLA[1/2]: ciclos=80 simStart=0 totalProc=25 finished=0 ctxSwitches=54 ctxSwitchTime=1111 algoChanges=0 ioOps=20 cpuCyclesExec=2232 pageFaults=15 itersSinceBalance=9
+[2026-06-05 14:27:22.744] INFO: TABLA[2/2]: cpuUtil=0.3986 avgWait=0.00 avgTurn=0.00 frag=0.0020 intWaste=0 extWaste=1 quantum=35 readyProp=0.2105 waitProp=0.7895 shouldSwitch=0
+[2026-06-05 14:27:22.945] INFO: Proceso creado: A-26
+[2026-06-05 14:27:23.046] INFO: Proceso creado: A-27
+[2026-06-05 14:27:23.955] INFO: Proceso creado: A-28
+[2026-06-05 14:27:24.056] INFO: Proceso creado: A-29
+[2026-06-05 14:27:24.157] INFO: Proceso creado: A-30
+[2026-06-05 14:27:24.762] INFO: Proceso creado: A-31
+[2026-06-05 14:27:24.763] INFO: TABLA[1/2]: ciclos=100 simStart=0 totalProc=31 finished=0 ctxSwitches=74 ctxSwitchTime=1507 algoChanges=0 ioOps=26 cpuCyclesExec=3088 pageFaults=19 itersSinceBalance=29
+[2026-06-05 14:27:24.763] INFO: TABLA[2/2]: cpuUtil=0.4411 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.3226 waitProp=0.6774 shouldSwitch=0
+[2026-06-05 14:27:25.873] INFO: Proceso creado: A-32
+[2026-06-05 14:27:26.782] INFO: Proceso creado: A-33
+[2026-06-05 14:27:26.783] INFO: TABLA[1/2]: ciclos=120 simStart=0 totalProc=33 finished=0 ctxSwitches=94 ctxSwitchTime=1891 algoChanges=0 ioOps=31 cpuCyclesExec=3947 pageFaults=27 itersSinceBalance=49
+[2026-06-05 14:27:26.783] INFO: TABLA[2/2]: cpuUtil=0.4699 avgWait=0.00 avgTurn=0.00 frag=0.0061 intWaste=0 extWaste=3 quantum=35 readyProp=0.2727 waitProp=0.7273 shouldSwitch=0
+[2026-06-05 14:27:26.984] INFO: Proceso creado: A-34
+[2026-06-05 14:27:27.287] INFO: Proceso creado: A-35
+[2026-06-05 14:27:27.489] INFO: Proceso creado: A-36
+[2026-06-05 14:27:27.690] INFO: Proceso creado: A-37
+[2026-06-05 14:27:27.892] INFO: Proceso creado: A-38
+[2026-06-05 14:27:28.598] INFO: Proceso creado: A-39
+[2026-06-05 14:27:28.700] INFO: Proceso creado: A-40
+[2026-06-05 14:27:28.801] INFO: TABLA[1/2]: ciclos=140 simStart=0 totalProc=40 finished=0 ctxSwitches=114 ctxSwitchTime=2253 algoChanges=0 ioOps=37 cpuCyclesExec=4686 pageFaults=39 itersSinceBalance=69
+[2026-06-05 14:27:28.801] INFO: TABLA[2/2]: cpuUtil=0.4782 avgWait=0.00 avgTurn=0.00 frag=0.0021 intWaste=0 extWaste=1 quantum=35 readyProp=0.3250 waitProp=0.6750 shouldSwitch=0
+[2026-06-05 14:27:29.207] INFO: Proceso creado: A-41
+[2026-06-05 14:27:29.308] INFO: Proceso creado: A-42
+[2026-06-05 14:27:29.408] INFO: Proceso creado: A-43
+[2026-06-05 14:27:29.709] INFO: Proceso creado: A-44
+[2026-06-05 14:27:29.810] INFO: Proceso creado: A-45
+[2026-06-05 14:27:30.013] INFO: Proceso creado: A-46
+[2026-06-05 14:27:30.516] INFO: Proceso creado: A-47
+[2026-06-05 14:27:30.819] INFO: TABLA[1/2]: ciclos=160 simStart=0 totalProc=47 finished=0 ctxSwitches=134 ctxSwitchTime=2651 algoChanges=0 ioOps=42 cpuCyclesExec=5451 pageFaults=50 itersSinceBalance=89
+[2026-06-05 14:27:30.819] INFO: TABLA[2/2]: cpuUtil=0.4867 avgWait=0.00 avgTurn=0.00 frag=0.0085 intWaste=0 extWaste=4 quantum=35 readyProp=0.3830 waitProp=0.6170 shouldSwitch=0
+[2026-06-05 14:27:30.920] INFO: Proceso creado: A-48
+[2026-06-05 14:27:31.020] INFO: Proceso creado: A-49
+[2026-06-05 14:27:31.624] INFO: Proceso creado: A-50
+[2026-06-05 14:27:31.826] INFO: Proceso creado: A-51
+[2026-06-05 14:27:31.928] INFO: Proceso creado: A-52
+[2026-06-05 14:27:32.333] INFO: Proceso creado: A-53
+[2026-06-05 14:27:32.838] INFO: TABLA[1/2]: ciclos=180 simStart=0 totalProc=53 finished=0 ctxSwitches=154 ctxSwitchTime=3066 algoChanges=0 ioOps=46 cpuCyclesExec=6134 pageFaults=67 itersSinceBalance=109
+[2026-06-05 14:27:32.838] INFO: TABLA[2/2]: cpuUtil=0.4868 avgWait=0.00 avgTurn=0.00 frag=0.0130 intWaste=0 extWaste=6 quantum=35 readyProp=0.4528 waitProp=0.5472 shouldSwitch=0
+[2026-06-05 14:27:33.040] INFO: Proceso creado: A-54
+[2026-06-05 14:27:33.141] INFO: Proceso creado: A-55
+[2026-06-05 14:27:33.242] INFO: Proceso creado: A-56
+[2026-06-05 14:27:33.646] INFO: Proceso creado: A-57
+[2026-06-05 14:27:33.847] INFO: Proceso creado: A-58
+[2026-06-05 14:27:34.755] INFO: Proceso creado: A-59
+[2026-06-05 14:27:34.857] INFO: TABLA[1/2]: ciclos=200 simStart=0 totalProc=59 finished=0 ctxSwitches=174 ctxSwitchTime=3460 algoChanges=0 ioOps=51 cpuCyclesExec=6975 pageFaults=102 itersSinceBalance=129
+[2026-06-05 14:27:34.857] INFO: TABLA[2/2]: cpuUtil=0.4982 avgWait=0.00 avgTurn=0.00 frag=0.0184 intWaste=0 extWaste=8 quantum=35 readyProp=0.5593 waitProp=0.4407 shouldSwitch=0
+[2026-06-05 14:27:35.260] INFO: Proceso creado: A-60
+[2026-06-05 14:27:35.462] INFO: Proceso creado: A-61
+[2026-06-05 14:27:35.865] INFO: Proceso creado: A-62
+[2026-06-05 14:27:36.167] INFO: Proceso creado: A-63
+[2026-06-05 14:27:36.876] INFO: TABLA[1/2]: ciclos=220 simStart=0 totalProc=63 finished=0 ctxSwitches=194 ctxSwitchTime=3856 algoChanges=0 ioOps=59 cpuCyclesExec=7867 pageFaults=123 itersSinceBalance=149
+[2026-06-05 14:27:36.876] INFO: TABLA[2/2]: cpuUtil=0.5108 avgWait=0.00 avgTurn=0.00 frag=0.0189 intWaste=0 extWaste=8 quantum=35 readyProp=0.5556 waitProp=0.4444 shouldSwitch=0
+[2026-06-05 14:27:37.177] INFO: Proceso creado: A-64
+[2026-06-05 14:27:37.681] INFO: Proceso creado: A-65
+[2026-06-05 14:27:37.884] INFO: Proceso creado: A-66
+[2026-06-05 14:27:38.489] INFO: Proceso creado: A-67
+[2026-06-05 14:27:38.591] INFO: Proceso creado: A-68
+[2026-06-05 14:27:38.692] INFO: Proceso creado: A-69
+[2026-06-05 14:27:38.895] INFO: TABLA[1/2]: ciclos=240 simStart=0 totalProc=69 finished=0 ctxSwitches=214 ctxSwitchTime=4246 algoChanges=0 ioOps=67 cpuCyclesExec=8674 pageFaults=143 itersSinceBalance=169
+[2026-06-05 14:27:38.895] INFO: TABLA[2/2]: cpuUtil=0.5163 avgWait=0.00 avgTurn=0.00 frag=0.0147 intWaste=0 extWaste=6 quantum=35 readyProp=0.5507 waitProp=0.4493 shouldSwitch=0
+[2026-06-05 14:27:38.995] INFO: Proceso creado: A-70
+[2026-06-05 14:27:39.197] INFO: Proceso creado: A-71
+[2026-06-05 14:27:40.104] INFO: Proceso creado: A-72
+[2026-06-05 14:27:40.206] INFO: Proceso creado: A-73
+[2026-06-05 14:27:40.914] INFO: TABLA[1/2]: ciclos=260 simStart=0 totalProc=73 finished=0 ctxSwitches=234 ctxSwitchTime=4647 algoChanges=0 ioOps=69 cpuCyclesExec=9548 pageFaults=156 itersSinceBalance=189
+[2026-06-05 14:27:40.914] INFO: TABLA[2/2]: cpuUtil=0.5246 avgWait=0.00 avgTurn=0.00 frag=0.0100 intWaste=0 extWaste=4 quantum=35 readyProp=0.5890 waitProp=0.4110 shouldSwitch=0
+[2026-06-05 14:27:41.318] INFO: Proceso creado: A-74
+[2026-06-05 14:27:41.520] INFO: Proceso creado: A-75
+[2026-06-05 14:27:42.024] INFO: Proceso creado: A-76
+[2026-06-05 14:27:42.731] INFO: Proceso creado: A-77
+[2026-06-05 14:27:42.934] INFO: TABLA[1/2]: ciclos=280 simStart=0 totalProc=77 finished=0 ctxSwitches=254 ctxSwitchTime=5040 algoChanges=0 ioOps=74 cpuCyclesExec=10405 pageFaults=166 itersSinceBalance=209
+[2026-06-05 14:27:42.934] INFO: TABLA[2/2]: cpuUtil=0.5309 avgWait=0.00 avgTurn=0.00 frag=0.0076 intWaste=0 extWaste=3 quantum=35 readyProp=0.5714 waitProp=0.4286 shouldSwitch=0
+[2026-06-05 14:27:43.540] INFO: Proceso creado: A-78
+[2026-06-05 14:27:43.640] INFO: Proceso creado: A-79
+[2026-06-05 14:27:43.843] INFO: Proceso creado: A-80
+[2026-06-05 14:27:44.346] INFO: Proceso creado: A-81
+[2026-06-05 14:27:44.548] INFO: Proceso creado: A-82
+[2026-06-05 14:27:44.649] INFO: Proceso creado: A-83
+[2026-06-05 14:27:44.952] INFO: Proceso creado: A-84
+[2026-06-05 14:27:44.954] INFO: TABLA[1/2]: ciclos=300 simStart=0 totalProc=84 finished=0 ctxSwitches=274 ctxSwitchTime=5433 algoChanges=0 ioOps=77 cpuCyclesExec=11259 pageFaults=176 itersSinceBalance=229
+[2026-06-05 14:27:44.955] INFO: TABLA[2/2]: cpuUtil=0.5361 avgWait=0.00 avgTurn=0.00 frag=0.0077 intWaste=0 extWaste=3 quantum=35 readyProp=0.6071 waitProp=0.3929 shouldSwitch=0
+[2026-06-05 14:27:45.157] INFO: Proceso creado: A-85
+[2026-06-05 14:27:45.561] INFO: Proceso creado: A-86
+[2026-06-05 14:27:45.865] INFO: Proceso creado: A-87
+[2026-06-05 14:27:45.965] INFO: Proceso creado: A-88
+[2026-06-05 14:27:46.471] INFO: Proceso creado: A-89
+[2026-06-05 14:27:46.572] INFO: Proceso creado: A-90
+[2026-06-05 14:27:46.673] INFO: Proceso creado: A-91
+[2026-06-05 14:27:46.875] INFO: Proceso creado: A-92
+[2026-06-05 14:27:46.976] INFO: TABLA[1/2]: ciclos=320 simStart=0 totalProc=92 finished=0 ctxSwitches=294 ctxSwitchTime=5829 algoChanges=0 ioOps=82 cpuCyclesExec=12099 pageFaults=204 itersSinceBalance=249
+[2026-06-05 14:27:46.977] INFO: TABLA[2/2]: cpuUtil=0.5401 avgWait=0.00 avgTurn=0.00 frag=0.0349 intWaste=0 extWaste=13 quantum=35 readyProp=0.6630 waitProp=0.3370 shouldSwitch=0
+[2026-06-05 14:27:47.179] INFO: Proceso creado: A-93
+[2026-06-05 14:27:47.482] INFO: Proceso creado: A-94
+[2026-06-05 14:27:47.683] INFO: Proceso creado: A-95
+[2026-06-05 14:27:48.087] INFO: Proceso creado: A-96
+[2026-06-05 14:27:48.189] INFO: Proceso creado: A-97
+[2026-06-05 14:27:48.491] INFO: Proceso creado: A-98
+[2026-06-05 14:27:48.693] INFO: Proceso creado: A-99
+[2026-06-05 14:27:48.794] INFO: Proceso creado: A-100
+[2026-06-05 14:27:48.997] INFO: TABLA[1/2]: ciclos=340 simStart=0 totalProc=100 finished=0 ctxSwitches=314 ctxSwitchTime=6194 algoChanges=0 ioOps=92 cpuCyclesExec=12901 pageFaults=221 itersSinceBalance=269
+[2026-06-05 14:27:48.997] INFO: TABLA[2/2]: cpuUtil=0.5421 avgWait=0.00 avgTurn=0.00 frag=0.0193 intWaste=0 extWaste=7 quantum=35 readyProp=0.6400 waitProp=0.3600 shouldSwitch=0
+[2026-06-05 14:27:49.199] INFO: Proceso creado: B-1
+[2026-06-05 14:27:49.299] INFO: Proceso creado: B-2
+[2026-06-05 14:27:49.402] INFO: Proceso creado: B-3
+[2026-06-05 14:27:50.006] INFO: Proceso creado: B-4
+[2026-06-05 14:27:50.410] INFO: Proceso creado: B-5
+[2026-06-05 14:27:50.511] INFO: Proceso creado: B-6
+[2026-06-05 14:27:51.017] INFO: TABLA[1/2]: ciclos=360 simStart=0 totalProc=106 finished=0 ctxSwitches=334 ctxSwitchTime=6570 algoChanges=0 ioOps=95 cpuCyclesExec=13657 pageFaults=239 itersSinceBalance=289
+[2026-06-05 14:27:51.017] INFO: TABLA[2/2]: cpuUtil=0.5419 avgWait=0.00 avgTurn=0.00 frag=0.0199 intWaste=0 extWaste=7 quantum=35 readyProp=0.6698 waitProp=0.3302 shouldSwitch=0
+[2026-06-05 14:27:51.117] INFO: Proceso creado: B-7
+[2026-06-05 14:27:51.218] INFO: Proceso creado: B-8
+[2026-06-05 14:27:51.419] INFO: Proceso creado: B-9
+[2026-06-05 14:27:51.520] INFO: Proceso creado: B-10
+[2026-06-05 14:27:51.823] INFO: Proceso creado: B-11
+[2026-06-05 14:27:52.025] INFO: Proceso creado: B-12
+[2026-06-05 14:27:52.327] INFO: Proceso creado: B-13
+[2026-06-05 14:27:52.629] INFO: Proceso creado: B-14
+[2026-06-05 14:27:52.831] INFO: Proceso creado: B-15
+[2026-06-05 14:27:53.033] INFO: Proceso creado: B-16
+[2026-06-05 14:27:53.034] INFO: TABLA[1/2]: ciclos=380 simStart=0 totalProc=116 finished=0 ctxSwitches=354 ctxSwitchTime=6980 algoChanges=0 ioOps=102 cpuCyclesExec=14533 pageFaults=268 itersSinceBalance=309
+[2026-06-05 14:27:53.034] INFO: TABLA[2/2]: cpuUtil=0.5464 avgWait=0.00 avgTurn=0.00 frag=0.0299 intWaste=0 extWaste=10 quantum=35 readyProp=0.7069 waitProp=0.2931 shouldSwitch=0
+[2026-06-05 14:27:53.135] INFO: Proceso creado: B-17
+[2026-06-05 14:27:53.740] INFO: Proceso creado: B-18
+[2026-06-05 14:27:53.942] INFO: Proceso creado: B-19
+[2026-06-05 14:27:54.345] INFO: Proceso creado: B-20
+[2026-06-05 14:27:54.648] INFO: Proceso creado: B-21
+[2026-06-05 14:27:54.749] INFO: Proceso creado: B-22
+[2026-06-05 14:27:54.850] INFO: Proceso creado: B-23
+[2026-06-05 14:27:55.052] INFO: TABLA[1/2]: ciclos=400 simStart=0 totalProc=123 finished=0 ctxSwitches=374 ctxSwitchTime=7410 algoChanges=0 ioOps=108 cpuCyclesExec=15322 pageFaults=285 itersSinceBalance=329
+[2026-06-05 14:27:55.052] INFO: TABLA[2/2]: cpuUtil=0.5472 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.7073 waitProp=0.2927 shouldSwitch=0
+[2026-06-05 14:27:55.759] INFO: Proceso creado: B-24
+[2026-06-05 14:27:55.961] INFO: Proceso creado: B-25
+[2026-06-05 14:27:56.164] INFO: Proceso creado: B-26
+[2026-06-05 14:27:56.465] INFO: Proceso creado: B-27
+[2026-06-05 14:27:56.666] INFO: Proceso creado: B-28
+[2026-06-05 14:27:57.104] INFO: TABLA[1/2]: ciclos=420 simStart=0 totalProc=128 finished=0 ctxSwitches=394 ctxSwitchTime=7790 algoChanges=0 ioOps=113 cpuCyclesExec=16141 pageFaults=305 itersSinceBalance=349
+[2026-06-05 14:27:57.104] INFO: TABLA[2/2]: cpuUtil=0.5490 avgWait=0.00 avgTurn=0.00 frag=0.0133 intWaste=0 extWaste=4 quantum=35 readyProp=0.7188 waitProp=0.2812 shouldSwitch=0
+[2026-06-05 14:27:57.508] INFO: Proceso creado: B-29
+[2026-06-05 14:27:57.811] INFO: Proceso creado: B-30
+[2026-06-05 14:27:58.215] INFO: Proceso creado: B-31
+[2026-06-05 14:27:58.316] INFO: Proceso creado: B-32
+[2026-06-05 14:27:58.417] INFO: Proceso creado: B-33
+[2026-06-05 14:27:58.518] INFO: Proceso creado: B-34
+[2026-06-05 14:27:58.619] INFO: Proceso creado: B-35
+[2026-06-05 14:27:59.124] INFO: Proceso creado: B-36
+[2026-06-05 14:27:59.124] INFO: TABLA[1/2]: ciclos=440 simStart=0 totalProc=136 finished=0 ctxSwitches=414 ctxSwitchTime=8225 algoChanges=0 ioOps=119 cpuCyclesExec=16896 pageFaults=323 itersSinceBalance=7
+[2026-06-05 14:27:59.124] INFO: TABLA[2/2]: cpuUtil=0.5486 avgWait=0.00 avgTurn=0.00 frag=0.0439 intWaste=0 extWaste=13 quantum=30 readyProp=0.7519 waitProp=0.2481 shouldSwitch=0
+[2026-06-05 14:27:59.225] INFO: Proceso creado: B-37
+[2026-06-05 14:27:59.426] INFO: Proceso creado: B-38
+[2026-06-05 14:28:00.032] INFO: Proceso creado: B-39
+[2026-06-05 14:28:00.537] INFO: Proceso creado: B-40
+[2026-06-05 14:28:00.638] INFO: Proceso creado: B-41
+[2026-06-05 14:28:00.739] INFO: Proceso creado: B-42
+[2026-06-05 14:28:00.941] INFO: Proceso creado: B-43
+[2026-06-05 14:28:01.145] INFO: TABLA[1/2]: ciclos=460 simStart=0 totalProc=143 finished=0 ctxSwitches=434 ctxSwitchTime=8587 algoChanges=0 ioOps=124 cpuCyclesExec=17667 pageFaults=337 itersSinceBalance=27
+[2026-06-05 14:28:01.145] INFO: TABLA[2/2]: cpuUtil=0.5487 avgWait=0.00 avgTurn=0.00 frag=0.0375 intWaste=0 extWaste=11 quantum=30 readyProp=0.7413 waitProp=0.2587 shouldSwitch=0
+[2026-06-05 14:28:01.246] INFO: Proceso creado: B-44
+[2026-06-05 14:28:01.346] INFO: Proceso creado: B-45
+[2026-06-05 14:28:01.447] INFO: Proceso creado: B-46
+[2026-06-05 14:28:01.750] INFO: Proceso creado: B-47
+[2026-06-05 14:28:02.154] INFO: Proceso creado: B-48
+[2026-06-05 14:28:03.167] INFO: TABLA[1/2]: ciclos=480 simStart=0 totalProc=148 finished=0 ctxSwitches=454 ctxSwitchTime=8957 algoChanges=0 ioOps=130 cpuCyclesExec=18393 pageFaults=354 itersSinceBalance=19
+[2026-06-05 14:28:03.167] INFO: TABLA[2/2]: cpuUtil=0.5474 avgWait=0.00 avgTurn=0.00 frag=0.0143 intWaste=0 extWaste=4 quantum=30 readyProp=0.7500 waitProp=0.2500 shouldSwitch=0
+[2026-06-05 14:28:03.268] INFO: Proceso creado: B-49
+[2026-06-05 14:28:03.571] INFO: Proceso creado: B-50
+[2026-06-05 14:28:05.190] INFO: TABLA[1/2]: ciclos=500 simStart=0 totalProc=153 finished=0 ctxSwitches=474 ctxSwitchTime=9382 algoChanges=0 ioOps=134 cpuCyclesExec=19292 pageFaults=391 itersSinceBalance=3
+[2026-06-05 14:28:05.190] INFO: TABLA[2/2]: cpuUtil=0.5512 avgWait=0.00 avgTurn=0.00 frag=0.0433 intWaste=0 extWaste=11 quantum=25 readyProp=0.7516 waitProp=0.2288 shouldSwitch=0
+[2026-06-05 14:28:07.212] INFO: TABLA[1/2]: ciclos=520 simStart=0 totalProc=164 finished=0 ctxSwitches=494 ctxSwitchTime=9732 algoChanges=0 ioOps=136 cpuCyclesExec=20101 pageFaults=422 itersSinceBalance=23
+[2026-06-05 14:28:07.212] INFO: TABLA[2/2]: cpuUtil=0.5522 avgWait=0.00 avgTurn=0.00 frag=0.0346 intWaste=0 extWaste=8 quantum=25 readyProp=0.7378 waitProp=0.1768 shouldSwitch=0
+[2026-06-05 14:28:09.232] INFO: TABLA[1/2]: ciclos=540 simStart=0 totalProc=171 finished=0 ctxSwitches=514 ctxSwitchTime=10128 algoChanges=0 ioOps=145 cpuCyclesExec=20958 pageFaults=431 itersSinceBalance=43
+[2026-06-05 14:28:09.232] INFO: TABLA[2/2]: cpuUtil=0.5544 avgWait=0.00 avgTurn=0.00 frag=0.0045 intWaste=0 extWaste=1 quantum=25 readyProp=0.6667 waitProp=0.2105 shouldSwitch=0
+[2026-06-05 14:28:09.837] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:28:09.838] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:28:41.097] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:28:41.098] INFO: Proceso creado: A-1
+[2026-06-05 14:28:41.133] INFO: Proceso creado: A-2
+[2026-06-05 14:28:41.134] INFO: Proceso creado: A-3
+[2026-06-05 14:28:41.135] INFO: Proceso creado: A-4
+[2026-06-05 14:28:41.136] INFO: Proceso creado: A-5
+[2026-06-05 14:28:41.138] INFO: Proceso creado: A-6
+[2026-06-05 14:28:41.139] INFO: Proceso creado: A-7
+[2026-06-05 14:28:41.140] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=7 finished=0 ctxSwitches=19 ctxSwitchTime=424 algoChanges=1 ioOps=3 cpuCyclesExec=293 pageFaults=0 itersSinceBalance=20
+[2026-06-05 14:28:41.140] INFO: TABLA[2/2]: cpuUtil=0.2093 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.5714 waitProp=0.4286 shouldSwitch=0
+[2026-06-05 14:28:41.141] INFO: Proceso creado: A-8
+[2026-06-05 14:28:41.141] INFO: Proceso creado: A-9
+[2026-06-05 14:28:41.142] INFO: Proceso creado: A-10
+[2026-06-05 14:28:41.142] INFO: Proceso creado: A-11
+[2026-06-05 14:28:41.143] INFO: Proceso creado: A-12
+[2026-06-05 14:28:41.143] INFO: Proceso creado: A-13
+[2026-06-05 14:28:41.145] INFO: Proceso creado: A-14
+[2026-06-05 14:28:41.146] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=14 finished=0 ctxSwitches=39 ctxSwitchTime=841 algoChanges=1 ioOps=4 cpuCyclesExec=621 pageFaults=0 itersSinceBalance=10
+[2026-06-05 14:28:41.146] INFO: TABLA[2/2]: cpuUtil=0.2218 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.7500 waitProp=0.2500 shouldSwitch=0
+[2026-06-05 14:28:41.146] INFO: Proceso creado: A-15
+[2026-06-05 14:28:41.147] INFO: Proceso creado: A-16
+[2026-06-05 14:28:41.148] INFO: Proceso creado: A-17
+[2026-06-05 14:28:41.151] INFO: Proceso creado: A-18
+[2026-06-05 14:28:41.152] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=18 finished=0 ctxSwitches=59 ctxSwitchTime=1251 algoChanges=1 ioOps=11 cpuCyclesExec=922 pageFaults=4 itersSinceBalance=30
+[2026-06-05 14:28:41.152] INFO: TABLA[2/2]: cpuUtil=0.2195 avgWait=0.00 avgTurn=0.00 frag=0.0039 intWaste=0 extWaste=2 quantum=20 readyProp=0.4444 waitProp=0.5556 shouldSwitch=0
+[2026-06-05 14:28:41.152] INFO: Proceso creado: A-19
+[2026-06-05 14:28:41.152] INFO: Proceso creado: A-20
+[2026-06-05 14:28:41.152] INFO: Proceso creado: A-21
+[2026-06-05 14:28:41.153] INFO: Proceso creado: A-22
+[2026-06-05 14:28:41.154] INFO: Proceso creado: A-23
+[2026-06-05 14:28:41.154] INFO: Proceso creado: A-24
+[2026-06-05 14:28:41.154] INFO: Proceso creado: A-25
+[2026-06-05 14:28:41.156] INFO: Proceso creado: A-26
+[2026-06-05 14:28:41.156] INFO: Proceso creado: A-27
+[2026-06-05 14:28:41.157] INFO: TABLA[1/2]: ciclos=80 simStart=0 totalProc=27 finished=0 ctxSwitches=79 ctxSwitchTime=1644 algoChanges=1 ioOps=13 cpuCyclesExec=1202 pageFaults=8 itersSinceBalance=50
+[2026-06-05 14:28:41.157] INFO: TABLA[2/2]: cpuUtil=0.2146 avgWait=0.00 avgTurn=0.00 frag=0.0039 intWaste=0 extWaste=2 quantum=20 readyProp=0.5926 waitProp=0.4074 shouldSwitch=0
+[2026-06-05 14:28:41.158] INFO: Proceso creado: A-28
+[2026-06-05 14:28:41.158] INFO: Proceso creado: A-29
+[2026-06-05 14:28:41.159] INFO: Proceso creado: A-30
+[2026-06-05 14:28:41.160] INFO: Proceso creado: A-31
+[2026-06-05 14:28:41.162] INFO: Proceso creado: A-32
+[2026-06-05 14:28:41.162] INFO: TABLA[1/2]: ciclos=100 simStart=0 totalProc=32 finished=0 ctxSwitches=99 ctxSwitchTime=2005 algoChanges=1 ioOps=13 cpuCyclesExec=1505 pageFaults=18 itersSinceBalance=70
+[2026-06-05 14:28:41.162] INFO: TABLA[2/2]: cpuUtil=0.2150 avgWait=0.00 avgTurn=0.00 frag=0.0099 intWaste=0 extWaste=5 quantum=20 readyProp=0.7188 waitProp=0.2812 shouldSwitch=0
+[2026-06-05 14:28:41.162] INFO: Proceso creado: A-33
+[2026-06-05 14:28:41.163] INFO: Proceso creado: A-34
+[2026-06-05 14:28:41.164] INFO: Proceso creado: A-35
+[2026-06-05 14:28:41.166] INFO: Proceso creado: A-36
+[2026-06-05 14:28:41.168] INFO: Proceso creado: A-37
+[2026-06-05 14:28:41.168] INFO: TABLA[1/2]: ciclos=120 simStart=0 totalProc=37 finished=0 ctxSwitches=119 ctxSwitchTime=2421 algoChanges=1 ioOps=18 cpuCyclesExec=1809 pageFaults=23 itersSinceBalance=90
+[2026-06-05 14:28:41.168] INFO: TABLA[2/2]: cpuUtil=0.2154 avgWait=0.00 avgTurn=0.00 frag=0.0040 intWaste=0 extWaste=2 quantum=20 readyProp=0.6486 waitProp=0.3514 shouldSwitch=0
+[2026-06-05 14:28:41.169] INFO: Proceso creado: A-38
+[2026-06-05 14:28:41.169] INFO: Proceso creado: A-39
+[2026-06-05 14:28:41.170] INFO: Proceso creado: A-40
+[2026-06-05 14:28:41.171] INFO: Proceso creado: A-41
+[2026-06-05 14:28:41.172] INFO: Proceso creado: A-42
+[2026-06-05 14:28:41.172] INFO: Proceso creado: A-43
+[2026-06-05 14:28:41.172] INFO: Proceso creado: A-44
+[2026-06-05 14:28:41.173] INFO: Proceso creado: A-45
+[2026-06-05 14:28:41.174] INFO: Proceso creado: A-46
+[2026-06-05 14:28:41.174] INFO: TABLA[1/2]: ciclos=140 simStart=0 totalProc=46 finished=0 ctxSwitches=139 ctxSwitchTime=2854 algoChanges=1 ioOps=21 cpuCyclesExec=2108 pageFaults=27 itersSinceBalance=110
+[2026-06-05 14:28:41.174] INFO: TABLA[2/2]: cpuUtil=0.2151 avgWait=0.00 avgTurn=0.00 frag=0.0020 intWaste=0 extWaste=1 quantum=20 readyProp=0.6739 waitProp=0.3261 shouldSwitch=0
+[2026-06-05 14:28:41.174] INFO: Proceso creado: A-47
+[2026-06-05 14:28:41.176] INFO: Proceso creado: A-48
+[2026-06-05 14:28:41.178] INFO: Proceso creado: A-49
+[2026-06-05 14:28:41.178] INFO: Proceso creado: A-50
+[2026-06-05 14:28:41.179] INFO: Proceso creado: A-51
+[2026-06-05 14:28:41.179] INFO: Proceso creado: A-52
+[2026-06-05 14:28:41.180] INFO: TABLA[1/2]: ciclos=160 simStart=0 totalProc=52 finished=0 ctxSwitches=159 ctxSwitchTime=3297 algoChanges=1 ioOps=22 cpuCyclesExec=2410 pageFaults=41 itersSinceBalance=2
+[2026-06-05 14:28:41.180] INFO: TABLA[2/2]: cpuUtil=0.2152 avgWait=0.00 avgTurn=0.00 frag=0.0102 intWaste=0 extWaste=5 quantum=20 readyProp=0.7500 waitProp=0.2500 shouldSwitch=0
+[2026-06-05 14:28:41.182] INFO: Proceso creado: A-53
+[2026-06-05 14:28:41.183] INFO: Proceso creado: A-54
+[2026-06-05 14:28:41.184] INFO: Proceso creado: A-55
+[2026-06-05 14:28:41.185] INFO: Proceso creado: A-56
+[2026-06-05 14:28:41.186] INFO: Proceso creado: A-57
+[2026-06-05 14:28:41.187] INFO: TABLA[1/2]: ciclos=180 simStart=0 totalProc=57 finished=0 ctxSwitches=179 ctxSwitchTime=3738 algoChanges=1 ioOps=22 cpuCyclesExec=2710 pageFaults=51 itersSinceBalance=2
+[2026-06-05 14:28:41.187] INFO: TABLA[2/2]: cpuUtil=0.2151 avgWait=0.00 avgTurn=0.00 frag=0.0062 intWaste=0 extWaste=3 quantum=15 readyProp=0.8036 waitProp=0.1964 shouldSwitch=0
+[2026-06-05 14:28:41.187] INFO: Proceso creado: A-58
+[2026-06-05 14:28:41.189] INFO: Proceso creado: A-59
+[2026-06-05 14:28:41.190] INFO: Proceso creado: A-60
+[2026-06-05 14:28:41.191] INFO: Proceso creado: A-61
+[2026-06-05 14:28:41.193] INFO: Proceso creado: A-62
+[2026-06-05 14:28:41.193] INFO: Proceso creado: A-63
+[2026-06-05 14:28:41.193] INFO: TABLA[1/2]: ciclos=200 simStart=0 totalProc=63 finished=0 ctxSwitches=199 ctxSwitchTime=4128 algoChanges=1 ioOps=24 cpuCyclesExec=2963 pageFaults=61 itersSinceBalance=2
+[2026-06-05 14:28:41.194] INFO: TABLA[2/2]: cpuUtil=0.2116 avgWait=0.00 avgTurn=0.00 frag=0.0083 intWaste=0 extWaste=4 quantum=10 readyProp=0.8361 waitProp=0.1639 shouldSwitch=0
+[2026-06-05 14:28:41.194] INFO: Proceso creado: A-64
+[2026-06-05 14:28:41.196] INFO: Proceso creado: A-65
+[2026-06-05 14:28:41.196] INFO: Proceso creado: A-66
+[2026-06-05 14:28:41.197] INFO: Proceso creado: A-67
+[2026-06-05 14:28:41.198] INFO: Proceso creado: A-68
+[2026-06-05 14:28:41.201] INFO: Proceso creado: A-69
+[2026-06-05 14:28:41.202] INFO: TABLA[1/2]: ciclos=220 simStart=0 totalProc=69 finished=0 ctxSwitches=219 ctxSwitchTime=4536 algoChanges=1 ioOps=25 cpuCyclesExec=3140 pageFaults=66 itersSinceBalance=2
+[2026-06-05 14:28:41.202] INFO: TABLA[2/2]: cpuUtil=0.2039 avgWait=0.00 avgTurn=0.00 frag=0.0021 intWaste=0 extWaste=1 quantum=5 readyProp=0.8406 waitProp=0.1594 shouldSwitch=0
+[2026-06-05 14:28:41.202] INFO: Proceso creado: A-70
+[2026-06-05 14:28:41.202] INFO: Proceso creado: A-71
+[2026-06-05 14:28:41.203] INFO: Proceso creado: A-72
+[2026-06-05 14:28:41.204] INFO: Proceso creado: A-73
+[2026-06-05 14:28:41.205] INFO: Proceso creado: A-74
+[2026-06-05 14:28:41.206] INFO: Proceso creado: A-75
+[2026-06-05 14:28:41.207] INFO: TABLA[1/2]: ciclos=240 simStart=0 totalProc=75 finished=0 ctxSwitches=239 ctxSwitchTime=4944 algoChanges=1 ioOps=26 cpuCyclesExec=3230 pageFaults=94 itersSinceBalance=2
+[2026-06-05 14:28:41.208] INFO: TABLA[2/2]: cpuUtil=0.1923 avgWait=0.00 avgTurn=0.00 frag=0.0088 intWaste=0 extWaste=4 quantum=5 readyProp=0.9200 waitProp=0.0800 shouldSwitch=0
+[2026-06-05 14:28:41.208] INFO: Proceso creado: A-76
+[2026-06-05 14:28:41.208] INFO: Proceso creado: A-77
+[2026-06-05 14:28:41.209] INFO: Proceso creado: A-78
+[2026-06-05 14:28:41.210] INFO: Proceso creado: A-79
+[2026-06-05 14:28:41.210] INFO: Proceso creado: A-80
+[2026-06-05 14:28:41.212] INFO: Proceso creado: A-81
+[2026-06-05 14:28:41.212] INFO: Proceso creado: A-82
+[2026-06-05 14:28:41.213] INFO: Proceso creado: A-83
+[2026-06-05 14:28:41.213] INFO: Proceso creado: A-84
+[2026-06-05 14:28:41.214] INFO: TABLA[1/2]: ciclos=260 simStart=0 totalProc=84 finished=0 ctxSwitches=259 ctxSwitchTime=5357 algoChanges=1 ioOps=26 cpuCyclesExec=3327 pageFaults=94 itersSinceBalance=2
+[2026-06-05 14:28:41.214] INFO: TABLA[2/2]: cpuUtil=0.1828 avgWait=0.00 avgTurn=0.00 frag=0.0088 intWaste=0 extWaste=4 quantum=5 readyProp=0.9277 waitProp=0.0723 shouldSwitch=0
+[2026-06-05 14:28:41.214] INFO: Proceso creado: A-85
+[2026-06-05 14:28:41.218] INFO: Proceso creado: A-86
+[2026-06-05 14:28:41.219] INFO: Proceso creado: A-87
+[2026-06-05 14:28:41.220] INFO: Proceso creado: A-88
+[2026-06-05 14:28:41.221] INFO: TABLA[1/2]: ciclos=280 simStart=0 totalProc=88 finished=0 ctxSwitches=279 ctxSwitchTime=5777 algoChanges=1 ioOps=26 cpuCyclesExec=3420 pageFaults=103 itersSinceBalance=2
+[2026-06-05 14:28:41.221] INFO: TABLA[2/2]: cpuUtil=0.1745 avgWait=0.00 avgTurn=0.00 frag=0.0045 intWaste=0 extWaste=2 quantum=5 readyProp=0.9545 waitProp=0.0455 shouldSwitch=0
+[2026-06-05 14:28:41.222] INFO: Proceso creado: A-89
+[2026-06-05 14:28:41.222] INFO: Proceso creado: A-90
+[2026-06-05 14:28:41.223] INFO: Proceso creado: A-91
+[2026-06-05 14:28:41.225] INFO: Proceso creado: A-92
+[2026-06-05 14:28:41.226] INFO: Proceso creado: A-93
+[2026-06-05 14:28:41.227] INFO: Proceso creado: A-94
+[2026-06-05 14:28:41.227] INFO: Proceso creado: A-95
+[2026-06-05 14:28:41.228] INFO: Proceso creado: A-96
+[2026-06-05 14:28:41.229] INFO: TABLA[1/2]: ciclos=300 simStart=0 totalProc=96 finished=0 ctxSwitches=299 ctxSwitchTime=6164 algoChanges=1 ioOps=27 cpuCyclesExec=3515 pageFaults=110 itersSinceBalance=2
+[2026-06-05 14:28:41.229] INFO: TABLA[2/2]: cpuUtil=0.1674 avgWait=0.00 avgTurn=0.00 frag=0.0045 intWaste=0 extWaste=2 quantum=5 readyProp=0.9684 waitProp=0.0316 shouldSwitch=0
+[2026-06-05 14:28:41.229] INFO: Proceso creado: A-97
+[2026-06-05 14:28:41.230] INFO: Proceso creado: A-98
+[2026-06-05 14:28:41.230] INFO: Proceso creado: A-99
+[2026-06-05 14:28:41.231] INFO: Proceso creado: A-100
+[2026-06-05 14:28:41.232] INFO: Proceso creado: B-1
+[2026-06-05 14:28:41.234] INFO: Proceso creado: B-2
+[2026-06-05 14:28:41.235] INFO: Proceso creado: B-3
+[2026-06-05 14:28:41.235] INFO: Proceso creado: B-4
+[2026-06-05 14:28:41.237] INFO: TABLA[1/2]: ciclos=320 simStart=0 totalProc=104 finished=0 ctxSwitches=319 ctxSwitchTime=6636 algoChanges=1 ioOps=27 cpuCyclesExec=3612 pageFaults=110 itersSinceBalance=2
+[2026-06-05 14:28:41.237] INFO: TABLA[2/2]: cpuUtil=0.1612 avgWait=0.00 avgTurn=0.00 frag=0.0045 intWaste=0 extWaste=2 quantum=5 readyProp=0.9712 waitProp=0.0288 shouldSwitch=0
+[2026-06-05 14:28:41.239] INFO: Proceso creado: B-5
+[2026-06-05 14:28:41.240] INFO: Proceso creado: B-6
+[2026-06-05 14:28:41.244] INFO: TABLA[1/2]: ciclos=340 simStart=0 totalProc=106 finished=0 ctxSwitches=339 ctxSwitchTime=7029 algoChanges=1 ioOps=27 cpuCyclesExec=3708 pageFaults=112 itersSinceBalance=2
+[2026-06-05 14:28:41.244] INFO: TABLA[2/2]: cpuUtil=0.1558 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9811 waitProp=0.0189 shouldSwitch=0
+[2026-06-05 14:28:41.245] INFO: Proceso creado: B-7
+[2026-06-05 14:28:41.246] INFO: Proceso creado: B-8
+[2026-06-05 14:28:41.247] INFO: Proceso creado: B-9
+[2026-06-05 14:28:41.250] INFO: Proceso creado: B-10
+[2026-06-05 14:28:41.250] INFO: Proceso creado: B-11
+[2026-06-05 14:28:41.251] INFO: Proceso creado: B-12
+[2026-06-05 14:28:41.252] INFO: TABLA[1/2]: ciclos=360 simStart=0 totalProc=112 finished=0 ctxSwitches=359 ctxSwitchTime=7438 algoChanges=1 ioOps=27 cpuCyclesExec=3802 pageFaults=112 itersSinceBalance=2
+[2026-06-05 14:28:41.252] INFO: TABLA[2/2]: cpuUtil=0.1509 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9820 waitProp=0.0180 shouldSwitch=0
+[2026-06-05 14:28:41.252] INFO: Proceso creado: B-13
+[2026-06-05 14:28:41.255] INFO: Proceso creado: B-14
+[2026-06-05 14:28:41.258] INFO: Proceso creado: B-15
+[2026-06-05 14:28:41.259] INFO: Proceso creado: B-16
+[2026-06-05 14:28:41.259] INFO: TABLA[1/2]: ciclos=380 simStart=0 totalProc=116 finished=0 ctxSwitches=379 ctxSwitchTime=7836 algoChanges=1 ioOps=27 cpuCyclesExec=3902 pageFaults=112 itersSinceBalance=2
+[2026-06-05 14:28:41.259] INFO: TABLA[2/2]: cpuUtil=0.1467 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9825 waitProp=0.0175 shouldSwitch=0
+[2026-06-05 14:28:41.260] INFO: Proceso creado: B-17
+[2026-06-05 14:28:41.260] INFO: Proceso creado: B-18
+[2026-06-05 14:28:41.261] INFO: Proceso creado: B-19
+[2026-06-05 14:28:41.262] INFO: Proceso creado: B-20
+[2026-06-05 14:28:41.262] INFO: Proceso creado: B-21
+[2026-06-05 14:28:41.263] INFO: Proceso creado: B-22
+[2026-06-05 14:28:41.264] INFO: Proceso creado: B-23
+[2026-06-05 14:28:41.266] INFO: Proceso creado: B-24
+[2026-06-05 14:28:41.266] INFO: Proceso creado: B-25
+[2026-06-05 14:28:41.267] INFO: TABLA[1/2]: ciclos=400 simStart=0 totalProc=125 finished=0 ctxSwitches=399 ctxSwitchTime=8256 algoChanges=1 ioOps=27 cpuCyclesExec=4002 pageFaults=112 itersSinceBalance=2
+[2026-06-05 14:28:41.267] INFO: TABLA[2/2]: cpuUtil=0.1429 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9839 waitProp=0.0161 shouldSwitch=0
+[2026-06-05 14:28:41.268] INFO: Proceso creado: B-26
+[2026-06-05 14:28:41.270] INFO: Proceso creado: B-27
+[2026-06-05 14:28:41.272] INFO: Proceso creado: B-28
+[2026-06-05 14:28:41.273] INFO: Proceso creado: B-29
+[2026-06-05 14:28:41.275] INFO: TABLA[1/2]: ciclos=420 simStart=0 totalProc=129 finished=0 ctxSwitches=419 ctxSwitchTime=8634 algoChanges=1 ioOps=27 cpuCyclesExec=4102 pageFaults=116 itersSinceBalance=2
+[2026-06-05 14:28:41.275] INFO: TABLA[2/2]: cpuUtil=0.1395 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9922 waitProp=0.0078 shouldSwitch=0
+[2026-06-05 14:28:41.275] INFO: Proceso creado: B-30
+[2026-06-05 14:28:41.276] INFO: Proceso creado: B-31
+[2026-06-05 14:28:41.277] INFO: Proceso creado: B-32
+[2026-06-05 14:28:41.279] INFO: Proceso creado: B-33
+[2026-06-05 14:28:41.280] INFO: Proceso creado: B-34
+[2026-06-05 14:28:41.280] INFO: Proceso creado: B-35
+[2026-06-05 14:28:41.282] INFO: Proceso creado: B-36
+[2026-06-05 14:28:41.282] INFO: Proceso creado: B-37
+[2026-06-05 14:28:41.283] INFO: Proceso creado: B-38
+[2026-06-05 14:28:41.284] INFO: TABLA[1/2]: ciclos=440 simStart=0 totalProc=138 finished=0 ctxSwitches=439 ctxSwitchTime=9019 algoChanges=1 ioOps=27 cpuCyclesExec=4202 pageFaults=116 itersSinceBalance=2
+[2026-06-05 14:28:41.284] INFO: TABLA[2/2]: cpuUtil=0.1364 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9927 waitProp=0.0073 shouldSwitch=0
+[2026-06-05 14:28:41.285] INFO: Proceso creado: B-39
+[2026-06-05 14:28:41.289] INFO: Proceso creado: B-40
+[2026-06-05 14:28:41.290] INFO: Proceso creado: B-41
+[2026-06-05 14:28:41.291] INFO: Proceso creado: B-42
+[2026-06-05 14:28:41.292] INFO: TABLA[1/2]: ciclos=460 simStart=0 totalProc=142 finished=0 ctxSwitches=459 ctxSwitchTime=9396 algoChanges=1 ioOps=27 cpuCyclesExec=4302 pageFaults=116 itersSinceBalance=2
+[2026-06-05 14:28:41.292] INFO: TABLA[2/2]: cpuUtil=0.1336 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9930 waitProp=0.0070 shouldSwitch=0
+[2026-06-05 14:28:41.292] INFO: Proceso creado: B-43
+[2026-06-05 14:28:41.293] INFO: Proceso creado: B-44
+[2026-06-05 14:28:41.295] INFO: Proceso creado: B-45
+[2026-06-05 14:28:41.295] INFO: Proceso creado: B-46
+[2026-06-05 14:28:41.296] INFO: Proceso creado: B-47
+[2026-06-05 14:28:41.298] INFO: Proceso creado: B-48
+[2026-06-05 14:28:41.298] INFO: Proceso creado: B-49
+[2026-06-05 14:28:41.299] INFO: TABLA[1/2]: ciclos=480 simStart=0 totalProc=149 finished=0 ctxSwitches=479 ctxSwitchTime=9808 algoChanges=1 ioOps=27 cpuCyclesExec=4400 pageFaults=116 itersSinceBalance=2
+[2026-06-05 14:28:41.299] INFO: TABLA[2/2]: cpuUtil=0.1310 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9932 waitProp=0.0068 shouldSwitch=0
+[2026-06-05 14:28:41.299] INFO: Proceso creado: B-50
+[2026-06-05 14:28:41.306] INFO: TABLA[1/2]: ciclos=500 simStart=0 totalProc=158 finished=0 ctxSwitches=499 ctxSwitchTime=10184 algoChanges=1 ioOps=27 cpuCyclesExec=4500 pageFaults=118 itersSinceBalance=2
+[2026-06-05 14:28:41.306] INFO: TABLA[2/2]: cpuUtil=0.1286 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9494 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 14:28:41.315] INFO: TABLA[1/2]: ciclos=520 simStart=0 totalProc=160 finished=0 ctxSwitches=519 ctxSwitchTime=10622 algoChanges=1 ioOps=27 cpuCyclesExec=4598 pageFaults=118 itersSinceBalance=2
+[2026-06-05 14:28:41.315] INFO: TABLA[2/2]: cpuUtil=0.1263 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9434 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 14:28:41.323] INFO: TABLA[1/2]: ciclos=540 simStart=0 totalProc=166 finished=0 ctxSwitches=539 ctxSwitchTime=11042 algoChanges=1 ioOps=27 cpuCyclesExec=4695 pageFaults=118 itersSinceBalance=2
+[2026-06-05 14:28:41.323] INFO: TABLA[2/2]: cpuUtil=0.1242 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.9091 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 14:28:41.332] INFO: TABLA[1/2]: ciclos=560 simStart=0 totalProc=174 finished=0 ctxSwitches=559 ctxSwitchTime=11478 algoChanges=1 ioOps=27 cpuCyclesExec=4791 pageFaults=118 itersSinceBalance=2
+[2026-06-05 14:28:41.332] INFO: TABLA[2/2]: cpuUtil=0.1222 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.8721 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 14:28:41.341] INFO: TABLA[1/2]: ciclos=580 simStart=0 totalProc=181 finished=0 ctxSwitches=579 ctxSwitchTime=11911 algoChanges=1 ioOps=28 cpuCyclesExec=4888 pageFaults=118 itersSinceBalance=2
+[2026-06-05 14:28:41.341] INFO: TABLA[2/2]: cpuUtil=0.1204 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.8278 waitProp=0.0056 shouldSwitch=0
+[2026-06-05 14:28:41.350] INFO: TABLA[1/2]: ciclos=600 simStart=0 totalProc=186 finished=0 ctxSwitches=599 ctxSwitchTime=12278 algoChanges=1 ioOps=28 cpuCyclesExec=4988 pageFaults=118 itersSinceBalance=2
+[2026-06-05 14:28:41.350] INFO: TABLA[2/2]: cpuUtil=0.1188 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.8054 waitProp=0.0054 shouldSwitch=0
+[2026-06-05 14:28:41.360] INFO: TABLA[1/2]: ciclos=620 simStart=0 totalProc=191 finished=0 ctxSwitches=619 ctxSwitchTime=12621 algoChanges=1 ioOps=28 cpuCyclesExec=5082 pageFaults=118 itersSinceBalance=2
+[2026-06-05 14:28:41.360] INFO: TABLA[2/2]: cpuUtil=0.1171 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.7801 waitProp=0.0052 shouldSwitch=0
+[2026-06-05 14:28:41.371] INFO: TABLA[1/2]: ciclos=640 simStart=0 totalProc=198 finished=0 ctxSwitches=639 ctxSwitchTime=13021 algoChanges=1 ioOps=28 cpuCyclesExec=5178 pageFaults=118 itersSinceBalance=2
+[2026-06-05 14:28:41.371] INFO: TABLA[2/2]: cpuUtil=0.1156 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.7563 waitProp=0.0051 shouldSwitch=0
+[2026-06-05 14:28:41.380] INFO: TABLA[1/2]: ciclos=660 simStart=0 totalProc=206 finished=0 ctxSwitches=659 ctxSwitchTime=13393 algoChanges=1 ioOps=28 cpuCyclesExec=5275 pageFaults=118 itersSinceBalance=22
+[2026-06-05 14:28:41.380] INFO: TABLA[2/2]: cpuUtil=0.1142 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.7233 waitProp=0.0049 shouldSwitch=0
+[2026-06-05 14:28:41.390] INFO: TABLA[1/2]: ciclos=680 simStart=0 totalProc=211 finished=0 ctxSwitches=679 ctxSwitchTime=13813 algoChanges=1 ioOps=28 cpuCyclesExec=5372 pageFaults=118 itersSinceBalance=42
+[2026-06-05 14:28:41.390] INFO: TABLA[2/2]: cpuUtil=0.1129 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.7062 waitProp=0.0047 shouldSwitch=0
+[2026-06-05 14:28:41.400] INFO: TABLA[1/2]: ciclos=700 simStart=0 totalProc=217 finished=0 ctxSwitches=699 ctxSwitchTime=14194 algoChanges=1 ioOps=29 cpuCyclesExec=5466 pageFaults=118 itersSinceBalance=62
+[2026-06-05 14:28:41.400] INFO: TABLA[2/2]: cpuUtil=0.1116 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.6820 waitProp=0.0092 shouldSwitch=0
+[2026-06-05 14:28:41.409] INFO: TABLA[1/2]: ciclos=720 simStart=0 totalProc=223 finished=0 ctxSwitches=719 ctxSwitchTime=14603 algoChanges=1 ioOps=29 cpuCyclesExec=5563 pageFaults=118 itersSinceBalance=82
+[2026-06-05 14:28:41.409] INFO: TABLA[2/2]: cpuUtil=0.1104 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.6637 waitProp=0.0090 shouldSwitch=0
+[2026-06-05 14:28:41.419] INFO: TABLA[1/2]: ciclos=740 simStart=0 totalProc=228 finished=0 ctxSwitches=739 ctxSwitchTime=14972 algoChanges=1 ioOps=30 cpuCyclesExec=5658 pageFaults=123 itersSinceBalance=102
+[2026-06-05 14:28:41.419] INFO: TABLA[2/2]: cpuUtil=0.1092 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.6491 waitProp=0.0088 shouldSwitch=0
+[2026-06-05 14:28:41.430] INFO: TABLA[1/2]: ciclos=760 simStart=0 totalProc=236 finished=0 ctxSwitches=759 ctxSwitchTime=15364 algoChanges=1 ioOps=30 cpuCyclesExec=5756 pageFaults=127 itersSinceBalance=122
+[2026-06-05 14:28:41.430] INFO: TABLA[2/2]: cpuUtil=0.1082 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.6314 waitProp=0.0042 shouldSwitch=0
+[2026-06-05 14:28:41.440] INFO: TABLA[1/2]: ciclos=780 simStart=0 totalProc=244 finished=0 ctxSwitches=779 ctxSwitchTime=15746 algoChanges=1 ioOps=30 cpuCyclesExec=5850 pageFaults=127 itersSinceBalance=142
+[2026-06-05 14:28:41.440] INFO: TABLA[2/2]: cpuUtil=0.1071 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.6107 waitProp=0.0041 shouldSwitch=0
+[2026-06-05 14:28:41.451] INFO: TABLA[1/2]: ciclos=800 simStart=0 totalProc=250 finished=0 ctxSwitches=799 ctxSwitchTime=16165 algoChanges=1 ioOps=32 cpuCyclesExec=5944 pageFaults=127 itersSinceBalance=162
+[2026-06-05 14:28:41.451] INFO: TABLA[2/2]: cpuUtil=0.1061 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5880 waitProp=0.0120 shouldSwitch=0
+[2026-06-05 14:28:41.461] INFO: TABLA[1/2]: ciclos=820 simStart=0 totalProc=250 finished=0 ctxSwitches=819 ctxSwitchTime=16611 algoChanges=1 ioOps=32 cpuCyclesExec=6041 pageFaults=132 itersSinceBalance=182
+[2026-06-05 14:28:41.461] INFO: TABLA[2/2]: cpuUtil=0.1052 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5920 waitProp=0.0080 shouldSwitch=0
+[2026-06-05 14:28:41.472] INFO: TABLA[1/2]: ciclos=840 simStart=0 totalProc=250 finished=0 ctxSwitches=839 ctxSwitchTime=17012 algoChanges=1 ioOps=33 cpuCyclesExec=6136 pageFaults=137 itersSinceBalance=202
+[2026-06-05 14:28:41.472] INFO: TABLA[2/2]: cpuUtil=0.1044 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5920 waitProp=0.0080 shouldSwitch=0
+[2026-06-05 14:28:41.482] INFO: TABLA[1/2]: ciclos=860 simStart=0 totalProc=250 finished=0 ctxSwitches=859 ctxSwitchTime=17361 algoChanges=1 ioOps=33 cpuCyclesExec=6232 pageFaults=137 itersSinceBalance=222
+[2026-06-05 14:28:41.482] INFO: TABLA[2/2]: cpuUtil=0.1035 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5920 waitProp=0.0080 shouldSwitch=0
+[2026-06-05 14:28:41.492] INFO: TABLA[1/2]: ciclos=880 simStart=0 totalProc=250 finished=0 ctxSwitches=879 ctxSwitchTime=17743 algoChanges=1 ioOps=34 cpuCyclesExec=6329 pageFaults=141 itersSinceBalance=242
+[2026-06-05 14:28:41.492] INFO: TABLA[2/2]: cpuUtil=0.1027 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5920 waitProp=0.0080 shouldSwitch=0
+[2026-06-05 14:28:41.502] INFO: TABLA[1/2]: ciclos=900 simStart=0 totalProc=250 finished=0 ctxSwitches=899 ctxSwitchTime=18168 algoChanges=1 ioOps=34 cpuCyclesExec=6421 pageFaults=141 itersSinceBalance=262
+[2026-06-05 14:28:41.502] INFO: TABLA[2/2]: cpuUtil=0.1019 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5920 waitProp=0.0080 shouldSwitch=0
+[2026-06-05 14:28:41.509] INFO: TABLA[1/2]: ciclos=920 simStart=0 totalProc=250 finished=0 ctxSwitches=919 ctxSwitchTime=18567 algoChanges=1 ioOps=34 cpuCyclesExec=6521 pageFaults=141 itersSinceBalance=282
+[2026-06-05 14:28:41.509] INFO: TABLA[2/2]: cpuUtil=0.1013 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5920 waitProp=0.0080 shouldSwitch=0
+[2026-06-05 14:28:41.516] INFO: TABLA[1/2]: ciclos=940 simStart=0 totalProc=250 finished=0 ctxSwitches=939 ctxSwitchTime=18956 algoChanges=1 ioOps=34 cpuCyclesExec=6620 pageFaults=141 itersSinceBalance=302
+[2026-06-05 14:28:41.516] INFO: TABLA[2/2]: cpuUtil=0.1006 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5920 waitProp=0.0080 shouldSwitch=0
+[2026-06-05 14:28:41.523] INFO: TABLA[1/2]: ciclos=960 simStart=0 totalProc=250 finished=0 ctxSwitches=959 ctxSwitchTime=19331 algoChanges=1 ioOps=35 cpuCyclesExec=6709 pageFaults=141 itersSinceBalance=322
+[2026-06-05 14:28:41.523] INFO: TABLA[2/2]: cpuUtil=0.0998 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5880 waitProp=0.0120 shouldSwitch=0
+[2026-06-05 14:28:41.532] INFO: TABLA[1/2]: ciclos=980 simStart=0 totalProc=250 finished=0 ctxSwitches=979 ctxSwitchTime=19725 algoChanges=1 ioOps=37 cpuCyclesExec=6800 pageFaults=141 itersSinceBalance=342
+[2026-06-05 14:28:41.532] INFO: TABLA[2/2]: cpuUtil=0.0991 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5800 waitProp=0.0200 shouldSwitch=0
+[2026-06-05 14:28:41.544] INFO: TABLA[1/2]: ciclos=1000 simStart=0 totalProc=250 finished=0 ctxSwitches=999 ctxSwitchTime=20142 algoChanges=1 ioOps=37 cpuCyclesExec=6895 pageFaults=146 itersSinceBalance=362
+[2026-06-05 14:28:41.544] INFO: TABLA[2/2]: cpuUtil=0.0985 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=5 readyProp=0.5840 waitProp=0.0160 shouldSwitch=0
+[2026-06-05 14:28:49.161] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:28:54.501] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:28:54.502] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:28:54.502] INFO: Proceso creado: A-1
+[2026-06-05 14:28:54.502] INFO: Proceso creado: A-2
+[2026-06-05 14:28:54.703] INFO: Proceso creado: A-3
+[2026-06-05 14:28:55.409] INFO: Proceso creado: A-4
+[2026-06-05 14:28:55.812] INFO: Proceso creado: A-5
+[2026-06-05 14:28:55.913] INFO: Proceso creado: A-6
+[2026-06-05 14:28:56.115] INFO: Proceso creado: A-7
+[2026-06-05 14:28:56.416] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=7 finished=0 ctxSwitches=13 ctxSwitchTime=258 algoChanges=0 ioOps=7 cpuCyclesExec=445 pageFaults=0 itersSinceBalance=0
+[2026-06-05 14:28:56.416] INFO: TABLA[2/2]: cpuUtil=0.3179 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=25 readyProp=0.0000 waitProp=1.0000 shouldSwitch=0
+[2026-06-05 14:28:56.517] INFO: Proceso creado: A-8
+[2026-06-05 14:28:57.120] INFO: Proceso creado: A-9
+[2026-06-05 14:28:57.222] INFO: Proceso creado: A-10
+[2026-06-05 14:29:08.870] INFO: Proceso creado: A-11
+[2026-06-05 14:29:08.971] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=11 finished=0 ctxSwitches=28 ctxSwitchTime=520 algoChanges=0 ioOps=12 cpuCyclesExec=1116 pageFaults=15 itersSinceBalance=0
+[2026-06-05 14:29:08.971] INFO: TABLA[2/2]: cpuUtil=0.3986 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=30 readyProp=0.1818 waitProp=0.8182 shouldSwitch=0
+[2026-06-05 14:29:09.475] INFO: Proceso creado: A-12
+[2026-06-05 14:29:09.576] INFO: Proceso creado: A-13
+[2026-06-05 14:29:09.880] INFO: Proceso creado: A-14
+[2026-06-05 14:29:10.182] INFO: Proceso creado: A-15
+[2026-06-05 14:29:10.384] INFO: Proceso creado: A-16
+[2026-06-05 14:29:10.485] INFO: Proceso creado: A-17
+[2026-06-05 14:29:10.787] INFO: Proceso creado: A-18
+[2026-06-05 14:29:10.888] INFO: Proceso creado: A-19
+[2026-06-05 14:29:10.990] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=19 finished=0 ctxSwitches=48 ctxSwitchTime=930 algoChanges=0 ioOps=18 cpuCyclesExec=1869 pageFaults=20 itersSinceBalance=20
+[2026-06-05 14:29:10.990] INFO: TABLA[2/2]: cpuUtil=0.4450 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=30 readyProp=0.2632 waitProp=0.7368 shouldSwitch=0
+[2026-06-05 14:29:11.191] INFO: Proceso creado: A-20
+[2026-06-05 14:29:11.292] INFO: Proceso creado: A-21
+[2026-06-05 14:29:11.393] INFO: Proceso creado: A-22
+[2026-06-05 14:29:12.201] INFO: Proceso creado: A-23
+[2026-06-05 14:29:12.504] INFO: Proceso creado: A-24
+[2026-06-05 14:29:12.505] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:29:12.505] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:32:23.915] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:32:23.915] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:32:23.915] INFO: Proceso creado: A-1
+[2026-06-05 14:32:23.915] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:32:23.915] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:33:42.262] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:33:42.262] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:33:42.263] INFO: Proceso creado: A-1
+[2026-06-05 14:33:42.465] INFO: Proceso creado: A-2
+[2026-06-05 14:33:42.666] INFO: Proceso creado: A-3
+[2026-06-05 14:33:42.968] INFO: Proceso creado: A-4
+[2026-06-05 14:33:43.471] INFO: Proceso creado: A-5
+[2026-06-05 14:33:43.774] INFO: Proceso creado: A-6
+[2026-06-05 14:33:43.875] INFO: Proceso creado: A-7
+[2026-06-05 14:33:44.178] INFO: Proceso creado: A-8
+[2026-06-05 14:33:44.179] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=8 finished=0 ctxSwitches=13 ctxSwitchTime=271 algoChanges=0 ioOps=6 cpuCyclesExec=605 pageFaults=0 itersSinceBalance=0
+[2026-06-05 14:33:44.179] INFO: TABLA[2/2]: cpuUtil=0.4321 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.2500 waitProp=0.7500 shouldSwitch=0
+[2026-06-05 14:33:44.582] INFO: Proceso creado: A-9
+[2026-06-05 14:33:44.682] INFO: Proceso creado: A-10
+[2026-06-05 14:33:44.985] INFO: Proceso creado: A-11
+[2026-06-05 14:33:45.289] INFO: Proceso creado: A-12
+[2026-06-05 14:33:45.591] INFO: Proceso creado: A-13
+[2026-06-05 14:33:45.692] INFO: Proceso creado: A-14
+[2026-06-05 14:33:46.197] INFO: Proceso creado: A-15
+[2026-06-05 14:33:46.198] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=15 finished=0 ctxSwitches=32 ctxSwitchTime=657 algoChanges=0 ioOps=12 cpuCyclesExec=1343 pageFaults=13 itersSinceBalance=20
+[2026-06-05 14:33:46.198] INFO: TABLA[2/2]: cpuUtil=0.4796 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.4000 waitProp=0.6000 shouldSwitch=0
+[2026-06-05 14:33:46.803] INFO: Proceso creado: A-16
+[2026-06-05 14:33:47.106] INFO: Proceso creado: A-17
+[2026-06-05 14:33:47.308] INFO: Proceso creado: A-18
+[2026-06-05 14:33:47.408] INFO: Proceso creado: A-19
+[2026-06-05 14:33:47.509] INFO: Proceso creado: A-20
+[2026-06-05 14:33:47.812] INFO: Proceso creado: A-21
+[2026-06-05 14:33:48.115] INFO: Proceso creado: A-22
+[2026-06-05 14:33:48.216] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=22 finished=0 ctxSwitches=52 ctxSwitchTime=1081 algoChanges=0 ioOps=17 cpuCyclesExec=2215 pageFaults=18 itersSinceBalance=40
+[2026-06-05 14:33:48.217] INFO: TABLA[2/2]: cpuUtil=0.5274 avgWait=0.00 avgTurn=0.00 frag=0.0020 intWaste=0 extWaste=1 quantum=20 readyProp=0.4091 waitProp=0.5909 shouldSwitch=0
+[2026-06-05 14:33:48.317] INFO: Proceso creado: A-23
+[2026-06-05 14:33:48.719] INFO: Proceso creado: A-24
+[2026-06-05 14:33:48.820] INFO: Proceso creado: A-25
+[2026-06-05 14:33:49.727] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:33:49.728] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:41:02.791] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:41:02.791] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:41:02.792] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:41:02.792] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:41:43.351] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:41:43.351] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:41:43.352] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:41:43.352] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:42:14.507] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:42:14.507] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:42:14.508] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:42:14.508] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:42:43.784] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:42:43.784] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:42:43.784] INFO: Proceso creado: A-1
+[2026-06-05 14:42:43.785] INFO: Proceso creado: A-2
+[2026-06-05 14:42:43.785] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:42:43.785] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:44:35.452] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:44:35.485] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:44:36.389] INFO: Proceso creado: A-1
+[2026-06-05 14:44:36.524] INFO: Proceso creado: A-2
+[2026-06-05 14:44:36.624] INFO: Proceso creado: A-3
+[2026-06-05 14:44:37.028] INFO: Proceso creado: A-4
+[2026-06-05 14:44:37.430] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=4 finished=0 ctxSwitches=10 ctxSwitchTime=210 algoChanges=0 ioOps=4 cpuCyclesExec=410 pageFaults=0 itersSinceBalance=0
+[2026-06-05 14:44:37.430] INFO: TABLA[2/2]: cpuUtil=0.2929 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=25 readyProp=0.0000 waitProp=1.0000 shouldSwitch=0
+[2026-06-05 14:44:37.631] INFO: Proceso creado: A-5
+[2026-06-05 14:44:38.334] INFO: Proceso creado: A-6
+[2026-06-05 14:44:38.838] INFO: Proceso creado: A-7
+[2026-06-05 14:44:39.441] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=7 finished=0 ctxSwitches=13 ctxSwitchTime=268 algoChanges=0 ioOps=7 cpuCyclesExec=544 pageFaults=0 itersSinceBalance=0
+[2026-06-05 14:44:39.441] INFO: TABLA[2/2]: cpuUtil=0.1943 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=30 readyProp=0.0000 waitProp=1.0000 shouldSwitch=0
+[2026-06-05 14:44:39.542] INFO: Proceso creado: A-8
+[2026-06-05 14:44:39.642] INFO: Proceso creado: A-9
+[2026-06-05 14:44:40.044] INFO: Proceso creado: A-10
+[2026-06-05 14:44:40.246] INFO: Proceso creado: A-11
+[2026-06-05 14:44:40.650] INFO: Proceso creado: A-12
+[2026-06-05 14:44:40.951] INFO: Proceso creado: A-13
+[2026-06-05 14:44:41.153] INFO: Proceso creado: A-14
+[2026-06-05 14:44:41.456] INFO: Proceso creado: A-15
+[2026-06-05 14:44:41.456] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=15 finished=0 ctxSwitches=33 ctxSwitchTime=671 algoChanges=0 ioOps=13 cpuCyclesExec=1325 pageFaults=0 itersSinceBalance=0
+[2026-06-05 14:44:41.457] INFO: TABLA[2/2]: cpuUtil=0.3155 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.1333 waitProp=0.8667 shouldSwitch=0
+[2026-06-05 14:44:41.659] INFO: Proceso creado: A-16
+[2026-06-05 14:44:41.759] INFO: Proceso creado: A-17
+[2026-06-05 14:44:42.364] INFO: Proceso creado: A-18
+[2026-06-05 14:44:42.465] INFO: Proceso creado: A-19
+[2026-06-05 14:44:42.869] INFO: Proceso creado: A-20
+[2026-06-05 14:44:43.172] INFO: Proceso creado: A-21
+[2026-06-05 14:44:43.474] INFO: Proceso creado: A-22
+[2026-06-05 14:44:43.475] INFO: TABLA[1/2]: ciclos=80 simStart=0 totalProc=22 finished=0 ctxSwitches=53 ctxSwitchTime=1053 algoChanges=0 ioOps=18 cpuCyclesExec=2038 pageFaults=8 itersSinceBalance=20
+[2026-06-05 14:44:43.475] INFO: TABLA[2/2]: cpuUtil=0.3639 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.2727 waitProp=0.7273 shouldSwitch=0
+[2026-06-05 14:44:43.679] INFO: Proceso creado: A-23
+[2026-06-05 14:44:44.584] INFO: Proceso creado: A-24
+[2026-06-05 14:44:44.786] INFO: Proceso creado: A-25
+[2026-06-05 14:44:44.988] INFO: Proceso creado: A-26
+[2026-06-05 14:44:45.290] INFO: Proceso creado: A-27
+[2026-06-05 14:44:45.492] INFO: TABLA[1/2]: ciclos=100 simStart=0 totalProc=27 finished=0 ctxSwitches=73 ctxSwitchTime=1455 algoChanges=0 ioOps=22 cpuCyclesExec=3025 pageFaults=12 itersSinceBalance=9
+[2026-06-05 14:44:45.492] INFO: TABLA[2/2]: cpuUtil=0.4321 avgWait=0.00 avgTurn=0.00 frag=0.0020 intWaste=0 extWaste=1 quantum=35 readyProp=0.2500 waitProp=0.7500 shouldSwitch=0
+[2026-06-05 14:44:45.593] INFO: Proceso creado: A-28
+[2026-06-05 14:44:46.196] INFO: Proceso creado: A-29
+[2026-06-05 14:44:46.396] INFO: Proceso creado: A-30
+[2026-06-05 14:44:46.698] INFO: Proceso creado: A-31
+[2026-06-05 14:44:46.899] INFO: Proceso creado: A-32
+[2026-06-05 14:44:46.999] INFO: Proceso creado: A-33
+[2026-06-05 14:44:47.100] INFO: Proceso creado: A-34
+[2026-06-05 14:44:47.402] INFO: Proceso creado: A-35
+[2026-06-05 14:44:47.503] INFO: TABLA[1/2]: ciclos=120 simStart=0 totalProc=35 finished=0 ctxSwitches=93 ctxSwitchTime=1863 algoChanges=0 ioOps=26 cpuCyclesExec=3906 pageFaults=17 itersSinceBalance=29
+[2026-06-05 14:44:47.503] INFO: TABLA[2/2]: cpuUtil=0.4650 avgWait=0.00 avgTurn=0.00 frag=0.0020 intWaste=0 extWaste=1 quantum=35 readyProp=0.3714 waitProp=0.6286 shouldSwitch=0
+[2026-06-05 14:44:47.805] INFO: Proceso creado: A-36
+[2026-06-05 14:44:48.107] INFO: Proceso creado: A-37
+[2026-06-05 14:44:48.612] INFO: Proceso creado: A-38
+[2026-06-05 14:44:48.712] INFO: Proceso creado: A-39
+[2026-06-05 14:44:49.417] INFO: Proceso creado: A-40
+[2026-06-05 14:44:49.521] INFO: TABLA[1/2]: ciclos=140 simStart=0 totalProc=40 finished=0 ctxSwitches=113 ctxSwitchTime=2275 algoChanges=0 ioOps=33 cpuCyclesExec=4747 pageFaults=32 itersSinceBalance=49
+[2026-06-05 14:44:49.521] INFO: TABLA[2/2]: cpuUtil=0.4844 avgWait=0.00 avgTurn=0.00 frag=0.0062 intWaste=0 extWaste=3 quantum=35 readyProp=0.3750 waitProp=0.6250 shouldSwitch=0
+[2026-06-05 14:44:49.823] INFO: Proceso creado: A-41
+[2026-06-05 14:44:49.923] INFO: Proceso creado: A-42
+[2026-06-05 14:44:50.429] INFO: Proceso creado: A-43
+[2026-06-05 14:44:50.530] INFO: Proceso creado: A-44
+[2026-06-05 14:44:50.933] INFO: Proceso creado: A-45
+[2026-06-05 14:44:51.135] INFO: Proceso creado: A-46
+[2026-06-05 14:44:51.438] INFO: Proceso creado: A-47
+[2026-06-05 14:44:51.539] INFO: Proceso creado: A-48
+[2026-06-05 14:44:51.540] INFO: TABLA[1/2]: ciclos=160 simStart=0 totalProc=48 finished=0 ctxSwitches=133 ctxSwitchTime=2674 algoChanges=0 ioOps=38 cpuCyclesExec=5587 pageFaults=47 itersSinceBalance=69
+[2026-06-05 14:44:51.540] INFO: TABLA[2/2]: cpuUtil=0.4988 avgWait=0.00 avgTurn=0.00 frag=0.0105 intWaste=0 extWaste=5 quantum=35 readyProp=0.4375 waitProp=0.5625 shouldSwitch=0
+[2026-06-05 14:44:52.247] INFO: Proceso creado: A-49
+[2026-06-05 14:44:52.448] INFO: Proceso creado: A-50
+[2026-06-05 14:44:52.651] INFO: Proceso creado: A-51
+[2026-06-05 14:44:52.852] INFO: Proceso creado: A-52
+[2026-06-05 14:44:52.952] INFO: Proceso creado: A-53
+[2026-06-05 14:44:53.053] INFO: Proceso creado: A-54
+[2026-06-05 14:44:53.254] INFO: Proceso creado: A-55
+[2026-06-05 14:44:53.354] INFO: Proceso creado: A-56
+[2026-06-05 14:44:53.558] INFO: TABLA[1/2]: ciclos=180 simStart=0 totalProc=56 finished=0 ctxSwitches=153 ctxSwitchTime=3042 algoChanges=0 ioOps=45 cpuCyclesExec=6359 pageFaults=81 itersSinceBalance=89
+[2026-06-05 14:44:53.558] INFO: TABLA[2/2]: cpuUtil=0.5047 avgWait=0.00 avgTurn=0.00 frag=0.0243 intWaste=0 extWaste=11 quantum=35 readyProp=0.5179 waitProp=0.4821 shouldSwitch=0
+[2026-06-05 14:44:54.060] INFO: Proceso creado: A-57
+[2026-06-05 14:44:54.562] INFO: Proceso creado: A-58
+[2026-06-05 14:44:54.665] INFO: Proceso creado: A-59
+[2026-06-05 14:44:54.966] INFO: Proceso creado: A-60
+[2026-06-05 14:44:55.571] INFO: TABLA[1/2]: ciclos=200 simStart=0 totalProc=60 finished=0 ctxSwitches=173 ctxSwitchTime=3455 algoChanges=0 ioOps=56 cpuCyclesExec=7183 pageFaults=104 itersSinceBalance=109
+[2026-06-05 14:44:55.571] INFO: TABLA[2/2]: cpuUtil=0.5131 avgWait=0.00 avgTurn=0.00 frag=0.0183 intWaste=0 extWaste=8 quantum=35 readyProp=0.4500 waitProp=0.5500 shouldSwitch=0
+[2026-06-05 14:44:55.974] INFO: Proceso creado: A-61
+[2026-06-05 14:44:56.176] INFO: Proceso creado: A-62
+[2026-06-05 14:44:56.781] INFO: Proceso creado: A-63
+[2026-06-05 14:44:57.083] INFO: Proceso creado: A-64
+[2026-06-05 14:44:57.185] INFO: Proceso creado: A-65
+[2026-06-05 14:44:57.388] INFO: Proceso creado: A-66
+[2026-06-05 14:44:57.590] INFO: TABLA[1/2]: ciclos=220 simStart=0 totalProc=66 finished=0 ctxSwitches=193 ctxSwitchTime=3872 algoChanges=0 ioOps=63 cpuCyclesExec=7987 pageFaults=136 itersSinceBalance=129
+[2026-06-05 14:44:57.590] INFO: TABLA[2/2]: cpuUtil=0.5186 avgWait=0.00 avgTurn=0.00 frag=0.0357 intWaste=0 extWaste=15 quantum=35 readyProp=0.5000 waitProp=0.5000 shouldSwitch=0
+[2026-06-05 14:44:58.095] INFO: Proceso creado: A-67
+[2026-06-05 14:44:58.497] INFO: Proceso creado: A-68
+[2026-06-05 14:44:58.699] INFO: Proceso creado: A-69
+[2026-06-05 14:44:58.901] INFO: Proceso creado: A-70
+[2026-06-05 14:44:59.103] INFO: Proceso creado: A-71
+[2026-06-05 14:44:59.608] INFO: TABLA[1/2]: ciclos=240 simStart=0 totalProc=71 finished=0 ctxSwitches=213 ctxSwitchTime=4266 algoChanges=0 ioOps=68 cpuCyclesExec=8573 pageFaults=148 itersSinceBalance=149
+[2026-06-05 14:44:59.608] INFO: TABLA[2/2]: cpuUtil=0.5103 avgWait=0.00 avgTurn=0.00 frag=0.0241 intWaste=0 extWaste=10 quantum=35 readyProp=0.5211 waitProp=0.4789 shouldSwitch=0
+[2026-06-05 14:44:59.709] INFO: Proceso creado: A-72
+[2026-06-05 14:44:59.912] INFO: Proceso creado: A-73
+[2026-06-05 14:45:00.918] INFO: Proceso creado: A-74
+[2026-06-05 14:45:01.118] INFO: Proceso creado: A-75
+[2026-06-05 14:45:01.621] INFO: TABLA[1/2]: ciclos=260 simStart=0 totalProc=75 finished=0 ctxSwitches=233 ctxSwitchTime=4647 algoChanges=0 ioOps=71 cpuCyclesExec=9495 pageFaults=152 itersSinceBalance=169
+[2026-06-05 14:45:01.621] INFO: TABLA[2/2]: cpuUtil=0.5217 avgWait=0.00 avgTurn=0.00 frag=0.0217 intWaste=0 extWaste=9 quantum=35 readyProp=0.5200 waitProp=0.4800 shouldSwitch=0
+[2026-06-05 14:45:01.924] INFO: Proceso creado: A-76
+[2026-06-05 14:45:02.126] INFO: Proceso creado: A-77
+[2026-06-05 14:45:02.529] INFO: Proceso creado: A-78
+[2026-06-05 14:45:02.630] INFO: Proceso creado: A-79
+[2026-06-05 14:45:03.637] INFO: TABLA[1/2]: ciclos=280 simStart=0 totalProc=79 finished=0 ctxSwitches=253 ctxSwitchTime=5039 algoChanges=0 ioOps=77 cpuCyclesExec=10214 pageFaults=172 itersSinceBalance=189
+[2026-06-05 14:45:03.638] INFO: TABLA[2/2]: cpuUtil=0.5211 avgWait=0.00 avgTurn=0.00 frag=0.0100 intWaste=0 extWaste=4 quantum=35 readyProp=0.5316 waitProp=0.4684 shouldSwitch=0
+[2026-06-05 14:45:04.142] INFO: Proceso creado: A-80
+[2026-06-05 14:45:04.545] INFO: Proceso creado: A-81
+[2026-06-05 14:45:04.646] INFO: Proceso creado: A-82
+[2026-06-05 14:45:04.749] INFO: Proceso creado: A-83
+[2026-06-05 14:45:04.849] INFO: Proceso creado: A-84
+[2026-06-05 14:45:05.050] INFO: Proceso creado: A-85
+[2026-06-05 14:45:05.151] INFO: Proceso creado: A-86
+[2026-06-05 14:45:05.353] INFO: Proceso creado: A-87
+[2026-06-05 14:45:27.578] INFO: TABLA[1/2]: ciclos=300 simStart=0 totalProc=87 finished=0 ctxSwitches=273 ctxSwitchTime=5442 algoChanges=0 ioOps=80 cpuCyclesExec=10996 pageFaults=195 itersSinceBalance=209
+[2026-06-05 14:45:27.578] INFO: TABLA[2/2]: cpuUtil=0.5236 avgWait=0.00 avgTurn=0.00 frag=0.0156 intWaste=0 extWaste=6 quantum=35 readyProp=0.5977 waitProp=0.4023 shouldSwitch=0
+[2026-06-05 14:45:27.783] INFO: Proceso creado: A-88
+[2026-06-05 14:45:27.883] INFO: Proceso creado: A-89
+[2026-06-05 14:45:28.690] INFO: Proceso creado: A-90
+[2026-06-05 14:45:28.890] INFO: Proceso creado: A-91
+[2026-06-05 14:45:29.394] INFO: Proceso creado: A-92
+[2026-06-05 14:45:29.495] INFO: Proceso creado: A-93
+[2026-06-05 14:45:29.597] INFO: TABLA[1/2]: ciclos=320 simStart=0 totalProc=93 finished=0 ctxSwitches=293 ctxSwitchTime=5850 algoChanges=0 ioOps=84 cpuCyclesExec=11831 pageFaults=211 itersSinceBalance=229
+[2026-06-05 14:45:29.597] INFO: TABLA[2/2]: cpuUtil=0.5282 avgWait=0.00 avgTurn=0.00 frag=0.0160 intWaste=0 extWaste=6 quantum=35 readyProp=0.6237 waitProp=0.3763 shouldSwitch=0
+[2026-06-05 14:45:30.000] INFO: Proceso creado: A-94
+[2026-06-05 14:45:30.202] INFO: Proceso creado: A-95
+[2026-06-05 14:45:30.303] INFO: Proceso creado: A-96
+[2026-06-05 14:45:30.504] INFO: Proceso creado: A-97
+[2026-06-05 14:45:30.706] INFO: Proceso creado: A-98
+[2026-06-05 14:45:30.907] INFO: Proceso creado: A-99
+[2026-06-05 14:45:31.613] INFO: TABLA[1/2]: ciclos=340 simStart=0 totalProc=99 finished=0 ctxSwitches=313 ctxSwitchTime=6241 algoChanges=0 ioOps=89 cpuCyclesExec=12531 pageFaults=219 itersSinceBalance=249
+[2026-06-05 14:45:31.614] INFO: TABLA[2/2]: cpuUtil=0.5265 avgWait=0.00 avgTurn=0.00 frag=0.0054 intWaste=0 extWaste=2 quantum=35 readyProp=0.6162 waitProp=0.3838 shouldSwitch=0
+[2026-06-05 14:45:31.715] INFO: Proceso creado: A-100
+[2026-06-05 14:45:31.815] INFO: Proceso creado: B-1
+[2026-06-05 14:45:32.017] INFO: Proceso creado: B-2
+[2026-06-05 14:45:32.319] INFO: Proceso creado: B-3
+[2026-06-05 14:45:32.420] INFO: Proceso creado: B-4
+[2026-06-05 14:45:32.724] INFO: Proceso creado: B-5
+[2026-06-05 14:45:32.925] INFO: Proceso creado: B-6
+[2026-06-05 14:45:33.127] INFO: Proceso creado: B-7
+[2026-06-05 14:45:33.632] INFO: Proceso creado: B-8
+[2026-06-05 14:45:33.632] INFO: TABLA[1/2]: ciclos=360 simStart=0 totalProc=108 finished=0 ctxSwitches=333 ctxSwitchTime=6613 algoChanges=0 ioOps=96 cpuCyclesExec=13350 pageFaults=228 itersSinceBalance=269
+[2026-06-05 14:45:33.633] INFO: TABLA[2/2]: cpuUtil=0.5298 avgWait=0.00 avgTurn=0.00 frag=0.0108 intWaste=0 extWaste=4 quantum=35 readyProp=0.6111 waitProp=0.3889 shouldSwitch=0
+[2026-06-05 14:45:33.934] INFO: Proceso creado: B-9
+[2026-06-05 14:45:34.035] INFO: Proceso creado: B-10
+[2026-06-05 14:45:34.136] INFO: Proceso creado: B-11
+[2026-06-05 14:45:34.438] INFO: Proceso creado: B-12
+[2026-06-05 14:45:34.743] INFO: Proceso creado: B-13
+[2026-06-05 14:45:34.844] INFO: Proceso creado: B-14
+[2026-06-05 14:45:34.945] INFO: Proceso creado: B-15
+[2026-06-05 14:45:35.247] INFO: Proceso creado: B-16
+[2026-06-05 14:45:35.348] INFO: Proceso creado: B-17
+[2026-06-05 14:45:35.652] INFO: TABLA[1/2]: ciclos=380 simStart=0 totalProc=117 finished=0 ctxSwitches=353 ctxSwitchTime=6997 algoChanges=0 ioOps=99 cpuCyclesExec=14052 pageFaults=260 itersSinceBalance=289
+[2026-06-05 14:45:35.652] INFO: TABLA[2/2]: cpuUtil=0.5283 avgWait=0.00 avgTurn=0.00 frag=0.0453 intWaste=0 extWaste=16 quantum=35 readyProp=0.6838 waitProp=0.3162 shouldSwitch=0
+[2026-06-05 14:45:35.954] INFO: Proceso creado: B-18
+[2026-06-05 14:45:36.963] INFO: Proceso creado: B-19
+[2026-06-05 14:45:37.567] INFO: Proceso creado: B-20
+[2026-06-05 14:45:37.668] INFO: Proceso creado: B-21
+[2026-06-05 14:45:37.669] INFO: TABLA[1/2]: ciclos=400 simStart=0 totalProc=121 finished=0 ctxSwitches=373 ctxSwitchTime=7418 algoChanges=0 ioOps=103 cpuCyclesExec=14962 pageFaults=272 itersSinceBalance=309
+[2026-06-05 14:45:37.669] INFO: TABLA[2/2]: cpuUtil=0.5344 avgWait=0.00 avgTurn=0.00 frag=0.0260 intWaste=0 extWaste=9 quantum=35 readyProp=0.6860 waitProp=0.3140 shouldSwitch=0
+[2026-06-05 14:45:38.478] INFO: Proceso creado: B-22
+[2026-06-05 14:45:38.983] INFO: Proceso creado: B-23
+[2026-06-05 14:45:39.185] INFO: Proceso creado: B-24
+[2026-06-05 14:45:39.285] INFO: Proceso creado: B-25
+[2026-06-05 14:45:39.688] INFO: TABLA[1/2]: ciclos=420 simStart=0 totalProc=125 finished=0 ctxSwitches=393 ctxSwitchTime=7815 algoChanges=0 ioOps=110 cpuCyclesExec=15788 pageFaults=283 itersSinceBalance=329
+[2026-06-05 14:45:39.688] INFO: TABLA[2/2]: cpuUtil=0.5370 avgWait=0.00 avgTurn=0.00 frag=0.0030 intWaste=0 extWaste=1 quantum=35 readyProp=0.6640 waitProp=0.3360 shouldSwitch=0
+[2026-06-05 14:45:39.990] INFO: Proceso creado: B-26
+[2026-06-05 14:45:40.090] INFO: Proceso creado: B-27
+[2026-06-05 14:45:40.191] INFO: Proceso creado: B-28
+[2026-06-05 14:45:40.797] INFO: Proceso creado: B-29
+[2026-06-05 14:45:40.898] INFO: Proceso creado: B-30
+[2026-06-05 14:45:40.998] INFO: Proceso creado: B-31
+[2026-06-05 14:45:41.301] INFO: Proceso creado: B-32
+[2026-06-05 14:45:41.603] INFO: Proceso creado: B-33
+[2026-06-05 14:45:41.705] INFO: TABLA[1/2]: ciclos=440 simStart=0 totalProc=133 finished=0 ctxSwitches=413 ctxSwitchTime=8188 algoChanges=0 ioOps=114 cpuCyclesExec=16677 pageFaults=323 itersSinceBalance=349
+[2026-06-05 14:45:41.705] INFO: TABLA[2/2]: cpuUtil=0.5415 avgWait=0.00 avgTurn=0.00 frag=0.0197 intWaste=0 extWaste=6 quantum=35 readyProp=0.7293 waitProp=0.2707 shouldSwitch=0
+[2026-06-05 14:45:42.511] INFO: Proceso creado: B-34
+[2026-06-05 14:45:42.614] INFO: Proceso creado: B-35
+[2026-06-05 14:45:43.320] INFO: Proceso creado: B-36
+[2026-06-05 14:45:43.622] INFO: Proceso creado: B-37
+[2026-06-05 14:45:43.723] INFO: Proceso creado: B-38
+[2026-06-05 14:45:43.725] INFO: TABLA[1/2]: ciclos=460 simStart=0 totalProc=138 finished=0 ctxSwitches=433 ctxSwitchTime=8589 algoChanges=0 ioOps=119 cpuCyclesExec=17566 pageFaults=339 itersSinceBalance=369
+[2026-06-05 14:45:43.725] INFO: TABLA[2/2]: cpuUtil=0.5455 avgWait=0.00 avgTurn=0.00 frag=0.0300 intWaste=0 extWaste=9 quantum=35 readyProp=0.7319 waitProp=0.2681 shouldSwitch=0
+[2026-06-05 14:45:43.826] INFO: Proceso creado: B-39
+[2026-06-05 14:45:44.831] INFO: Proceso creado: B-40
+[2026-06-05 14:45:45.033] INFO: Proceso creado: B-41
+[2026-06-05 14:45:45.134] INFO: Proceso creado: B-42
+[2026-06-05 14:45:45.336] INFO: Proceso creado: B-43
+[2026-06-05 14:45:45.539] INFO: Proceso creado: B-44
+[2026-06-05 14:45:45.640] INFO: Proceso creado: B-45
+[2026-06-05 14:45:45.742] INFO: TABLA[1/2]: ciclos=480 simStart=0 totalProc=145 finished=0 ctxSwitches=453 ctxSwitchTime=8965 algoChanges=0 ioOps=127 cpuCyclesExec=18365 pageFaults=360 itersSinceBalance=389
+[2026-06-05 14:45:45.742] INFO: TABLA[2/2]: cpuUtil=0.5466 avgWait=0.00 avgTurn=0.00 frag=0.0211 intWaste=0 extWaste=6 quantum=35 readyProp=0.7310 waitProp=0.2690 shouldSwitch=0
+[2026-06-05 14:45:46.146] INFO: Proceso terminado: A-85
+[2026-06-05 14:45:46.246] INFO: Proceso creado: B-46
+[2026-06-05 14:45:46.347] INFO: Proceso creado: B-47
+[2026-06-05 14:45:46.549] INFO: Proceso creado: B-48
+[2026-06-05 14:45:46.751] INFO: Proceso creado: B-49
+[2026-06-05 14:45:47.256] INFO: Proceso creado: B-50
+[2026-06-05 14:45:47.457] INFO: Proceso creado: B-51
+[2026-06-05 14:45:47.762] INFO: TABLA[1/2]: ciclos=500 simStart=0 totalProc=152 finished=1 ctxSwitches=473 ctxSwitchTime=9399 algoChanges=0 ioOps=134 cpuCyclesExec=19111 pageFaults=368 itersSinceBalance=409
+[2026-06-05 14:45:47.793] INFO: TABLA[2/2]: cpuUtil=0.5460 avgWait=191.00 avgTurn=190.00 frag=0.0245 intWaste=0 extWaste=7 quantum=35 readyProp=0.7020 waitProp=0.2914 shouldSwitch=0
+[2026-06-05 14:45:49.811] INFO: TABLA[1/2]: ciclos=520 simStart=0 totalProc=158 finished=1 ctxSwitches=493 ctxSwitchTime=9780 algoChanges=0 ioOps=143 cpuCyclesExec=19863 pageFaults=379 itersSinceBalance=429
+[2026-06-05 14:45:49.811] INFO: TABLA[2/2]: cpuUtil=0.5457 avgWait=191.00 avgTurn=190.00 frag=0.0072 intWaste=0 extWaste=2 quantum=35 readyProp=0.6433 waitProp=0.3121 shouldSwitch=0
+[2026-06-05 14:45:51.826] INFO: TABLA[1/2]: ciclos=540 simStart=0 totalProc=164 finished=1 ctxSwitches=513 ctxSwitchTime=10199 algoChanges=0 ioOps=149 cpuCyclesExec=20762 pageFaults=394 itersSinceBalance=449
+[2026-06-05 14:45:51.826] INFO: TABLA[2/2]: cpuUtil=0.5493 avgWait=191.00 avgTurn=190.00 frag=0.0224 intWaste=0 extWaste=6 quantum=35 readyProp=0.6074 waitProp=0.3129 shouldSwitch=0
+[2026-06-05 14:45:53.843] INFO: TABLA[1/2]: ciclos=560 simStart=0 totalProc=168 finished=1 ctxSwitches=533 ctxSwitchTime=10583 algoChanges=0 ioOps=156 cpuCyclesExec=21595 pageFaults=420 itersSinceBalance=469
+[2026-06-05 14:45:53.843] INFO: TABLA[2/2]: cpuUtil=0.5509 avgWait=191.00 avgTurn=190.00 frag=0.0162 intWaste=0 extWaste=4 quantum=35 readyProp=0.5928 waitProp=0.3054 shouldSwitch=0
+[2026-06-05 14:45:55.868] INFO: TABLA[1/2]: ciclos=580 simStart=0 totalProc=175 finished=1 ctxSwitches=553 ctxSwitchTime=10951 algoChanges=0 ioOps=162 cpuCyclesExec=22298 pageFaults=464 itersSinceBalance=489
+[2026-06-05 14:45:55.868] INFO: TABLA[2/2]: cpuUtil=0.5492 avgWait=191.00 avgTurn=190.00 frag=0.0193 intWaste=0 extWaste=4 quantum=35 readyProp=0.5977 waitProp=0.2644 shouldSwitch=0
+[2026-06-05 14:45:57.891] INFO: TABLA[1/2]: ciclos=600 simStart=0 totalProc=183 finished=1 ctxSwitches=573 ctxSwitchTime=11345 algoChanges=0 ioOps=170 cpuCyclesExec=23285 pageFaults=485 itersSinceBalance=509
+[2026-06-05 14:45:57.891] INFO: TABLA[2/2]: cpuUtil=0.5544 avgWait=191.00 avgTurn=190.00 frag=0.0053 intWaste=0 extWaste=1 quantum=35 readyProp=0.5604 waitProp=0.2637 shouldSwitch=0
+[2026-06-05 14:45:59.914] INFO: TABLA[1/2]: ciclos=620 simStart=0 totalProc=191 finished=1 ctxSwitches=593 ctxSwitchTime=11771 algoChanges=0 ioOps=172 cpuCyclesExec=24088 pageFaults=500 itersSinceBalance=529
+[2026-06-05 14:45:59.914] INFO: TABLA[2/2]: cpuUtil=0.5550 avgWait=191.00 avgTurn=190.00 frag=0.0115 intWaste=0 extWaste=2 quantum=35 readyProp=0.5474 waitProp=0.2421 shouldSwitch=0
+[2026-06-05 14:46:01.932] INFO: TABLA[1/2]: ciclos=640 simStart=0 totalProc=196 finished=1 ctxSwitches=613 ctxSwitchTime=12197 algoChanges=0 ioOps=176 cpuCyclesExec=25047 pageFaults=514 itersSinceBalance=549
+[2026-06-05 14:46:01.932] INFO: TABLA[2/2]: cpuUtil=0.5591 avgWait=191.00 avgTurn=190.00 frag=0.0123 intWaste=0 extWaste=2 quantum=35 readyProp=0.5385 waitProp=0.2308 shouldSwitch=0
+[2026-06-05 14:46:03.948] INFO: TABLA[1/2]: ciclos=660 simStart=0 totalProc=203 finished=1 ctxSwitches=633 ctxSwitchTime=12664 algoChanges=0 ioOps=183 cpuCyclesExec=25965 pageFaults=563 itersSinceBalance=569
+[2026-06-05 14:46:03.948] INFO: TABLA[2/2]: cpuUtil=0.5620 avgWait=191.00 avgTurn=190.00 frag=0.0342 intWaste=0 extWaste=4 quantum=35 readyProp=0.5495 waitProp=0.1931 shouldSwitch=0
+[2026-06-05 14:46:05.968] INFO: TABLA[1/2]: ciclos=680 simStart=0 totalProc=212 finished=1 ctxSwitches=653 ctxSwitchTime=13053 algoChanges=0 ioOps=189 cpuCyclesExec=26588 pageFaults=575 itersSinceBalance=589
+[2026-06-05 14:46:05.968] INFO: TABLA[2/2]: cpuUtil=0.5586 avgWait=191.00 avgTurn=190.00 frag=0.0278 intWaste=0 extWaste=3 quantum=35 readyProp=0.5166 waitProp=0.1943 shouldSwitch=0
+[2026-06-05 14:46:07.990] INFO: TABLA[1/2]: ciclos=700 simStart=0 totalProc=219 finished=1 ctxSwitches=673 ctxSwitchTime=13461 algoChanges=0 ioOps=196 cpuCyclesExec=27356 pageFaults=596 itersSinceBalance=609
+[2026-06-05 14:46:07.990] INFO: TABLA[2/2]: cpuUtil=0.5583 avgWait=191.00 avgTurn=190.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.4908 waitProp=0.1972 shouldSwitch=0
+[2026-06-05 14:46:10.014] INFO: TABLA[1/2]: ciclos=720 simStart=0 totalProc=224 finished=1 ctxSwitches=693 ctxSwitchTime=13818 algoChanges=0 ioOps=204 cpuCyclesExec=28026 pageFaults=621 itersSinceBalance=629
+[2026-06-05 14:46:10.014] INFO: TABLA[2/2]: cpuUtil=0.5561 avgWait=191.00 avgTurn=190.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.4709 waitProp=0.2018 shouldSwitch=0
+[2026-06-05 14:46:12.036] INFO: TABLA[1/2]: ciclos=740 simStart=0 totalProc=233 finished=1 ctxSwitches=713 ctxSwitchTime=14260 algoChanges=0 ioOps=210 cpuCyclesExec=28732 pageFaults=649 itersSinceBalance=649
+[2026-06-05 14:46:12.036] INFO: TABLA[2/2]: cpuUtil=0.5547 avgWait=191.00 avgTurn=190.00 frag=0.0769 intWaste=0 extWaste=3 quantum=35 readyProp=0.4569 waitProp=0.1897 shouldSwitch=0
+[2026-06-05 14:46:14.058] INFO: TABLA[1/2]: ciclos=760 simStart=0 totalProc=240 finished=1 ctxSwitches=733 ctxSwitchTime=14684 algoChanges=0 ioOps=216 cpuCyclesExec=29537 pageFaults=671 itersSinceBalance=669
+[2026-06-05 14:46:14.058] INFO: TABLA[2/2]: cpuUtil=0.5552 avgWait=191.00 avgTurn=190.00 frag=0.0476 intWaste=0 extWaste=1 quantum=35 readyProp=0.4435 waitProp=0.1841 shouldSwitch=0
+[2026-06-05 14:46:16.076] INFO: TABLA[1/2]: ciclos=780 simStart=0 totalProc=246 finished=1 ctxSwitches=753 ctxSwitchTime=15054 algoChanges=0 ioOps=221 cpuCyclesExec=30275 pageFaults=689 itersSinceBalance=689
+[2026-06-05 14:46:16.076] INFO: TABLA[2/2]: cpuUtil=0.5545 avgWait=191.00 avgTurn=190.00 frag=0.7273 intWaste=0 extWaste=8 quantum=35 readyProp=0.4286 waitProp=0.1837 shouldSwitch=0
+[2026-06-05 14:46:18.098] INFO: TABLA[1/2]: ciclos=800 simStart=0 totalProc=250 finished=1 ctxSwitches=773 ctxSwitchTime=15424 algoChanges=0 ioOps=226 cpuCyclesExec=31074 pageFaults=689 itersSinceBalance=709
+[2026-06-05 14:46:18.098] INFO: TABLA[2/2]: cpuUtil=0.5549 avgWait=191.00 avgTurn=190.00 frag=0.7500 intWaste=0 extWaste=9 quantum=35 readyProp=0.4016 waitProp=0.2008 shouldSwitch=0
+[2026-06-05 14:46:20.120] INFO: TABLA[1/2]: ciclos=820 simStart=0 totalProc=250 finished=1 ctxSwitches=793 ctxSwitchTime=15857 algoChanges=0 ioOps=232 cpuCyclesExec=31854 pageFaults=696 itersSinceBalance=729
+[2026-06-05 14:46:20.120] INFO: TABLA[2/2]: cpuUtil=0.5549 avgWait=191.00 avgTurn=190.00 frag=0.4000 intWaste=0 extWaste=2 quantum=35 readyProp=0.3896 waitProp=0.2129 shouldSwitch=0
+[2026-06-05 14:46:22.139] INFO: TABLA[1/2]: ciclos=840 simStart=0 totalProc=250 finished=1 ctxSwitches=813 ctxSwitchTime=16258 algoChanges=0 ioOps=238 cpuCyclesExec=32713 pageFaults=704 itersSinceBalance=749
+[2026-06-05 14:46:22.139] INFO: TABLA[2/2]: cpuUtil=0.5563 avgWait=191.00 avgTurn=190.00 frag=0.3333 intWaste=0 extWaste=1 quantum=35 readyProp=0.3735 waitProp=0.2289 shouldSwitch=0
+[2026-06-05 14:46:24.165] INFO: TABLA[1/2]: ciclos=860 simStart=0 totalProc=250 finished=1 ctxSwitches=833 ctxSwitchTime=16665 algoChanges=0 ioOps=247 cpuCyclesExec=33504 pageFaults=719 itersSinceBalance=769
+[2026-06-05 14:46:24.165] INFO: TABLA[2/2]: cpuUtil=0.5565 avgWait=191.00 avgTurn=190.00 frag=0.3333 intWaste=0 extWaste=1 quantum=35 readyProp=0.3534 waitProp=0.2490 shouldSwitch=0
+[2026-06-05 14:46:26.180] INFO: TABLA[1/2]: ciclos=880 simStart=0 totalProc=250 finished=1 ctxSwitches=853 ctxSwitchTime=17041 algoChanges=0 ioOps=253 cpuCyclesExec=34317 pageFaults=734 itersSinceBalance=789
+[2026-06-05 14:46:26.180] INFO: TABLA[2/2]: cpuUtil=0.5571 avgWait=191.00 avgTurn=190.00 frag=0.7000 intWaste=0 extWaste=7 quantum=35 readyProp=0.3454 waitProp=0.2570 shouldSwitch=0
+[2026-06-05 14:46:28.201] INFO: TABLA[1/2]: ciclos=900 simStart=0 totalProc=250 finished=1 ctxSwitches=873 ctxSwitchTime=17433 algoChanges=0 ioOps=257 cpuCyclesExec=35167 pageFaults=746 itersSinceBalance=809
+[2026-06-05 14:46:28.202] INFO: TABLA[2/2]: cpuUtil=0.5582 avgWait=191.00 avgTurn=190.00 frag=0.5556 intWaste=0 extWaste=5 quantum=35 readyProp=0.3414 waitProp=0.2610 shouldSwitch=0
+[2026-06-05 14:46:30.228] INFO: TABLA[1/2]: ciclos=920 simStart=0 totalProc=250 finished=1 ctxSwitches=893 ctxSwitchTime=17801 algoChanges=0 ioOps=263 cpuCyclesExec=36030 pageFaults=773 itersSinceBalance=829
+[2026-06-05 14:46:30.228] INFO: TABLA[2/2]: cpuUtil=0.5595 avgWait=191.00 avgTurn=190.00 frag=0.6667 intWaste=0 extWaste=8 quantum=35 readyProp=0.3454 waitProp=0.2570 shouldSwitch=0
+[2026-06-05 14:46:32.248] INFO: TABLA[1/2]: ciclos=940 simStart=0 totalProc=250 finished=1 ctxSwitches=913 ctxSwitchTime=18215 algoChanges=0 ioOps=268 cpuCyclesExec=36704 pageFaults=789 itersSinceBalance=849
+[2026-06-05 14:46:32.248] INFO: TABLA[2/2]: cpuUtil=0.5578 avgWait=191.00 avgTurn=190.00 frag=0.4000 intWaste=0 extWaste=2 quantum=35 readyProp=0.3454 waitProp=0.2570 shouldSwitch=0
+[2026-06-05 14:46:34.267] INFO: TABLA[1/2]: ciclos=960 simStart=0 totalProc=250 finished=1 ctxSwitches=933 ctxSwitchTime=18614 algoChanges=0 ioOps=276 cpuCyclesExec=37384 pageFaults=800 itersSinceBalance=869
+[2026-06-05 14:46:34.267] INFO: TABLA[2/2]: cpuUtil=0.5563 avgWait=191.00 avgTurn=190.00 frag=0.3333 intWaste=0 extWaste=1 quantum=35 readyProp=0.3253 waitProp=0.2771 shouldSwitch=0
+[2026-06-05 14:46:36.286] INFO: TABLA[1/2]: ciclos=980 simStart=0 totalProc=250 finished=1 ctxSwitches=953 ctxSwitchTime=19007 algoChanges=0 ioOps=283 cpuCyclesExec=38070 pageFaults=824 itersSinceBalance=889
+[2026-06-05 14:46:36.286] INFO: TABLA[2/2]: cpuUtil=0.5550 avgWait=191.00 avgTurn=190.00 frag=0.8000 intWaste=0 extWaste=4 quantum=35 readyProp=0.3253 waitProp=0.2771 shouldSwitch=0
+[2026-06-05 14:46:38.308] INFO: TABLA[1/2]: ciclos=1000 simStart=0 totalProc=250 finished=1 ctxSwitches=973 ctxSwitchTime=19400 algoChanges=0 ioOps=288 cpuCyclesExec=38869 pageFaults=840 itersSinceBalance=909
+[2026-06-05 14:46:38.308] INFO: TABLA[2/2]: cpuUtil=0.5553 avgWait=191.00 avgTurn=190.00 frag=0.5714 intWaste=0 extWaste=4 quantum=35 readyProp=0.3213 waitProp=0.2811 shouldSwitch=0
+[2026-06-05 14:46:40.330] INFO: TABLA[1/2]: ciclos=1020 simStart=0 totalProc=250 finished=1 ctxSwitches=993 ctxSwitchTime=19801 algoChanges=0 ioOps=296 cpuCyclesExec=39808 pageFaults=850 itersSinceBalance=929
+[2026-06-05 14:46:40.330] INFO: TABLA[2/2]: cpuUtil=0.5575 avgWait=191.00 avgTurn=190.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.3092 waitProp=0.2932 shouldSwitch=0
+[2026-06-05 14:46:42.356] INFO: TABLA[1/2]: ciclos=1040 simStart=0 totalProc=250 finished=1 ctxSwitches=1013 ctxSwitchTime=20169 algoChanges=0 ioOps=299 cpuCyclesExec=40680 pageFaults=869 itersSinceBalance=949
+[2026-06-05 14:46:42.356] INFO: TABLA[2/2]: cpuUtil=0.5588 avgWait=191.00 avgTurn=190.00 frag=0.6667 intWaste=0 extWaste=2 quantum=35 readyProp=0.3173 waitProp=0.2851 shouldSwitch=0
+[2026-06-05 14:46:44.382] INFO: TABLA[1/2]: ciclos=1060 simStart=0 totalProc=250 finished=1 ctxSwitches=1033 ctxSwitchTime=20618 algoChanges=0 ioOps=306 cpuCyclesExec=41608 pageFaults=885 itersSinceBalance=969
+[2026-06-05 14:46:44.382] INFO: TABLA[2/2]: cpuUtil=0.5608 avgWait=191.00 avgTurn=190.00 frag=0.7500 intWaste=0 extWaste=3 quantum=35 readyProp=0.3052 waitProp=0.2972 shouldSwitch=0
+[2026-06-05 14:46:46.405] INFO: TABLA[1/2]: ciclos=1080 simStart=0 totalProc=250 finished=1 ctxSwitches=1053 ctxSwitchTime=21058 algoChanges=0 ioOps=312 cpuCyclesExec=42245 pageFaults=900 itersSinceBalance=989
+[2026-06-05 14:46:46.405] INFO: TABLA[2/2]: cpuUtil=0.5588 avgWait=191.00 avgTurn=190.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.3012 waitProp=0.3012 shouldSwitch=0
+[2026-06-05 14:46:48.424] INFO: TABLA[1/2]: ciclos=1100 simStart=0 totalProc=250 finished=1 ctxSwitches=1073 ctxSwitchTime=21464 algoChanges=0 ioOps=318 cpuCyclesExec=43153 pageFaults=914 itersSinceBalance=1009
+[2026-06-05 14:46:48.424] INFO: TABLA[2/2]: cpuUtil=0.5604 avgWait=191.00 avgTurn=190.00 frag=0.6667 intWaste=0 extWaste=2 quantum=35 readyProp=0.2932 waitProp=0.3092 shouldSwitch=0
+[2026-06-05 14:46:50.446] INFO: TABLA[1/2]: ciclos=1120 simStart=0 totalProc=250 finished=1 ctxSwitches=1093 ctxSwitchTime=21817 algoChanges=0 ioOps=323 cpuCyclesExec=44047 pageFaults=926 itersSinceBalance=1029
+[2026-06-05 14:46:50.446] INFO: TABLA[2/2]: cpuUtil=0.5618 avgWait=191.00 avgTurn=190.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.2892 waitProp=0.3133 shouldSwitch=0
+[2026-06-05 14:46:52.470] INFO: TABLA[1/2]: ciclos=1140 simStart=0 totalProc=250 finished=1 ctxSwitches=1113 ctxSwitchTime=22199 algoChanges=0 ioOps=328 cpuCyclesExec=44852 pageFaults=955 itersSinceBalance=1049
+[2026-06-05 14:46:52.470] INFO: TABLA[2/2]: cpuUtil=0.5621 avgWait=191.00 avgTurn=190.00 frag=0.6000 intWaste=0 extWaste=3 quantum=35 readyProp=0.3012 waitProp=0.3012 shouldSwitch=0
+[2026-06-05 14:46:54.494] INFO: TABLA[1/2]: ciclos=1160 simStart=0 totalProc=250 finished=1 ctxSwitches=1133 ctxSwitchTime=22559 algoChanges=0 ioOps=334 cpuCyclesExec=45718 pageFaults=987 itersSinceBalance=1069
+[2026-06-05 14:46:54.494] INFO: TABLA[2/2]: cpuUtil=0.5630 avgWait=191.00 avgTurn=190.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.3133 waitProp=0.2892 shouldSwitch=0
+[2026-06-05 14:46:55.405] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:46:55.406] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:46:59.976] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:46:59.976] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:46:59.977] INFO: Proceso creado: A-1
+[2026-06-05 14:47:00.077] INFO: Proceso creado: A-2
+[2026-06-05 14:47:00.680] INFO: Proceso creado: A-3
+[2026-06-05 14:47:01.182] INFO: Proceso creado: A-4
+[2026-06-05 14:47:01.484] INFO: Proceso creado: A-5
+[2026-06-05 14:47:01.585] INFO: Proceso creado: A-6
+[2026-06-05 14:47:01.887] INFO: Proceso creado: A-7
+[2026-06-05 14:47:01.888] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=7 finished=0 ctxSwitches=14 ctxSwitchTime=236 algoChanges=0 ioOps=5 cpuCyclesExec=515 pageFaults=0 itersSinceBalance=20
+[2026-06-05 14:47:01.888] INFO: TABLA[2/2]: cpuUtil=0.3679 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.2857 waitProp=0.7143 shouldSwitch=0
+[2026-06-05 14:47:02.994] INFO: Proceso creado: A-8
+[2026-06-05 14:47:03.395] INFO: Proceso creado: A-9
+[2026-06-05 14:47:03.897] INFO: Proceso creado: A-10
+[2026-06-05 14:47:03.899] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=10 finished=0 ctxSwitches=21 ctxSwitchTime=354 algoChanges=0 ioOps=10 cpuCyclesExec=733 pageFaults=9 itersSinceBalance=18
+[2026-06-05 14:47:03.899] INFO: TABLA[2/2]: cpuUtil=0.2618 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=25 readyProp=0.1429 waitProp=0.8571 shouldSwitch=0
+[2026-06-05 14:47:04.000] INFO: Proceso creado: A-11
+[2026-06-05 14:47:04.100] INFO: Proceso creado: A-12
+[2026-06-05 14:47:04.201] INFO: Proceso creado: A-13
+[2026-06-05 14:47:04.805] INFO: Proceso creado: A-14
+[2026-06-05 14:47:05.007] INFO: Proceso creado: A-15
+[2026-06-05 14:47:05.107] INFO: Proceso creado: A-16
+[2026-06-05 14:47:05.409] INFO: Proceso creado: A-17
+[2026-06-05 14:47:05.712] INFO: Proceso creado: A-18
+[2026-06-05 14:47:05.914] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=18 finished=0 ctxSwitches=41 ctxSwitchTime=770 algoChanges=0 ioOps=15 cpuCyclesExec=1537 pageFaults=9 itersSinceBalance=38
+[2026-06-05 14:47:05.914] INFO: TABLA[2/2]: cpuUtil=0.3660 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=25 readyProp=0.2778 waitProp=0.7222 shouldSwitch=0
+[2026-06-05 14:47:06.015] INFO: Proceso creado: A-19
+[2026-06-05 14:47:06.116] INFO: Proceso creado: A-20
+[2026-06-05 14:47:06.317] INFO: Proceso creado: A-21
+[2026-06-05 14:47:06.720] INFO: Proceso creado: A-22
+[2026-06-05 14:47:07.627] INFO: Proceso creado: A-23
+[2026-06-05 14:47:07.728] INFO: Proceso creado: A-24
+[2026-06-05 14:47:07.930] INFO: TABLA[1/2]: ciclos=80 simStart=0 totalProc=24 finished=0 ctxSwitches=61 ctxSwitchTime=1159 algoChanges=0 ioOps=20 cpuCyclesExec=2196 pageFaults=9 itersSinceBalance=0
+[2026-06-05 14:47:07.930] INFO: TABLA[2/2]: cpuUtil=0.3921 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=25 readyProp=0.2500 waitProp=0.7500 shouldSwitch=0
+[2026-06-05 14:47:08.333] INFO: Proceso creado: A-25
+[2026-06-05 14:47:08.333] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:47:08.334] INFO: Bucle de simulación finalizado.
+[2026-06-05 14:47:09.169] INFO: SimulationController inicializado correctamente.
+[2026-06-05 14:47:09.170] INFO: Bucle de simulación iniciado.
+[2026-06-05 14:47:09.270] INFO: Proceso creado: A-1
+[2026-06-05 14:47:09.371] INFO: Proceso creado: A-2
+[2026-06-05 14:47:09.572] INFO: Proceso creado: A-3
+[2026-06-05 14:47:09.873] INFO: Proceso creado: A-4
+[2026-06-05 14:47:10.073] INFO: Proceso creado: A-5
+[2026-06-05 14:47:10.577] INFO: Proceso creado: A-6
+[2026-06-05 14:47:10.677] INFO: Proceso creado: A-7
+[2026-06-05 14:47:11.081] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=7 finished=0 ctxSwitches=18 ctxSwitchTime=352 algoChanges=0 ioOps=8 cpuCyclesExec=706 pageFaults=4 itersSinceBalance=0
+[2026-06-05 14:47:11.081] INFO: TABLA[2/2]: cpuUtil=0.5043 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=25 readyProp=0.0000 waitProp=1.0000 shouldSwitch=0
+[2026-06-05 14:47:11.483] INFO: Proceso creado: A-8
+[2026-06-05 14:47:11.685] INFO: Proceso creado: A-9
+[2026-06-05 14:47:11.786] INFO: Proceso creado: A-10
+[2026-06-05 14:47:12.088] INFO: Proceso creado: A-11
+[2026-06-05 14:47:12.492] INFO: Proceso creado: A-12
+[2026-06-05 14:47:13.097] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=12 finished=0 ctxSwitches=36 ctxSwitchTime=709 algoChanges=0 ioOps=13 cpuCyclesExec=1311 pageFaults=14 itersSinceBalance=0
+[2026-06-05 14:47:13.097] INFO: TABLA[2/2]: cpuUtil=0.4682 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=30 readyProp=0.1667 waitProp=0.8333 shouldSwitch=0
+[2026-06-05 14:47:13.904] INFO: Proceso creado: A-13
+[2026-06-05 14:47:15.114] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=13 finished=0 ctxSwitches=56 ctxSwitchTime=1085 algoChanges=0 ioOps=17 cpuCyclesExec=2013 pageFaults=20 itersSinceBalance=0
+[2026-06-05 14:47:15.114] INFO: TABLA[2/2]: cpuUtil=0.4793 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=35 readyProp=0.0769 waitProp=0.9231 shouldSwitch=0
+[2026-06-05 14:47:15.316] INFO: Proceso creado: A-14
+[2026-06-05 14:47:15.718] INFO: Proceso creado: A-15
+[2026-06-05 14:47:15.819] INFO: Proceso creado: A-16
+[2026-06-05 14:47:16.023] INFO: Proceso creado: A-17
+[2026-06-05 14:47:16.225] INFO: Proceso creado: A-18
+[2026-06-05 14:47:16.325] INFO: Proceso creado: A-19
+[2026-06-05 14:47:16.426] INFO: Proceso creado: A-20
+[2026-06-05 14:47:16.526] INFO: Proceso creado: A-21
+[2026-06-05 14:47:16.728] INFO: Proceso creado: A-22
+[2026-06-05 14:47:17.029] INFO: Proceso creado: A-23
+[2026-06-05 14:47:17.131] INFO: TABLA[1/2]: ciclos=80 simStart=0 totalProc=23 finished=0 ctxSwitches=75 ctxSwitchTime=1469 algoChanges=0 ioOps=27 cpuCyclesExec=2675 pageFaults=25 itersSinceBalance=0
+[2026-06-05 14:47:17.131] INFO: TABLA[2/2]: cpuUtil=0.4777 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=40 readyProp=0.0870 waitProp=0.9130 shouldSwitch=0
+[2026-06-05 14:47:17.533] INFO: Proceso creado: A-24
+[2026-06-05 14:47:17.935] INFO: Proceso creado: A-25
+[2026-06-05 14:47:18.135] INFO: Proceso creado: A-26
+[2026-06-05 14:47:19.140] INFO: Proceso creado: A-27
+[2026-06-05 14:47:19.141] INFO: TABLA[1/2]: ciclos=100 simStart=0 totalProc=27 finished=0 ctxSwitches=95 ctxSwitchTime=1895 algoChanges=0 ioOps=33 cpuCyclesExec=3392 pageFaults=39 itersSinceBalance=0
+[2026-06-05 14:47:19.141] INFO: TABLA[2/2]: cpuUtil=0.4846 avgWait=0.00 avgTurn=0.00 frag=0.0021 intWaste=0 extWaste=1 quantum=45 readyProp=0.1111 waitProp=0.8889 shouldSwitch=0
+[2026-06-05 14:47:19.443] INFO: Proceso creado: A-28
+[2026-06-05 14:47:19.645] INFO: Proceso creado: A-29
+[2026-06-05 14:47:19.746] INFO: Proceso creado: A-30
+[2026-06-05 14:47:20.449] INFO: Proceso creado: A-31
+[2026-06-05 14:47:20.651] INFO: Proceso creado: A-32
+[2026-06-05 14:47:21.054] INFO: Proceso creado: A-33
+[2026-06-05 14:47:21.156] INFO: TABLA[1/2]: ciclos=120 simStart=0 totalProc=33 finished=0 ctxSwitches=115 ctxSwitchTime=2310 algoChanges=0 ioOps=36 cpuCyclesExec=4242 pageFaults=43 itersSinceBalance=0
+[2026-06-05 14:47:21.156] INFO: TABLA[2/2]: cpuUtil=0.5050 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=50 readyProp=0.2121 waitProp=0.7879 shouldSwitch=0
+[2026-06-05 14:47:21.660] INFO: Proceso creado: A-34
+[2026-06-05 14:47:21.861] INFO: Proceso creado: A-35
+[2026-06-05 14:47:21.961] INFO: Proceso creado: A-36
+[2026-06-05 14:47:22.062] INFO: Proceso creado: A-37
+[2026-06-05 14:47:22.163] INFO: Proceso creado: A-38
+[2026-06-05 14:47:22.264] INFO: Proceso creado: A-39
+[2026-06-05 14:47:22.566] INFO: Proceso creado: A-40
+[2026-06-05 14:47:22.667] INFO: Proceso creado: A-41
+[2026-06-05 14:47:23.171] INFO: TABLA[1/2]: ciclos=140 simStart=0 totalProc=41 finished=0 ctxSwitches=135 ctxSwitchTime=2686 algoChanges=0 ioOps=40 cpuCyclesExec=5061 pageFaults=48 itersSinceBalance=20
+[2026-06-05 14:47:23.171] INFO: TABLA[2/2]: cpuUtil=0.5164 avgWait=0.00 avgTurn=0.00 frag=0.0043 intWaste=0 extWaste=2 quantum=50 readyProp=0.3171 waitProp=0.6829 shouldSwitch=0
+[2026-06-05 14:47:23.376] INFO: Proceso creado: A-42
+[2026-06-05 14:47:23.476] INFO: Proceso creado: A-43
+[2026-06-05 14:47:23.879] INFO: Proceso creado: A-44
+[2026-06-05 14:47:24.788] INFO: Proceso creado: A-45
+[2026-06-05 14:47:24.889] INFO: Proceso creado: A-46
+[2026-06-05 14:47:25.192] INFO: TABLA[1/2]: ciclos=160 simStart=0 totalProc=46 finished=0 ctxSwitches=155 ctxSwitchTime=3094 algoChanges=0 ioOps=44 cpuCyclesExec=5812 pageFaults=57 itersSinceBalance=40
+[2026-06-05 14:47:25.192] INFO: TABLA[2/2]: cpuUtil=0.5189 avgWait=0.00 avgTurn=0.00 frag=0.0108 intWaste=0 extWaste=5 quantum=50 readyProp=0.3478 waitProp=0.6522 shouldSwitch=0
+[2026-06-05 14:47:25.293] INFO: Proceso creado: A-47
+[2026-06-05 14:47:25.696] INFO: Proceso creado: A-48
+[2026-06-05 14:47:25.998] INFO: Proceso creado: A-49
+[2026-06-05 14:47:26.199] INFO: Proceso creado: A-50
+[2026-06-05 14:47:26.401] INFO: Proceso creado: A-51
+[2026-06-05 14:47:27.005] INFO: Proceso creado: A-52
+[2026-06-05 14:47:32.468] INFO: TABLA[1/2]: ciclos=180 simStart=0 totalProc=52 finished=0 ctxSwitches=175 ctxSwitchTime=3471 algoChanges=0 ioOps=49 cpuCyclesExec=6607 pageFaults=73 itersSinceBalance=60
+[2026-06-05 14:47:32.468] INFO: TABLA[2/2]: cpuUtil=0.5244 avgWait=0.00 avgTurn=0.00 frag=0.0154 intWaste=0 extWaste=7 quantum=50 readyProp=0.4038 waitProp=0.5962 shouldSwitch=0
+[2026-06-05 14:47:32.569] INFO: Proceso creado: A-53
+[2026-06-05 14:47:32.671] INFO: Proceso creado: A-54
+[2026-06-05 14:47:32.772] INFO: Proceso creado: A-55
+[2026-06-05 14:47:33.075] INFO: Proceso creado: A-56
+[2026-06-05 14:47:33.176] INFO: Proceso creado: A-57
+[2026-06-05 14:47:33.277] INFO: Proceso creado: A-58
+[2026-06-05 14:47:33.379] INFO: Proceso creado: A-59
+[2026-06-05 14:47:33.682] INFO: Proceso creado: A-60
+[2026-06-05 14:47:33.984] INFO: Proceso creado: A-61
+[2026-06-05 14:47:34.186] INFO: Proceso creado: A-62
+[2026-06-05 14:47:34.287] INFO: Proceso creado: A-63
+[2026-06-05 14:47:34.389] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 14:47:34.389] INFO: Bucle de simulación finalizado.
+[2026-06-05 15:03:37.113] INFO: SimulationController inicializado correctamente.
+[2026-06-05 15:03:37.113] INFO: Bucle de simulación iniciado.
+[2026-06-05 15:03:37.817] INFO: Proceso creado: A-1
+[2026-06-05 15:03:39.032] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=250 finished=0 ctxSwitches=1 ctxSwitchTime=30 algoChanges=0 ioOps=1 cpuCyclesExec=332 pageFaults=0 itersSinceBalance=0
+[2026-06-05 15:03:39.032] INFO: TABLA[2/2]: cpuUtil=0.2371 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:03:39.435] INFO: Proceso creado: A-2
+[2026-06-05 15:03:39.636] INFO: Proceso creado: A-5
+[2026-06-05 15:03:40.542] INFO: Proceso creado: A-6
+[2026-06-05 15:03:40.743] INFO: Proceso creado: A-3
+[2026-06-05 15:03:41.044] INFO: Proceso creado: A-7
+[2026-06-05 15:03:41.044] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=250 finished=0 ctxSwitches=6 ctxSwitchTime=143 algoChanges=0 ioOps=5 cpuCyclesExec=515 pageFaults=0 itersSinceBalance=0
+[2026-06-05 15:03:41.044] INFO: TABLA[2/2]: cpuUtil=0.1839 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:03:41.649] INFO: Proceso creado: A-15
+[2026-06-05 15:03:42.655] INFO: Proceso creado: A-4
+[2026-06-05 15:03:42.656] INFO: Proceso creado: A-8
+[2026-06-05 15:03:42.857] INFO: Proceso creado: A-20
+[2026-06-05 15:03:43.059] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=250 finished=0 ctxSwitches=10 ctxSwitchTime=226 algoChanges=0 ioOps=9 cpuCyclesExec=1205 pageFaults=4 itersSinceBalance=0
+[2026-06-05 15:03:43.059] INFO: TABLA[2/2]: cpuUtil=0.2869 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:03:43.161] INFO: Proceso creado: A-9
+[2026-06-05 15:03:43.261] INFO: Proceso creado: A-12
+[2026-06-05 15:03:43.463] INFO: Proceso creado: A-10
+[2026-06-05 15:03:43.463] INFO: Proceso creado: A-16
+[2026-06-05 15:03:44.471] INFO: Proceso creado: A-21
+[2026-06-05 15:03:44.471] INFO: Proceso creado: A-26
+[2026-06-05 15:03:44.672] INFO: Proceso creado: A-17
+[2026-06-05 15:03:44.772] INFO: Proceso creado: A-19
+[2026-06-05 15:03:44.974] INFO: Proceso creado: A-11
+[2026-06-05 15:03:45.074] INFO: Proceso creado: A-13
+[2026-06-05 15:03:45.075] INFO: TABLA[1/2]: ciclos=80 simStart=0 totalProc=250 finished=0 ctxSwitches=16 ctxSwitchTime=363 algoChanges=0 ioOps=15 cpuCyclesExec=2027 pageFaults=8 itersSinceBalance=0
+[2026-06-05 15:03:45.075] INFO: TABLA[2/2]: cpuUtil=0.3620 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:03:45.376] INFO: Proceso creado: A-25
+[2026-06-05 15:03:45.577] INFO: Proceso creado: A-14
+[2026-06-05 15:03:45.678] INFO: Proceso creado: A-18
+[2026-06-05 15:03:45.679] INFO: Proceso creado: A-22
+[2026-06-05 15:03:45.679] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 15:03:45.680] INFO: Bucle de simulación finalizado.
+[2026-06-05 15:03:59.313] INFO: SimulationController inicializado correctamente.
+[2026-06-05 15:04:12.921] INFO: SimulationController inicializado correctamente.
+[2026-06-05 15:04:12.921] INFO: Bucle de simulación iniciado.
+[2026-06-05 15:04:14.327] INFO: Proceso creado: A-1
+[2026-06-05 15:04:14.833] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=250 finished=0 ctxSwitches=1 ctxSwitchTime=15 algoChanges=0 ioOps=1 cpuCyclesExec=92 pageFaults=0 itersSinceBalance=0
+[2026-06-05 15:04:14.833] INFO: TABLA[2/2]: cpuUtil=0.0657 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:04:15.135] INFO: Proceso creado: A-5
+[2026-06-05 15:04:15.540] INFO: Proceso creado: A-4
+[2026-06-05 15:04:16.145] INFO: Proceso creado: A-3
+[2026-06-05 15:04:16.245] INFO: Proceso creado: A-9
+[2026-06-05 15:04:16.848] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=250 finished=0 ctxSwitches=5 ctxSwitchTime=102 algoChanges=0 ioOps=5 cpuCyclesExec=695 pageFaults=4 itersSinceBalance=0
+[2026-06-05 15:04:16.849] INFO: TABLA[2/2]: cpuUtil=0.2482 avgWait=0.00 avgTurn=0.00 frag=0.0020 intWaste=0 extWaste=1 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:04:16.949] INFO: Proceso creado: A-2
+[2026-06-05 15:04:16.949] INFO: Proceso creado: A-12
+[2026-06-05 15:04:17.753] INFO: Proceso creado: A-15
+[2026-06-05 15:04:18.256] INFO: Proceso creado: A-16
+[2026-06-05 15:04:18.456] INFO: Proceso creado: A-8
+[2026-06-05 15:04:18.557] INFO: Proceso creado: A-11
+[2026-06-05 15:04:18.557] INFO: Proceso creado: A-13
+[2026-06-05 15:04:18.860] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=250 finished=0 ctxSwitches=13 ctxSwitchTime=271 algoChanges=0 ioOps=12 cpuCyclesExec=1325 pageFaults=4 itersSinceBalance=0
+[2026-06-05 15:04:18.860] INFO: TABLA[2/2]: cpuUtil=0.3155 avgWait=0.00 avgTurn=0.00 frag=0.0020 intWaste=0 extWaste=1 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:04:19.162] INFO: Proceso creado: A-14
+[2026-06-05 15:04:19.263] INFO: Proceso creado: A-6
+[2026-06-05 15:04:19.264] INFO: Proceso creado: A-10
+[2026-06-05 15:04:19.565] INFO: Proceso creado: A-17
+[2026-06-05 15:04:19.666] INFO: Proceso creado: A-7
+[2026-06-05 15:04:20.673] INFO: Proceso creado: A-22
+[2026-06-05 15:04:20.875] INFO: TABLA[1/2]: ciclos=80 simStart=0 totalProc=250 finished=0 ctxSwitches=19 ctxSwitchTime=380 algoChanges=0 ioOps=19 cpuCyclesExec=2179 pageFaults=7 itersSinceBalance=0
+[2026-06-05 15:04:20.875] INFO: TABLA[2/2]: cpuUtil=0.3891 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:04:21.780] INFO: Proceso creado: A-18
+[2026-06-05 15:04:22.182] INFO: Proceso creado: A-21
+[2026-06-05 15:04:28.073] INFO: Comando 2: cambio manual a RR con quantum 10
+[2026-06-05 15:04:28.073] INFO: Proceso creado: A-20
+[2026-06-05 15:04:28.275] INFO: Proceso creado: A-23
+[2026-06-05 15:04:28.376] INFO: TABLA[1/2]: ciclos=100 simStart=0 totalProc=250 finished=0 ctxSwitches=27 ctxSwitchTime=546 algoChanges=1 ioOps=22 cpuCyclesExec=2796 pageFaults=19 itersSinceBalance=4
+[2026-06-05 15:04:28.376] INFO: TABLA[2/2]: cpuUtil=0.3994 avgWait=0.00 avgTurn=0.00 frag=0.0040 intWaste=0 extWaste=2 quantum=10 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:04:28.477] INFO: Proceso creado: A-19
+[2026-06-05 15:04:28.779] INFO: Proceso creado: A-33
+[2026-06-05 15:04:28.980] INFO: Proceso creado: A-32
+[2026-06-05 15:04:29.081] INFO: Proceso creado: A-27
+[2026-06-05 15:04:29.315] INFO: Proceso creado: A-34
+[2026-06-05 15:04:29.518] INFO: Proceso creado: A-30
+[2026-06-05 15:04:30.225] INFO: Proceso creado: A-29
+[2026-06-05 15:04:30.326] INFO: Proceso creado: A-26
+[2026-06-05 15:04:30.427] INFO: Proceso creado: A-24
+[2026-06-05 15:04:30.428] INFO: TABLA[1/2]: ciclos=120 simStart=0 totalProc=250 finished=0 ctxSwitches=47 ctxSwitchTime=964 algoChanges=1 ioOps=22 cpuCyclesExec=3008 pageFaults=33 itersSinceBalance=4
+[2026-06-05 15:04:30.428] INFO: TABLA[2/2]: cpuUtil=0.3581 avgWait=0.00 avgTurn=0.00 frag=0.0062 intWaste=0 extWaste=3 quantum=15 readyProp=0.0560 waitProp=0.0560 shouldSwitch=0
+[2026-06-05 15:04:30.630] INFO: Proceso creado: A-28
+[2026-06-05 15:04:30.831] INFO: Proceso creado: A-25
+[2026-06-05 15:04:31.535] INFO: Proceso creado: A-37
+[2026-06-05 15:04:31.535] INFO: Proceso creado: A-43
+[2026-06-05 15:04:31.736] INFO: Proceso creado: A-42
+[2026-06-05 15:04:32.038] INFO: Proceso creado: A-35
+[2026-06-05 15:04:32.038] INFO: Proceso creado: A-40
+[2026-06-05 15:04:32.139] INFO: Proceso creado: A-44
+[2026-06-05 15:04:32.340] INFO: Proceso creado: A-38
+[2026-06-05 15:04:32.441] INFO: Proceso creado: A-46
+[2026-06-05 15:04:32.441] INFO: TABLA[1/2]: ciclos=140 simStart=0 totalProc=250 finished=0 ctxSwitches=67 ctxSwitchTime=1391 algoChanges=1 ioOps=23 cpuCyclesExec=3282 pageFaults=37 itersSinceBalance=4
+[2026-06-05 15:04:32.441] INFO: TABLA[2/2]: cpuUtil=0.3349 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.0960 waitProp=0.0560 shouldSwitch=0
+[2026-06-05 15:04:32.542] INFO: Proceso creado: A-31
+[2026-06-05 15:04:32.844] INFO: Proceso creado: A-36
+[2026-06-05 15:04:33.550] INFO: Proceso creado: A-47
+[2026-06-05 15:04:34.254] INFO: Proceso creado: A-39
+[2026-06-05 15:04:34.456] INFO: Proceso creado: A-51
+[2026-06-05 15:04:34.457] INFO: TABLA[1/2]: ciclos=160 simStart=0 totalProc=250 finished=0 ctxSwitches=87 ctxSwitchTime=1827 algoChanges=1 ioOps=25 cpuCyclesExec=3621 pageFaults=37 itersSinceBalance=4
+[2026-06-05 15:04:34.457] INFO: TABLA[2/2]: cpuUtil=0.3233 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=25 readyProp=0.1120 waitProp=0.0640 shouldSwitch=0
+[2026-06-05 15:04:34.559] INFO: Proceso creado: A-52
+[2026-06-05 15:04:34.962] INFO: Proceso creado: A-41
+[2026-06-05 15:04:35.063] INFO: Proceso creado: A-48
+[2026-06-05 15:04:35.264] INFO: Proceso creado: A-55
+[2026-06-05 15:04:35.769] INFO: Proceso creado: A-58
+[2026-06-05 15:04:35.871] INFO: Proceso creado: A-45
+[2026-06-05 15:04:35.871] INFO: Proceso creado: A-49
+[2026-06-05 15:04:36.173] INFO: Proceso creado: A-50
+[2026-06-05 15:04:36.477] INFO: TABLA[1/2]: ciclos=180 simStart=0 totalProc=250 finished=0 ctxSwitches=107 ctxSwitchTime=2228 algoChanges=1 ioOps=28 cpuCyclesExec=4037 pageFaults=48 itersSinceBalance=4
+[2026-06-05 15:04:36.477] INFO: TABLA[2/2]: cpuUtil=0.3204 avgWait=0.00 avgTurn=0.00 frag=0.0021 intWaste=0 extWaste=1 quantum=30 readyProp=0.1480 waitProp=0.0640 shouldSwitch=0
+[2026-06-05 15:04:37.284] INFO: Proceso creado: A-59
+[2026-06-05 15:04:37.888] INFO: Proceso creado: A-57
+[2026-06-05 15:04:37.888] INFO: Proceso creado: A-63
+[2026-06-05 15:04:37.989] INFO: Proceso creado: A-53
+[2026-06-05 15:04:38.293] INFO: Proceso creado: A-54
+[2026-06-05 15:04:38.394] INFO: Proceso creado: A-56
+[2026-06-05 15:04:38.495] INFO: TABLA[1/2]: ciclos=200 simStart=0 totalProc=250 finished=0 ctxSwitches=127 ctxSwitchTime=2646 algoChanges=1 ioOps=32 cpuCyclesExec=4548 pageFaults=71 itersSinceBalance=4
+[2026-06-05 15:04:38.495] INFO: TABLA[2/2]: cpuUtil=0.3249 avgWait=0.00 avgTurn=0.00 frag=0.0066 intWaste=0 extWaste=3 quantum=35 readyProp=0.1640 waitProp=0.0680 shouldSwitch=0
+[2026-06-05 15:04:39.000] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 15:04:39.001] INFO: Bucle de simulación finalizado.
+[2026-06-05 15:37:34.575] INFO: SimulationController inicializado correctamente.
+[2026-06-05 15:37:34.575] INFO: Bucle de simulación iniciado.
+[2026-06-05 15:37:36.482] INFO: Proceso creado: A-5
+[2026-06-05 15:37:36.523] INFO: TABLA[1/2]: ciclos=20 simStart=0 totalProc=250 finished=0 ctxSwitches=1 ctxSwitchTime=17 algoChanges=0 ioOps=0 cpuCyclesExec=42 pageFaults=0 itersSinceBalance=0
+[2026-06-05 15:37:36.524] INFO: TABLA[2/2]: cpuUtil=0.0300 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=0 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:37:37.327] INFO: Proceso creado: A-1
+[2026-06-05 15:37:37.630] INFO: Proceso creado: A-6
+[2026-06-05 15:37:38.333] INFO: Proceso creado: A-2
+[2026-06-05 15:37:38.534] INFO: Proceso creado: A-3
+[2026-06-05 15:37:38.535] INFO: TABLA[1/2]: ciclos=40 simStart=0 totalProc=250 finished=0 ctxSwitches=4 ctxSwitchTime=99 algoChanges=0 ioOps=3 cpuCyclesExec=447 pageFaults=0 itersSinceBalance=0
+[2026-06-05 15:37:38.535] INFO: TABLA[2/2]: cpuUtil=0.1596 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=98 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:37:39.038] INFO: Proceso creado: A-4
+[2026-06-05 15:37:39.038] INFO: Proceso creado: A-8
+[2026-06-05 15:37:39.441] INFO: Proceso creado: A-9
+[2026-06-05 15:37:39.441] INFO: Proceso creado: A-15
+[2026-06-05 15:37:40.145] INFO: Proceso creado: A-7
+[2026-06-05 15:37:40.346] INFO: Proceso creado: A-18
+[2026-06-05 15:37:40.547] INFO: TABLA[1/2]: ciclos=60 simStart=0 totalProc=250 finished=0 ctxSwitches=5 ctxSwitchTime=110 algoChanges=0 ioOps=4 cpuCyclesExec=1285 pageFaults=0 itersSinceBalance=0
+[2026-06-05 15:37:40.547] INFO: TABLA[2/2]: cpuUtil=0.3060 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=114 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:37:40.649] INFO: Proceso creado: A-10
+[2026-06-05 15:37:40.849] INFO: Proceso creado: A-13
+[2026-06-05 15:37:41.051] INFO: Proceso creado: A-21
+[2026-06-05 15:37:41.151] INFO: Proceso creado: A-14
+[2026-06-05 15:37:41.655] INFO: Proceso creado: A-16
+[2026-06-05 15:37:41.856] INFO: Proceso creado: A-11
+[2026-06-05 15:37:42.561] INFO: TABLA[1/2]: ciclos=80 simStart=0 totalProc=250 finished=0 ctxSwitches=11 ctxSwitchTime=218 algoChanges=0 ioOps=10 cpuCyclesExec=2196 pageFaults=0 itersSinceBalance=0
+[2026-06-05 15:37:42.561] INFO: TABLA[2/2]: cpuUtil=0.3921 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=210 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:37:42.865] INFO: Proceso creado: A-12
+[2026-06-05 15:37:43.266] INFO: Proceso creado: A-19
+[2026-06-05 15:37:43.367] INFO: Proceso creado: A-17
+[2026-06-05 15:37:43.468] INFO: Proceso creado: A-24
+[2026-06-05 15:37:43.468] INFO: Proceso creado: A-28
+[2026-06-05 15:37:44.171] INFO: Proceso creado: A-32
+[2026-06-05 15:37:44.374] INFO: Proceso creado: A-20
+[2026-06-05 15:37:44.576] INFO: TABLA[1/2]: ciclos=100 simStart=0 totalProc=250 finished=0 ctxSwitches=16 ctxSwitchTime=320 algoChanges=0 ioOps=15 cpuCyclesExec=3038 pageFaults=5 itersSinceBalance=0
+[2026-06-05 15:37:44.576] INFO: TABLA[2/2]: cpuUtil=0.4340 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=234 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:37:44.979] INFO: Proceso creado: A-34
+[2026-06-05 15:37:45.381] INFO: Proceso creado: A-35
+[2026-06-05 15:37:46.184] INFO: Proceso creado: A-22
+[2026-06-05 15:37:46.185] INFO: Proceso creado: A-25
+[2026-06-05 15:37:46.386] INFO: Proceso creado: A-23
+[2026-06-05 15:37:46.588] INFO: TABLA[1/2]: ciclos=120 simStart=0 totalProc=250 finished=0 ctxSwitches=25 ctxSwitchTime=486 algoChanges=0 ioOps=25 cpuCyclesExec=3964 pageFaults=5 itersSinceBalance=0
+[2026-06-05 15:37:46.588] INFO: TABLA[2/2]: cpuUtil=0.4719 avgWait=0.00 avgTurn=0.00 frag=0.0000 intWaste=370 extWaste=0 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:37:46.688] INFO: Proceso creado: A-30
+[2026-06-05 15:37:46.789] INFO: Proceso creado: A-29
+[2026-06-05 15:37:46.789] INFO: Proceso creado: A-31
+[2026-06-05 15:37:46.889] INFO: Proceso creado: A-37
+[2026-06-05 15:37:47.091] INFO: Proceso creado: A-26
+[2026-06-05 15:37:47.594] INFO: Proceso creado: A-33
+[2026-06-05 15:37:47.695] INFO: Proceso creado: A-27
+[2026-06-05 15:37:47.795] INFO: Proceso creado: A-38
+[2026-06-05 15:37:47.896] INFO: Proceso creado: A-39
+[2026-06-05 15:37:48.097] INFO: Proceso creado: A-40
+[2026-06-05 15:37:48.600] INFO: TABLA[1/2]: ciclos=140 simStart=0 totalProc=250 finished=0 ctxSwitches=33 ctxSwitchTime=660 algoChanges=0 ioOps=32 cpuCyclesExec=4793 pageFaults=30 itersSinceBalance=0
+[2026-06-05 15:37:48.600] INFO: TABLA[2/2]: cpuUtil=0.4891 avgWait=0.00 avgTurn=0.00 frag=0.0082 intWaste=345 extWaste=4 quantum=20 readyProp=0.0000 waitProp=0.0000 shouldSwitch=0
+[2026-06-05 15:37:48.701] INFO: Usuario solicitó detener la simulación.
+[2026-06-05 15:37:48.702] INFO: Bucle de simulación finalizado.

@@ -48,8 +48,6 @@ int pageDirectoryGetPageFrame(PageDirectory* pageDir, int pageNumber) {
     if (!pageDir || pageNumber < 0 || pageNumber >= pageDir->totalPages) return -1;
     return pageDir->allPages[pageNumber].idMarco;
 }
-void pageDirectoryMarkDirty(PageDirectory* pageDir, int pageNumber) { (void)pageDir; (void)pageNumber; }
-void pageDirectoryMarkClean(PageDirectory* pageDir, int pageNumber) { (void)pageDir; (void)pageNumber; }
 
 Marco* marcoCreate(int id) {
     Marco* m = (Marco*)calloc(1, sizeof(Marco));

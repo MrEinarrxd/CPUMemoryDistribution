@@ -6,6 +6,7 @@ typedef struct SwapMetadata {
     int address;
     int size;
     int inUse;
+    void* data;
 } SwapMetadata;
 
 SwapManager* swapManagerCreate(int swapSize) {
@@ -22,12 +23,19 @@ SwapManager* swapManagerCreate(int swapSize) {
 }
 
 void swapManagerDestroy(SwapManager* manager) {
-    if (manager) { free(manager->metadata); free(manager); }
+    if (manager) {
+        if (manager->metadata) {
+            for (int i = 0; i < manager->totalSwapSize; i++)
+                free(manager->metadata[i].data);
+        }
+        free(manager->metadata);
+        free(manager);
+    }
 }
 
 int swapManagerWrite(SwapManager* manager, const void* buffer, int size, int* outAddress) {
     if (!manager || !buffer || size <= 0 || !outAddress) return -1;
-    if (manager->usedSwapSize + size > manager->totalSwapSize) return -1;
+    if (manager->usedSwapSize >= manager->totalSwapSize) return -1;
     int address = -1;
     for (int i = 0; i < manager->totalSwapSize; i++) {
         if (!manager->metadata[i].inUse) {
@@ -36,11 +44,16 @@ int swapManagerWrite(SwapManager* manager, const void* buffer, int size, int* ou
         }
     }
     if (address < 0) return -1;
+    void* copy = malloc((size_t)size);
+    if (!copy) return -1;
+    memcpy(copy, buffer, (size_t)size);
     *outAddress = address;
+    free(manager->metadata[address].data);
+    manager->metadata[address].data = copy;
     manager->metadata[address].address = address;
     manager->metadata[address].size = size;
     manager->metadata[address].inUse = 1;
-    manager->usedSwapSize += size;
+    manager->usedSwapSize++;
     manager->swapOperations++;
     return 0;
 }
@@ -51,7 +64,8 @@ int swapManagerRead(SwapManager* manager, int swapAddress, void* outBuffer, int 
     if (!manager->metadata[swapAddress].inUse) return -1;
     int size = manager->metadata[swapAddress].size;
     if (bufferSize < size) return -1;
-    // Simulación: no hay datos reales
+    if (!manager->metadata[swapAddress].data) return -1;
+    memcpy(outBuffer, manager->metadata[swapAddress].data, (size_t)size);
     manager->swapOperations++;
     return size;
 }
@@ -61,7 +75,9 @@ int swapManagerFree(SwapManager* manager, int swapAddress) {
     if (swapAddress >= manager->totalSwapSize) return -1;
     if (!manager->metadata[swapAddress].inUse) return -1;
     manager->metadata[swapAddress].inUse = 0;
-    manager->usedSwapSize -= manager->metadata[swapAddress].size;
+    manager->usedSwapSize--;
+    free(manager->metadata[swapAddress].data);
+    manager->metadata[swapAddress].data = NULL;
     manager->metadata[swapAddress].size = 0;
     return 0;
 }
