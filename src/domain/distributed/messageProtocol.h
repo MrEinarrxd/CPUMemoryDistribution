@@ -20,17 +20,50 @@ typedef struct PvmMessage {
     long timestamp;
 } PvmMessage;
 
+typedef struct BcpSummary {
+    int pid;
+    char processId[idProcesoLen];
+    int state;
+    int remainingCycles;
+    int totalCpuCycles;
+    int timeInExecution;
+    int timesInIo;
+    int wastedCpuCycles;
+} BcpSummary;
+
+typedef struct RrProcessData {
+    int pid;
+    char processId[idProcesoLen];
+    int remainingCycles;
+    int totalCpuCycles;
+    int timeInExecution;
+    int quantumAssigned;
+    int quantumUsed;
+    int timesReturnedToReady;
+    int wastedCpuCycles;
+    float cpuWasteRatio;
+} RrProcessData;
+
 typedef struct DistributedStats {
+    int processCount;
+    int activeCount;
     int totalProcessesFinished;
     int totalProcessesWaiting;
     int avgRemainingCycles;
+    long totalRemainingCycles;
+    long totalAssignedCycles;
+    long totalExecutedCycles;
     int totalIoOperations;
     float avgCpuUtilization;
+    char topWastersIds[totalRankingProcesos][idProcesoLen];
+    int topWastersCpuWaste[totalRankingProcesos];
+    int topWastersCount;
 } DistributedStats;
 
 typedef struct AgingResults {
     char topAgedIds[totalRankingProcesos][idProcesoLen];
-    int topAgedCpuWaste[totalRankingProcesos];
+    int topAgedReturns[totalRankingProcesos];
+    int topAgedRemainingCycles[totalRankingProcesos];
     int topAgedCount;
     char topWastersIds[totalRankingProcesos][idProcesoLen];
     int topWastersCpuWaste[totalRankingProcesos];

@@ -10,6 +10,9 @@ typedef struct AgingRanking {
     char processIds[totalRankingProcesos][idProcesoLen];
     int wasteValues[totalRankingProcesos];
     int count;
+    char wasterProcessIds[totalRankingProcesos][idProcesoLen];
+    int wasterWasteValues[totalRankingProcesos];
+    int wasterCount;
 } AgingRanking;
 
 typedef struct RrScheduler {

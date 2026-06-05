@@ -7,8 +7,8 @@ Usar este PC como master y dos laptops como slaves, aunque los usuarios sean
 distintos:
 
 - Este PC: usuario master, ejecuta CPUMemoryDistributionSimulator.
-- Laptop 1: usuario damian.
-- Laptop 2: usuario master por ahora, luego puede ser kim.
+- slave1: laptop con usuario damian.
+- slave2: laptop con usuario master.
 
 La opcion recomendada es configurar aliases SSH en el master y poner simSlave
 en el PATH de cada laptop.
@@ -28,16 +28,12 @@ Puedes presionar Enter en todo si no quieres una clave para la llave.
 Cambia las IP por las IP reales de tus laptops:
 
     ssh-copy-id damian@IP_LAPTOP_DAMIAN
-    ssh-copy-id master@IP_LAPTOP_2
-
-Cuando la segunda laptop pase a usuario kim:
-
-    ssh-copy-id kim@IP_LAPTOP_2
+    ssh-copy-id master@IP_SLAVE2
 
 Prueba que el acceso no pida contrasena:
 
     ssh damian@IP_LAPTOP_DAMIAN hostname
-    ssh master@IP_LAPTOP_2 hostname
+    ssh master@IP_SLAVE2 hostname
 
 
 3. Crear aliases SSH en el master
@@ -48,24 +44,18 @@ En este PC:
 
 Agrega:
 
-    Host laptop-damian
+    Host slave1
         HostName IP_LAPTOP_DAMIAN
         User damian
 
-    Host laptop-2
-        HostName IP_LAPTOP_2
+    Host slave2
+        HostName IP_SLAVE2
         User master
-
-Si luego la segunda laptop usa usuario kim, cambia solo esa entrada:
-
-    Host laptop-2
-        HostName IP_LAPTOP_2
-        User kim
 
 Guarda y prueba:
 
-    ssh laptop-damian hostname
-    ssh laptop-2 hostname
+    ssh slave1 hostname
+    ssh slave2 hostname
 
 
 4. Compilar el proyecto en el master
@@ -80,6 +70,10 @@ Debe generar:
     ./CPUMemoryDistributionSimulator
     ./simSlave
 
+No uses un comando manual tipo gcc $(find src -name '*.c'), porque puede
+incluir archivos viejos o auxiliares como src/presentation/menu.c. El Makefile
+ya contiene la lista correcta de fuentes para el master y para simSlave.
+
 
 5. Copiar simSlave a las laptops
 --------------------------------
@@ -87,33 +81,33 @@ En cada laptop usaremos ~/bin/simSlave.
 
 Desde el master:
 
-    ssh laptop-damian "mkdir -p ~/bin"
-    scp ./simSlave laptop-damian:~/bin/simSlave
-    ssh laptop-damian "chmod +x ~/bin/simSlave"
+    ssh slave1 "mkdir -p ~/bin"
+    scp ./simSlave slave1:~/bin/simSlave
+    ssh slave1 "chmod +x ~/bin/simSlave"
 
 Para la segunda laptop:
 
-    ssh laptop-2 "mkdir -p ~/bin"
-    scp ./simSlave laptop-2:~/bin/simSlave
-    ssh laptop-2 "chmod +x ~/bin/simSlave"
+    ssh slave2 "mkdir -p ~/bin"
+    scp ./simSlave slave2:~/bin/simSlave
+    ssh slave2 "chmod +x ~/bin/simSlave"
 
 
 6. Asegurar que ~/bin esta en PATH
 ----------------------------------
 Desde el master:
 
-    ssh laptop-damian 'echo $PATH'
-    ssh laptop-2 'echo $PATH'
+    ssh slave1 'echo $PATH'
+    ssh slave2 'echo $PATH'
 
 Si no aparece /home/damian/bin o /home/master/bin, agrega esto:
 
-    ssh laptop-damian 'echo "export PATH=\$HOME/bin:\$PATH" >> ~/.bashrc'
-    ssh laptop-2 'echo "export PATH=\$HOME/bin:\$PATH" >> ~/.bashrc'
+    ssh slave1 'echo "export PATH=\$HOME/bin:\$PATH" >> ~/.bashrc'
+    ssh slave2 'echo "export PATH=\$HOME/bin:\$PATH" >> ~/.bashrc'
 
 Prueba:
 
-    ssh laptop-damian "which simSlave"
-    ssh laptop-2 "which simSlave"
+    ssh slave1 "which simSlave"
+    ssh slave2 "which simSlave"
 
 Debe responder algo parecido a:
 
@@ -136,8 +130,8 @@ En el master:
 
 Dentro de la consola de PVM:
 
-    add laptop-damian
-    add laptop-2
+    add slave1
+    add slave2
     conf
     quit
 
@@ -151,7 +145,7 @@ En el master:
     cd /home/master/Documents/GitHub/CPUMemoryDistribution
 
     export PVM_RSH=ssh
-    export PVM_SLAVE_HOSTS=laptop-damian,laptop-2
+    export PVM_SLAVE_HOSTS=slave1,slave2
     export PVM_SLAVE_EXEC=simSlave
 
     ./CPUMemoryDistributionSimulator
@@ -165,10 +159,10 @@ Elige:
 ------------------------------------
 Ejecuta estas pruebas desde el master:
 
-    ssh laptop-damian hostname
-    ssh laptop-2 hostname
-    ssh laptop-damian "which simSlave"
-    ssh laptop-2 "which simSlave"
+    ssh slave1 hostname
+    ssh slave2 hostname
+    ssh slave1 "which simSlave"
+    ssh slave2 "which simSlave"
 
 Luego:
 
@@ -204,11 +198,5 @@ Resumen para este caso
 Usa estos valores en el master:
 
     export PVM_RSH=ssh
-    export PVM_SLAVE_HOSTS=laptop-damian,laptop-2
+    export PVM_SLAVE_HOSTS=slave1,slave2
     export PVM_SLAVE_EXEC=simSlave
-
-Cuando la segunda laptop cambie de master a kim, actualiza ~/.ssh/config:
-
-    Host laptop-2
-        HostName IP_LAPTOP_2
-        User kim

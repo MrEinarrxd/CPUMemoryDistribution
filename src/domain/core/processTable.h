@@ -29,6 +29,7 @@ typedef struct ProcessTable {
     int totalTurnaroundTimeFinished;
     int totalExecutionTimeFinished;
     int totalContextSwitches;
+    int totalContextSwitchTime;
     int algorithmChangeCount;
     int totalIoOperations;
     float cpuUtilization;

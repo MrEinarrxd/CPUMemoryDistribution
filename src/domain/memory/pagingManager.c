@@ -3,16 +3,12 @@
 #include "memoria.h"
 #include "fifoReplacement.h"
 #include "swapManager.h"
-<<<<<<< Updated upstream
-=======
 #include "../../data/wordLoader.h"
->>>>>>> Stashed changes
 #include <stdlib.h>
 #include <string.h>
 
 #define TOTAL_PAGES (procesosEnEjecucion * maxPaginasPorProceso)
 
-// Función corregida: busca el índice en runningProcesses (0..procesosEnEjecucion-1)
 static int findProcessIndexByFrame(PagingManager* manager, int frame) {
     if (!manager || !manager->pageDirectory) return -1;
     for (int procIdx = 0; procIdx < procesosEnEjecucion; procIdx++) {
@@ -61,8 +57,6 @@ static int swapInPage(PagingManager* manager, Pagina* page) {
     return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 static int normalizeEvenPageCount(int pageCount) {
     if (pageCount < marcosMin) pageCount = marcosMin;
     if (pageCount > marcosMax) pageCount = marcosMax;
@@ -82,7 +76,6 @@ static void loadPageWords(Pagina* page) {
     }
 }
 
->>>>>>> Stashed changes
 PagingManager* pagingManagerCreate(int totalPages, BitmapManager* bitmapManager) {
     (void)totalPages;
     PagingManager* pm = (PagingManager*)calloc(1, sizeof(PagingManager));
@@ -153,10 +146,12 @@ int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int p
         }
     }
     if (newFrame < 0) return -1;
+    int hadSwapData = requestedPage->swapAddress >= 0;
     if (swapInPage(manager, requestedPage) != 0) {
         bitmapManagerFreeFrame(manager->bitmapManager, newFrame);
         return -1;
     }
+    if (!hadSwapData) loadPageWords(requestedPage);
     pageDirectorySetPageFrame(manager->pageDirectory, pageNumber, newFrame);
     requestedPage->idProceso = processIndex;
     bitmapManagerSetFramePage(manager->bitmapManager, newFrame, pageNumber);
@@ -168,12 +163,7 @@ int pagingManagerHandlePageFault(PagingManager* manager, int processIndex, int p
 
 int pagingManagerAllocatePageForProcess(PagingManager* manager, int processIndex, int pageCount) {
     if (!manager || processIndex < 0 || processIndex >= procesosEnEjecucion) return -1;
-<<<<<<< Updated upstream
-    if (pageCount < 1) pageCount = 1;
-    if (pageCount > maxPaginasPorProceso) pageCount = maxPaginasPorProceso;
-=======
     pageCount = normalizeEvenPageCount(pageCount);
->>>>>>> Stashed changes
     ProcessPageTable* pt = pageDirectoryGetProcessTable(manager->pageDirectory, processIndex);
     if (!pt) return -1;
     if (pt->pages) free(pt->pages);
@@ -237,12 +227,7 @@ float pagingManagerGetFragmentation(PagingManager* manager) {
 void pagingManagerSetReplacement(PagingManager* manager, FifoReplacement* fifo) { if (manager) manager->fifoReplacement = fifo; }
 int pagingManagerResizeFrames(PagingManager* manager, int processIndex, int newFrameCount) {
     if (!manager || processIndex < 0 || processIndex >= procesosEnEjecucion) return -1;
-<<<<<<< Updated upstream
-    if (newFrameCount < 1) newFrameCount = 1;
-    if (newFrameCount > maxPaginasPorProceso) newFrameCount = maxPaginasPorProceso;
-=======
     newFrameCount = normalizeEvenPageCount(newFrameCount);
->>>>>>> Stashed changes
     ProcessPageTable* pt = pageDirectoryGetProcessTable(manager->pageDirectory, processIndex);
     if (!pt) return -1;
 

@@ -39,7 +39,7 @@
 #define PvmNumeroEsclavos 2
 #define PvmSlaveHostsEnvVar "PVM_SLAVE_HOSTS"
 #define LongitudMaximaCadena 256
-#define TamanoBufferMensaje 1024
+#define TamanoBufferMensaje 32768
 #define TamanoBufferLog 2048
 #define HistorialAlgoritmoMaximo 1000
 #define MarcosMin 8

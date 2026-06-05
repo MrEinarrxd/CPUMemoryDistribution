@@ -249,9 +249,6 @@ static int moveToIo(SimulationController* ctrl, Process* process, int device) {
     return 0;
 }
 
-<<<<<<< Updated upstream:src/business/systemController.c
-static void closePartialQuantum(SystemController* ctrl, Bcp* bcp, int quantum) {
-=======
 static void syncBcpMemoryFields(Bcp* bcp, int slot) {
     if (!bcp || slot < 0) return;
     bcp->pageTableBase = slot * maxPaginasPorProceso;
@@ -355,7 +352,6 @@ static void admitNewRequests(SimulationController* ctrl, int ciclo) {
 }
 
 static void closePartialQuantum(SimulationController* ctrl, Bcp* bcp, int quantum) {
->>>>>>> Stashed changes:src/business/simulationController.c
     if (!bcp || quantum <= 0) return;
     if (bcp->quantumUsed > 0 && bcp->quantumUsed < quantum) {
         int waste = quantum - bcp->quantumUsed;
@@ -369,19 +365,7 @@ static void closePartialQuantum(SimulationController* ctrl, Bcp* bcp, int quantu
     bcp->quantumUsed = 0;
 }
 
-<<<<<<< Updated upstream:src/business/systemController.c
-static void syncSimulationMetrics(SystemController* ctrl) {
-=======
-static void updateBcpCpuWasteRatio(Bcp* bcp) {
-    if (!bcp) return;
-    int accounted = bcp->timeInExecution + bcp->wastedCpuCycles;
-    bcp->cpuWasteRatio = accounted > 0
-        ? (float)bcp->wastedCpuCycles / (float)accounted
-        : 0.0f;
-}
-
 static void syncSimulationMetrics(SimulationController* ctrl) {
->>>>>>> Stashed changes:src/business/simulationController.c
     if (!ctrl || !ctrl->processTable) return;
     ProcessTable* table = ctrl->processTable;
 
@@ -488,84 +472,9 @@ int simulationControllerCycle(SimulationController* ctrl) {
     }
 #endif
 
-<<<<<<< Updated upstream:src/business/systemController.c
-    // -------------------------------------------------------------------------
-    // 2. Admitir nuevos procesos usando peek (NO extraer si aún no toca)
-    // -------------------------------------------------------------------------
-    while (processGeneratorHasMore()) {
-        Bcp* bcp = processGeneratorPeekNext();
-        if (!bcp) break;
-        if (bcp->arrivalTime > ciclo) break;
-        bcp = processGeneratorGetNext();
-        if (!bcp) break;
-
-        // CORREGIDO: usar processCreateWithBcp evita crear y descartar un BCP innecesario
-        Process* proc = processCreateWithBcp(bcp);
-        if (!proc) {
-            fprintf(stderr, "[SystemController] Fallo processCreateWithBcp para %s\n", bcp->processId);
-            continue;
-        }
-        processActivate(proc);
-        ctrl->processTable->totalProcesses++;
-
-        int slot = findFreeRunningSlot(ctrl);
-
-        if (slot != -1 && !readyQueueIsFull(ctrl->readyQueue)) {
-            ctrl->processTable->runningProcesses[slot] = proc;
-            if (moveToReady(ctrl, proc) == 0) {
-                if (pagingManagerAllocatePageForProcess(ctrl->pagingManager, slot, bcp->pageCount) != 0 &&
-                    ctrl->mainLogger)
-                    loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
-                        "No se pudo inicializar tabla de paginas para %s", bcp->processId);
-                if (ctrl->processLog)
-                    processLogRecordCreation(ctrl->processLog, proc);
-            } else {
-                ctrl->processTable->runningProcesses[slot] = NULL;
-                bcpSetState(bcp, ProcessStateNew);
-                if (moveToNew(ctrl, proc) != 0) {
-                    ctrl->processTable->totalProcesses--;
-                    processDestroy(proc);
-                }
-            }
-        } else {
-            if (moveToNew(ctrl, proc) != 0) {
-                fprintf(stderr, "[ERROR] No hay espacio para admitir proceso %s\n", bcp->processId);
-                ctrl->processTable->totalProcesses--;
-                processDestroy(proc);
-            }
-        }
-    }
-
-    // 3. Mover desde newRequests a runningProcesses solo cuando tambien puede entrar a ready.
-    for (int i = 0; i < procesosEnEspera; i++) {
-        Process* espera = ctrl->processTable->newRequests[i];
-        if (!espera || !espera->bcp) continue;
-        if (espera->bcp->arrivalTime > ciclo) continue;
-        if (readyQueueIsFull(ctrl->readyQueue)) break;
-
-        int slotLibre = findFreeRunningSlot(ctrl);
-        if (slotLibre == -1) continue;
-
-        ctrl->processTable->runningProcesses[slotLibre] = espera;
-        if (moveToReady(ctrl, espera) == 0) {
-            ctrl->processTable->newRequests[i] = NULL;
-            if (pagingManagerAllocatePageForProcess(ctrl->pagingManager, slotLibre, espera->bcp->pageCount) != 0 &&
-                ctrl->mainLogger)
-                loggerLogFormat(ctrl->mainLogger, LogLevelWarning,
-                    "No se pudo inicializar tabla de paginas para %s", espera->bcp->processId);
-            if (ctrl->processLog)
-                processLogRecordCreation(ctrl->processLog, espera);
-        } else {
-            ctrl->processTable->runningProcesses[slotLibre] = NULL;
-            bcpSetState(espera->bcp, ProcessStateNew);
-        }
-    }
-=======
     activateCreatedProcesses(ctrl, ciclo);
     admitNewRequests(ctrl, ciclo);
->>>>>>> Stashed changes:src/business/simulationController.c
 
-    // 4. Finalización de E/S
     ioCompletionHandlerProcess(ctrl->ioCompletionHandler, ctrl->ioQueue, ctrl->readyQueue,
                                ctrl->pagingManager, ctrl->processTable);
 
@@ -607,32 +516,27 @@ int simulationControllerCycle(SimulationController* ctrl) {
 
     if (actual && actual->bcp) {
         Bcp* bcp = actual->bcp;
-<<<<<<< Updated upstream:src/business/systemController.c
-        bcpSetState(bcp, ProcessStateRunning);
-        ctrl->currentProcess = actual;
-
-        int instancia = randomCpuInstanceCycles();
-=======
         int isRr = currentAlgorithm == SchedulerAlgorithmRr;
         int quantum = rrSchedulerGetCurrentQuantum(ctrl->rrScheduler);
         if (isRr && bcp->quantumAssigned != quantum) bcp->quantumAssigned = quantum;
 
         int instancia = bcp->currentTimeSlice > 0 ? bcp->currentTimeSlice : randomCpuInstanceCycles();
->>>>>>> Stashed changes:src/business/simulationController.c
         if (instancia > bcp->remainingCycles) instancia = bcp->remainingCycles;
 
-<<<<<<< Updated upstream:src/business/systemController.c
-        bcpUpdateRemainingTime(bcp, instancia);
-        bcp->timeInExecution += instancia;
-        bcp->quantumUsed += instancia;
-=======
+        int ciclosAEjecutar = instancia;
+        if (isRr) {
+            int quantumRestante = quantum - bcp->quantumUsed;
+            if (quantumRestante <= 0) quantumRestante = quantum;
+            if (ciclosAEjecutar > quantumRestante)
+                ciclosAEjecutar = quantumRestante;
+        }
+        bcp->currentTimeSlice = instancia > ciclosAEjecutar ? instancia - ciclosAEjecutar : 0;
         bcpUpdateRemainingTime(bcp, ciclosAEjecutar);
         bcp->timeInExecution += ciclosAEjecutar;
         if (isRr) bcp->quantumUsed += ciclosAEjecutar;
         if (bcp->timesExecuted == 0) bcp->startTime = ciclo;
->>>>>>> Stashed changes:src/business/simulationController.c
         bcp->timesExecuted++;
-        ctrl->processTable->totalCpuCyclesExecuted += instancia;
+        ctrl->processTable->totalCpuCyclesExecuted += ciclosAEjecutar;
 
         int procIdx = findRunningSlot(ctrl, actual);
 
@@ -640,12 +544,6 @@ int simulationControllerCycle(SimulationController* ctrl) {
             int growthWords = randomMemoryGrowth();
             if (growthWords > 0) {
                 if (procIdx >= 0) {
-<<<<<<< Updated upstream:src/business/systemController.c
-                    int newPages = bcp->pageCount + growth;
-                    if (newPages > maxPaginasPorProceso) newPages = maxPaginasPorProceso;
-                    if (pagingManagerResizeFrames(ctrl->pagingManager, procIdx, newPages) == 0)
-                        bcp->pageCount = newPages;
-=======
                     int maxWords = marcosMax * palabrasPorPagina;
                     int requestedWords = bcp->memoryRequested + growthWords;
                     if (requestedWords > maxWords) requestedWords = maxWords;
@@ -658,18 +556,10 @@ int simulationControllerCycle(SimulationController* ctrl) {
                         syncBcpMemoryFields(bcp, procIdx);
                         if (ctrl->bcpLog) bcpLogRecordFull(ctrl->bcpLog, bcp);
                     }
->>>>>>> Stashed changes:src/business/simulationController.c
                 }
             }
         }
 
-<<<<<<< Updated upstream:src/business/systemController.c
-        bcp->contextSwitchTime = randomContextSwitchTime();
-        bcpIncrementContextSwitches(bcp);
-        ctrl->processTable->totalContextSwitches++;
-        schedulerOnContextSwitch(ctrl->scheduler);
-        if (ctrl->bcpLog) bcpLogRecordContextSwitch(ctrl->bcpLog, bcp);
-=======
         if (!continuingCurrent) {
             bcp->contextSwitchTime = randomContextSwitchTime();
             ctrl->processTable->totalContextSwitchTime += bcp->contextSwitchTime;
@@ -679,7 +569,6 @@ int simulationControllerCycle(SimulationController* ctrl) {
             if (ctrl->bcpLog) bcpLogRecordContextSwitch(ctrl->bcpLog, bcp);
             if (ctrl->bcpLog) bcpLogRecordFull(ctrl->bcpLog, bcp);
         }
->>>>>>> Stashed changes:src/business/simulationController.c
 
         if (bcp->remainingCycles > 0 && randomInt(0, 100) < 30) {
             bcp->ioOperationsPending = 1;
@@ -714,12 +603,8 @@ int simulationControllerCycle(SimulationController* ctrl) {
             bcp->quantumUsed = 0;
             rrSchedulerOnQuantumExpired(ctrl->rrScheduler);
             if (ctrl->bcpLog) bcpLogRecordQuantumExpired(ctrl->bcpLog, bcp);
-<<<<<<< Updated upstream:src/business/systemController.c
-            if (moveToReady(ctrl, actual) != 0)
-=======
             if (ctrl->bcpLog) bcpLogRecordFull(ctrl->bcpLog, bcp);
             if (moveToReady(ctrl, actual) != 0) {
->>>>>>> Stashed changes:src/business/simulationController.c
                 bcpSetState(bcp, ProcessStateRunning);
                 ctrl->currentProcess = actual;
             } else {
@@ -833,13 +718,8 @@ static void handleKeyA(SimulationController* ctrl) {
     rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
     AgingRanking* r = &ctrl->rrScheduler->agingRanking;
     consoleIoClear();
-<<<<<<< Updated upstream:src/business/systemController.c
-    menuShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
-    menuShowTop5Wasters((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
-=======
     guiControllerShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
     guiControllerShowTop5Wasters((const char(*)[idProcesoLen])r->wasterProcessIds, r->wasterWasteValues, r->wasterCount);
->>>>>>> Stashed changes:src/business/simulationController.c
     char idElegido[idProcesoLen];
     memset(idElegido, 0, sizeof(idElegido));
     if (guiControllerGetPrivilegedProcessId(idElegido, idProcesoLen) > 0 && idElegido[0] != '\0') {
@@ -952,13 +832,8 @@ int simulationControllerRunFull(SimulationController* ctrl, PvmMode pvmMode) {
     if (schedulerGetAlgorithm(ctrl->scheduler) == SchedulerAlgorithmRr) {
         rrSchedulerUpdateAgingRanking(ctrl->rrScheduler, ctrl->processTable);
         AgingRanking* r = &ctrl->rrScheduler->agingRanking;
-<<<<<<< Updated upstream:src/business/systemController.c
-        menuShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
-        menuShowTop5Wasters((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
-=======
         guiControllerShowTop5Aged((const char(*)[idProcesoLen])r->processIds, r->wasteValues, r->count);
         guiControllerShowTop5Wasters((const char(*)[idProcesoLen])r->wasterProcessIds, r->wasterWasteValues, r->wasterCount);
->>>>>>> Stashed changes:src/business/simulationController.c
     }
     consoleIoPrintSeparator();
     pvmControllerRunStatsTask(ctrl->pvmController, ctrl->processTable);
@@ -981,8 +856,6 @@ int simulationControllerRunPvm(SimulationController* ctrl) {
     consoleIoPrintLine("PVM no está habilitado en esta compilación.");
     return -1;
 #else
-<<<<<<< Updated upstream:src/business/systemController.c
-=======
     int warmupCycles = 1000;
     const char* warmupEnv = getenv("PVM_WARMUP_CYCLES");
     if (warmupEnv && warmupEnv[0] != '\0') {
@@ -1003,7 +876,6 @@ int simulationControllerRunPvm(SimulationController* ctrl) {
         }
     }
 
->>>>>>> Stashed changes:src/business/simulationController.c
     consoleIoPrintLine("Inicializando maestro PVM...");
     PvmMaster* master = pvmMasterInit();
     if (!master) { errorHandlerLog(ErrorCodeNodeConnectionFailed, "simulationControllerRunPvm: no se pudo inicializar pvmMaster"); return -1; }
