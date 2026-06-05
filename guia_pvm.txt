@@ -1,6 +1,12 @@
 GUIA PARA USAR PVM CON ESTE PROYECTO
 ====================================
-
+ssh slave2 'cat > ~/pvm_env.sh << "EOF"
+export PVM_ROOT=/usr/lib/pvm3
+export PVM_ARCH=$(/usr/lib/pvm3/lib/pvmgetarch)
+export PATH=/usr/lib/pvm3/lib:/usr/lib/pvm3/bin/$PVM_ARCH:$PATH
+exec "$@"
+EOF
+chmod +x ~/pvm_env.sh'
 Objetivo
 --------
 Usar este PC como master y dos laptops como slaves, aunque los usuarios sean
