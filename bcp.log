@@ -17179,3 +17179,1773 @@
 [2026-06-05 15:37:48.600] INFO: Context switch: proceso A-29, cambios: 1
 [2026-06-05 15:37:48.600] INFO: BCP[1/2]: id=A-29 pid=29 state=2 prio=0 totalCpu=42425 remaining=42392 arrival=88 creationTime=122 startTime=140 finishTime=0 timeInExec=33 timeInWaiting=18 timesExecuted=1
 [2026-06-05 15:37:48.600] INFO: BCP[2/2]: id=A-29 quantumAssigned=0 quantumUsed=0 wastedCycles=0 cpuWasteRatio=0.0000 agingCounter=0 timesReturned=0 ageingSlices=0 ctxSwitches=1 ctxSwitchTime=17 timesInIo=0 ioTimeRemaining=0 ioPending=0 pageCount=8 memReq=160 totalMemAlloc=160 pageTableBase=896 swapAddress=-1 currentTimeSlice=0 ioOperPending=0
+[2026-06-05 16:59:17.877] INFO: Context switch: proceso A-5, cambios: 1
+[2026-06-05 16:59:18.280] INFO: Context switch: proceso A-2, cambios: 1
+[2026-06-05 17:03:53.849] INFO: Context switch: proceso A-3, cambios: 1
+[2026-06-05 17:07:28.225] INFO: Context switch: proceso A-1, cambios: 1
+[2026-06-05 17:07:43.512] INFO: Context switch: proceso A-1, cambios: 1
+[2026-06-05 17:12:17.865] INFO: Context switch: proceso A-4, cambios: 1
+[2026-06-05 17:12:18.368] INFO: Context switch: proceso A-1, cambios: 1
+[2026-06-05 17:12:20.373] INFO: Context switch: proceso A-9, cambios: 1
+[2026-06-05 17:12:20.474] INFO: Context switch: proceso A-2, cambios: 1
+[2026-06-05 17:12:20.977] INFO: Context switch: proceso A-7, cambios: 1
+[2026-06-05 17:12:21.178] INFO: Context switch: proceso A-5, cambios: 1
+[2026-06-05 17:12:21.279] INFO: Context switch: proceso A-3, cambios: 1
+[2026-06-05 17:12:22.091] INFO: Context switch: proceso A-9, cambios: 2
+[2026-06-05 17:12:23.097] INFO: Context switch: proceso A-8, cambios: 1
+[2026-06-05 17:12:23.197] INFO: Context switch: proceso A-6, cambios: 1
+[2026-06-05 17:12:23.297] INFO: Context switch: proceso A-3, cambios: 2
+[2026-06-05 17:12:23.398] INFO: Context switch: proceso A-11, cambios: 1
+[2026-06-05 17:12:23.598] INFO: Context switch: proceso A-10, cambios: 1
+[2026-06-05 17:12:24.407] INFO: Context switch: proceso A-15, cambios: 1
+[2026-06-05 17:12:24.707] INFO: Context switch: proceso A-13, cambios: 1
+[2026-06-05 17:12:24.908] INFO: Context switch: proceso A-14, cambios: 1
+[2026-06-05 17:12:25.009] INFO: Context switch: proceso A-2, cambios: 2
+[2026-06-05 17:12:25.712] INFO: Context switch: proceso A-12, cambios: 1
+[2026-06-05 17:12:26.252] INFO: Context switch: proceso A-17, cambios: 1
+[2026-06-05 17:12:26.353] INFO: Context switch: proceso A-16, cambios: 1
+[2026-06-05 17:12:26.855] INFO: Context switch: proceso A-20, cambios: 1
+[2026-06-05 17:12:27.557] INFO: Context switch: proceso A-23, cambios: 1
+[2026-06-05 17:12:28.462] INFO: Context switch: proceso A-22, cambios: 1
+[2026-06-05 17:12:28.763] INFO: Context switch: proceso A-25, cambios: 1
+[2026-06-05 17:12:28.964] INFO: Context switch: proceso A-19, cambios: 1
+[2026-06-05 17:12:29.969] INFO: Context switch: proceso A-13, cambios: 2
+[2026-06-05 17:12:30.184] INFO: Context switch: proceso A-21, cambios: 1
+[2026-06-05 17:12:30.385] INFO: Context switch: proceso A-24, cambios: 1
+[2026-06-05 17:12:30.485] INFO: Context switch: proceso A-18, cambios: 1
+[2026-06-05 17:12:30.888] INFO: Context switch: proceso A-2, cambios: 3
+[2026-06-05 17:12:31.592] INFO: Context switch: proceso A-28, cambios: 1
+[2026-06-05 17:12:31.692] INFO: Context switch: proceso A-36, cambios: 1
+[2026-06-05 17:12:31.993] INFO: Context switch: proceso A-26, cambios: 1
+[2026-06-05 17:12:32.399] INFO: Context switch: proceso A-30, cambios: 1
+[2026-06-05 17:12:33.130] INFO: Context switch: proceso A-12, cambios: 2
+[2026-06-05 17:12:33.532] INFO: Context switch: proceso A-23, cambios: 2
+[2026-06-05 17:12:33.633] INFO: Context switch: proceso A-34, cambios: 1
+[2026-06-05 17:12:34.034] INFO: Context switch: proceso A-31, cambios: 1
+[2026-06-05 17:12:34.235] INFO: Context switch: proceso A-32, cambios: 1
+[2026-06-05 17:12:34.460] INFO: Context switch: proceso A-16, cambios: 2
+[2026-06-05 17:12:34.561] INFO: Context switch: proceso A-27, cambios: 1
+[2026-06-05 17:12:41.062] INFO: Context switch: proceso A-20, cambios: 2
+[2026-06-05 17:12:41.163] INFO: Context switch: proceso A-40, cambios: 1
+[2026-06-05 17:12:41.263] INFO: Context switch: proceso A-10, cambios: 2
+[2026-06-05 17:12:41.364] INFO: Context switch: proceso A-44, cambios: 1
+[2026-06-05 17:12:41.464] INFO: Context switch: proceso A-29, cambios: 1
+[2026-06-05 17:12:41.565] INFO: Context switch: proceso A-41, cambios: 1
+[2026-06-05 17:12:41.666] INFO: Context switch: proceso A-37, cambios: 1
+[2026-06-05 17:12:41.917] INFO: Context switch: proceso A-24, cambios: 2
+[2026-06-05 17:12:42.017] INFO: Context switch: proceso A-26, cambios: 2
+[2026-06-05 17:12:42.118] INFO: Context switch: proceso A-33, cambios: 1
+[2026-06-05 17:12:42.219] INFO: Context switch: proceso A-1, cambios: 2
+[2026-06-05 17:12:42.319] INFO: Context switch: proceso A-35, cambios: 1
+[2026-06-05 17:12:42.420] INFO: Context switch: proceso A-43, cambios: 1
+[2026-06-05 17:12:42.520] INFO: Context switch: proceso A-38, cambios: 1
+[2026-06-05 17:12:42.621] INFO: Context switch: proceso A-12, cambios: 3
+[2026-06-05 17:12:42.722] INFO: Context switch: proceso A-49, cambios: 1
+[2026-06-05 17:12:42.823] INFO: Context switch: proceso A-21, cambios: 2
+[2026-06-05 17:12:42.924] INFO: Context switch: proceso A-36, cambios: 2
+[2026-06-05 17:12:43.025] INFO: Context switch: proceso A-25, cambios: 2
+[2026-06-05 17:12:43.125] INFO: Context switch: proceso A-39, cambios: 1
+[2026-06-05 17:12:43.226] INFO: Context switch: proceso A-52, cambios: 1
+[2026-06-05 17:12:43.327] INFO: Context switch: proceso A-54, cambios: 1
+[2026-06-05 17:12:43.428] INFO: Context switch: proceso A-42, cambios: 1
+[2026-06-05 17:12:43.529] INFO: Context switch: proceso A-48, cambios: 1
+[2026-06-05 17:12:43.629] INFO: Context switch: proceso A-46, cambios: 1
+[2026-06-05 17:12:43.730] INFO: Context switch: proceso A-27, cambios: 2
+[2026-06-05 17:12:43.830] INFO: Context switch: proceso A-47, cambios: 1
+[2026-06-05 17:12:44.035] INFO: Context switch: proceso A-55, cambios: 1
+[2026-06-05 17:12:44.136] INFO: Context switch: proceso A-40, cambios: 2
+[2026-06-05 17:12:44.237] INFO: Context switch: proceso A-44, cambios: 2
+[2026-06-05 17:12:44.337] INFO: Context switch: proceso A-29, cambios: 2
+[2026-06-05 17:12:44.438] INFO: Context switch: proceso A-53, cambios: 1
+[2026-06-05 17:12:44.539] INFO: Context switch: proceso A-41, cambios: 2
+[2026-06-05 17:12:44.640] INFO: Context switch: proceso A-37, cambios: 2
+[2026-06-05 17:12:44.740] INFO: Context switch: proceso A-24, cambios: 3
+[2026-06-05 17:12:44.841] INFO: Context switch: proceso A-26, cambios: 3
+[2026-06-05 17:12:44.942] INFO: Context switch: proceso A-65, cambios: 1
+[2026-06-05 17:12:45.043] INFO: Context switch: proceso A-33, cambios: 2
+[2026-06-05 17:12:45.143] INFO: Context switch: proceso A-51, cambios: 1
+[2026-06-05 17:12:45.244] INFO: Context switch: proceso A-19, cambios: 2
+[2026-06-05 17:12:45.345] INFO: Context switch: proceso A-35, cambios: 2
+[2026-06-05 17:12:45.445] INFO: Context switch: proceso A-59, cambios: 1
+[2026-06-05 17:12:45.546] INFO: Context switch: proceso A-43, cambios: 2
+[2026-06-05 17:12:45.647] INFO: Context switch: proceso A-38, cambios: 2
+[2026-06-05 17:12:45.748] INFO: Context switch: proceso A-68, cambios: 1
+[2026-06-05 17:12:45.848] INFO: Context switch: proceso A-25, cambios: 3
+[2026-06-05 17:12:45.949] INFO: Context switch: proceso A-39, cambios: 2
+[2026-06-05 17:12:46.141] INFO: Context switch: proceso A-45, cambios: 1
+[2026-06-05 17:12:46.242] INFO: Context switch: proceso A-50, cambios: 1
+[2026-06-05 17:12:46.343] INFO: Context switch: proceso A-11, cambios: 2
+[2026-06-05 17:12:46.444] INFO: Context switch: proceso A-5, cambios: 2
+[2026-06-05 17:12:46.545] INFO: Context switch: proceso A-60, cambios: 1
+[2026-06-05 17:12:46.645] INFO: Context switch: proceso A-7, cambios: 2
+[2026-06-05 17:12:46.746] INFO: Context switch: proceso A-42, cambios: 2
+[2026-06-05 17:12:46.847] INFO: Context switch: proceso A-46, cambios: 2
+[2026-06-05 17:12:46.948] INFO: Context switch: proceso A-57, cambios: 1
+[2026-06-05 17:12:47.048] INFO: Context switch: proceso A-62, cambios: 1
+[2026-06-05 17:16:27.886] INFO: Context switch: proceso A-2, cambios: 1
+[2026-06-05 17:16:27.987] INFO: Context switch: proceso A-6, cambios: 1
+[2026-06-05 17:16:28.389] INFO: Context switch: proceso A-3, cambios: 1
+[2026-06-05 17:16:29.092] INFO: Context switch: proceso A-1, cambios: 1
+[2026-06-05 17:16:30.021] INFO: Context switch: proceso A-4, cambios: 1
+[2026-06-05 17:16:31.126] INFO: Context switch: proceso A-7, cambios: 1
+[2026-06-05 17:16:32.539] INFO: Context switch: proceso A-13, cambios: 1
+[2026-06-05 17:16:32.740] INFO: Context switch: proceso A-5, cambios: 1
+[2026-06-05 17:16:33.041] INFO: Context switch: proceso A-15, cambios: 1
+[2026-06-05 17:16:33.141] INFO: Context switch: proceso A-9, cambios: 1
+[2026-06-05 17:16:33.949] INFO: Context switch: proceso A-12, cambios: 1
+[2026-06-05 17:16:34.151] INFO: Context switch: proceso A-8, cambios: 1
+[2026-06-05 17:16:34.854] INFO: Context switch: proceso A-17, cambios: 1
+[2026-06-05 17:16:35.056] INFO: Context switch: proceso A-10, cambios: 1
+[2026-06-05 17:16:35.257] INFO: Context switch: proceso A-16, cambios: 1
+[2026-06-05 17:16:35.357] INFO: Context switch: proceso A-21, cambios: 1
+[2026-06-05 17:16:36.091] INFO: Context switch: proceso A-23, cambios: 1
+[2026-06-05 17:16:36.292] INFO: Context switch: proceso A-2, cambios: 2
+[2026-06-05 17:16:44.675] INFO: Context switch: proceso A-11, cambios: 1
+[2026-06-05 17:16:46.103] INFO: Context switch: proceso A-22, cambios: 1
+[2026-06-05 17:16:46.305] INFO: Context switch: proceso A-14, cambios: 1
+[2026-06-05 17:16:46.608] INFO: Context switch: proceso A-26, cambios: 1
+[2026-06-05 17:16:46.708] INFO: Context switch: proceso A-18, cambios: 1
+[2026-06-05 17:16:46.809] INFO: Context switch: proceso A-27, cambios: 1
+[2026-06-05 17:16:46.910] INFO: Context switch: proceso A-13, cambios: 2
+[2026-06-05 17:16:47.110] INFO: Context switch: proceso A-5, cambios: 2
+[2026-06-05 17:16:47.312] INFO: Context switch: proceso A-10, cambios: 2
+[2026-06-05 17:16:48.530] INFO: Context switch: proceso A-24, cambios: 1
+[2026-06-05 17:16:49.033] INFO: Context switch: proceso A-20, cambios: 1
+[2026-06-05 17:16:49.234] INFO: Context switch: proceso A-4, cambios: 2
+[2026-06-05 17:16:49.851] INFO: Context switch: proceso A-19, cambios: 1
+[2026-06-05 17:16:50.052] INFO: Context switch: proceso A-29, cambios: 1
+[2026-06-05 17:16:50.152] INFO: Context switch: proceso A-35, cambios: 1
+[2026-06-05 17:16:50.555] INFO: Context switch: proceso A-7, cambios: 2
+[2026-06-05 17:16:51.359] INFO: Context switch: proceso A-31, cambios: 1
+[2026-06-05 17:16:52.116] INFO: Context switch: proceso A-25, cambios: 1
+[2026-06-05 17:17:01.425] INFO: Context switch: proceso A-37, cambios: 1
+[2026-06-05 17:17:01.525] INFO: Context switch: proceso A-28, cambios: 1
+[2026-06-05 17:17:01.625] INFO: Context switch: proceso A-39, cambios: 1
+[2026-06-05 17:17:01.726] INFO: Context switch: proceso A-40, cambios: 1
+[2026-06-05 17:17:01.827] INFO: Context switch: proceso A-38, cambios: 1
+[2026-06-05 17:17:01.927] INFO: Context switch: proceso A-32, cambios: 1
+[2026-06-05 17:17:02.028] INFO: Context switch: proceso A-34, cambios: 1
+[2026-06-05 17:17:02.129] INFO: Context switch: proceso A-41, cambios: 1
+[2026-06-05 17:17:02.230] INFO: Context switch: proceso A-17, cambios: 2
+[2026-06-05 17:17:02.331] INFO: Context switch: proceso A-30, cambios: 1
+[2026-06-05 17:17:02.431] INFO: Context switch: proceso A-36, cambios: 1
+[2026-06-05 17:17:02.532] INFO: Context switch: proceso A-15, cambios: 2
+[2026-06-05 17:17:02.633] INFO: Context switch: proceso A-26, cambios: 2
+[2026-06-05 17:17:02.734] INFO: Context switch: proceso A-44, cambios: 1
+[2026-06-05 17:17:02.834] INFO: Context switch: proceso A-16, cambios: 2
+[2026-06-05 17:17:02.935] INFO: Context switch: proceso A-27, cambios: 2
+[2026-06-05 17:17:03.036] INFO: Context switch: proceso A-42, cambios: 1
+[2026-06-05 17:17:03.679] INFO: Context switch: proceso A-33, cambios: 1
+[2026-06-05 17:17:03.780] INFO: Context switch: proceso A-6, cambios: 2
+[2026-06-05 17:17:03.880] INFO: Context switch: proceso A-1, cambios: 2
+[2026-06-05 17:17:03.981] INFO: Context switch: proceso A-8, cambios: 2
+[2026-06-05 17:17:04.082] INFO: Context switch: proceso A-20, cambios: 2
+[2026-06-05 17:17:04.182] INFO: Context switch: proceso A-50, cambios: 1
+[2026-06-05 17:17:04.283] INFO: Context switch: proceso A-52, cambios: 1
+[2026-06-05 17:17:04.384] INFO: Context switch: proceso A-51, cambios: 1
+[2026-06-05 17:17:04.484] INFO: Context switch: proceso A-25, cambios: 2
+[2026-06-05 17:17:04.585] INFO: Context switch: proceso A-37, cambios: 2
+[2026-06-05 17:17:04.686] INFO: Context switch: proceso A-28, cambios: 2
+[2026-06-05 17:17:04.787] INFO: Context switch: proceso A-19, cambios: 2
+[2026-06-05 17:17:04.887] INFO: Context switch: proceso A-40, cambios: 2
+[2026-06-05 17:17:04.988] INFO: Context switch: proceso A-32, cambios: 2
+[2026-06-05 17:17:05.089] INFO: Context switch: proceso A-45, cambios: 1
+[2026-06-05 17:17:05.190] INFO: Context switch: proceso A-34, cambios: 2
+[2026-06-05 17:17:05.291] INFO: Context switch: proceso A-43, cambios: 1
+[2026-06-05 17:17:05.391] INFO: Context switch: proceso A-49, cambios: 1
+[2026-06-05 17:17:05.492] INFO: Context switch: proceso A-14, cambios: 2
+[2026-06-05 17:17:05.593] INFO: Context switch: proceso A-30, cambios: 2
+[2026-06-05 17:17:05.798] INFO: Context switch: proceso A-36, cambios: 2
+[2026-06-05 17:17:05.899] INFO: Context switch: proceso A-47, cambios: 1
+[2026-06-05 17:17:05.999] INFO: Context switch: proceso A-46, cambios: 1
+[2026-06-05 17:17:06.100] INFO: Context switch: proceso A-26, cambios: 3
+[2026-06-05 17:17:06.201] INFO: Context switch: proceso A-48, cambios: 1
+[2026-06-05 17:17:06.301] INFO: Context switch: proceso A-60, cambios: 1
+[2026-06-05 17:17:06.402] INFO: Context switch: proceso A-44, cambios: 2
+[2026-06-05 17:17:06.503] INFO: Context switch: proceso A-16, cambios: 3
+[2026-06-05 17:17:06.603] INFO: Context switch: proceso A-42, cambios: 2
+[2026-06-05 17:17:06.704] INFO: Context switch: proceso A-55, cambios: 1
+[2026-06-05 17:17:06.806] INFO: Context switch: proceso A-39, cambios: 2
+[2026-06-05 17:17:06.906] INFO: Context switch: proceso A-6, cambios: 3
+[2026-06-05 17:17:07.007] INFO: Context switch: proceso A-8, cambios: 3
+[2026-06-05 17:17:07.108] INFO: Context switch: proceso A-20, cambios: 3
+[2026-06-05 17:17:07.209] INFO: Context switch: proceso A-38, cambios: 2
+[2026-06-05 17:17:07.310] INFO: Context switch: proceso A-58, cambios: 1
+[2026-06-05 17:17:07.411] INFO: Context switch: proceso A-11, cambios: 2
+[2026-06-05 17:17:07.512] INFO: Context switch: proceso A-52, cambios: 2
+[2026-06-05 17:17:07.612] INFO: Context switch: proceso A-51, cambios: 2
+[2026-06-05 17:17:07.713] INFO: Context switch: proceso A-25, cambios: 3
+[2026-06-05 17:17:07.935] INFO: Context switch: proceso A-37, cambios: 3
+[2026-06-05 17:17:08.036] INFO: Context switch: proceso A-19, cambios: 3
+[2026-06-05 17:17:08.137] INFO: Context switch: proceso A-40, cambios: 3
+[2026-06-05 17:17:08.238] INFO: Context switch: proceso A-32, cambios: 3
+[2026-06-05 17:17:08.338] INFO: Context switch: proceso A-63, cambios: 1
+[2026-06-05 17:17:08.439] INFO: Context switch: proceso A-45, cambios: 2
+[2026-06-05 17:17:08.540] INFO: Context switch: proceso A-56, cambios: 1
+[2026-06-05 17:17:08.640] INFO: Context switch: proceso A-10, cambios: 3
+[2026-06-05 17:17:08.741] INFO: Context switch: proceso A-34, cambios: 3
+[2026-06-05 17:17:08.842] INFO: Context switch: proceso A-54, cambios: 1
+[2026-06-05 17:17:08.943] INFO: Context switch: proceso A-43, cambios: 2
+[2026-06-05 17:17:09.044] INFO: Context switch: proceso A-49, cambios: 2
+[2026-06-05 17:17:09.145] INFO: Context switch: proceso A-35, cambios: 2
+[2026-06-05 17:17:09.245] INFO: Context switch: proceso A-53, cambios: 1
+[2026-06-05 17:17:09.346] INFO: Context switch: proceso A-23, cambios: 2
+[2026-06-05 17:17:09.447] INFO: Context switch: proceso A-47, cambios: 2
+[2026-06-05 17:17:18.408] INFO: Context switch: proceso A-3, cambios: 2
+[2026-06-05 17:17:18.408] INFO: Quantum expirado: proceso A-3
+[2026-06-05 17:17:18.508] INFO: Context switch: proceso A-46, cambios: 2
+[2026-06-05 17:17:18.508] INFO: Quantum expirado: proceso A-46
+[2026-06-05 17:17:18.609] INFO: Context switch: proceso A-65, cambios: 1
+[2026-06-05 17:17:18.609] INFO: Quantum expirado: proceso A-65
+[2026-06-05 17:17:18.710] INFO: Context switch: proceso A-60, cambios: 2
+[2026-06-05 17:17:18.970] INFO: Context switch: proceso A-57, cambios: 1
+[2026-06-05 17:17:18.970] INFO: Quantum expirado: proceso A-57
+[2026-06-05 17:17:19.071] INFO: Context switch: proceso A-30, cambios: 3
+[2026-06-05 17:17:19.071] INFO: Quantum expirado: proceso A-30
+[2026-06-05 17:17:19.171] INFO: Context switch: proceso A-66, cambios: 1
+[2026-06-05 17:17:19.172] INFO: Quantum expirado: proceso A-66
+[2026-06-05 17:17:19.272] INFO: Context switch: proceso A-39, cambios: 3
+[2026-06-05 17:17:19.273] INFO: Quantum expirado: proceso A-39
+[2026-06-05 17:17:19.373] INFO: Context switch: proceso A-6, cambios: 4
+[2026-06-05 17:17:19.373] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:19.474] INFO: Context switch: proceso A-62, cambios: 1
+[2026-06-05 17:17:19.474] INFO: Quantum expirado: proceso A-62
+[2026-06-05 17:17:19.574] INFO: Context switch: proceso A-20, cambios: 4
+[2026-06-05 17:17:19.574] INFO: Quantum expirado: proceso A-20
+[2026-06-05 17:17:19.675] INFO: Context switch: proceso A-22, cambios: 2
+[2026-06-05 17:17:19.675] INFO: Quantum expirado: proceso A-22
+[2026-06-05 17:17:19.776] INFO: Context switch: proceso A-58, cambios: 2
+[2026-06-05 17:17:19.877] INFO: Context switch: proceso A-67, cambios: 1
+[2026-06-05 17:17:19.978] INFO: Context switch: proceso A-11, cambios: 3
+[2026-06-05 17:17:19.978] INFO: Quantum expirado: proceso A-11
+[2026-06-05 17:17:20.079] INFO: Context switch: proceso A-59, cambios: 1
+[2026-06-05 17:17:20.079] INFO: Quantum expirado: proceso A-59
+[2026-06-05 17:17:20.179] INFO: Context switch: proceso A-64, cambios: 1
+[2026-06-05 17:17:20.180] INFO: Quantum expirado: proceso A-64
+[2026-06-05 17:17:20.280] INFO: Context switch: proceso A-52, cambios: 3
+[2026-06-05 17:17:20.280] INFO: Quantum expirado: proceso A-52
+[2026-06-05 17:17:20.381] INFO: Context switch: proceso A-51, cambios: 3
+[2026-06-05 17:17:20.381] INFO: Quantum expirado: proceso A-51
+[2026-06-05 17:17:20.482] INFO: Context switch: proceso A-25, cambios: 4
+[2026-06-05 17:17:20.482] INFO: Quantum expirado: proceso A-25
+[2026-06-05 17:17:20.583] INFO: Context switch: proceso A-37, cambios: 4
+[2026-06-05 17:17:20.583] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:20.684] INFO: Context switch: proceso A-61, cambios: 1
+[2026-06-05 17:17:20.784] INFO: Context switch: proceso A-19, cambios: 4
+[2026-06-05 17:17:20.784] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:20.885] INFO: Context switch: proceso A-40, cambios: 4
+[2026-06-05 17:17:21.100] INFO: Context switch: proceso A-63, cambios: 2
+[2026-06-05 17:17:21.100] INFO: Quantum expirado: proceso A-63
+[2026-06-05 17:17:21.201] INFO: Context switch: proceso A-56, cambios: 2
+[2026-06-05 17:17:21.201] INFO: Quantum expirado: proceso A-56
+[2026-06-05 17:17:21.301] INFO: Context switch: proceso A-10, cambios: 4
+[2026-06-05 17:17:21.302] INFO: Quantum expirado: proceso A-10
+[2026-06-05 17:17:21.402] INFO: Context switch: proceso A-54, cambios: 2
+[2026-06-05 17:17:21.403] INFO: Quantum expirado: proceso A-54
+[2026-06-05 17:17:21.503] INFO: Context switch: proceso A-49, cambios: 3
+[2026-06-05 17:17:21.504] INFO: Quantum expirado: proceso A-49
+[2026-06-05 17:17:21.604] INFO: Context switch: proceso A-35, cambios: 3
+[2026-06-05 17:17:21.604] INFO: Quantum expirado: proceso A-35
+[2026-06-05 17:17:21.705] INFO: Context switch: proceso A-53, cambios: 2
+[2026-06-05 17:17:21.705] INFO: Quantum expirado: proceso A-53
+[2026-06-05 17:17:21.806] INFO: Context switch: proceso A-68, cambios: 1
+[2026-06-05 17:17:21.806] INFO: Quantum expirado: proceso A-68
+[2026-06-05 17:17:21.907] INFO: Context switch: proceso A-34, cambios: 4
+[2026-06-05 17:17:21.907] INFO: Quantum expirado: proceso A-34
+[2026-06-05 17:17:22.008] INFO: Context switch: proceso A-23, cambios: 3
+[2026-06-05 17:17:22.008] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:22.109] INFO: Context switch: proceso A-47, cambios: 3
+[2026-06-05 17:17:22.210] INFO: Context switch: proceso A-3, cambios: 3
+[2026-06-05 17:17:22.311] INFO: Context switch: proceso A-12, cambios: 2
+[2026-06-05 17:17:22.311] INFO: Quantum expirado: proceso A-12
+[2026-06-05 17:17:22.412] INFO: Context switch: proceso A-46, cambios: 3
+[2026-06-05 17:17:22.513] INFO: Context switch: proceso A-29, cambios: 2
+[2026-06-05 17:17:22.613] INFO: Context switch: proceso A-65, cambios: 2
+[2026-06-05 17:17:22.614] INFO: Quantum expirado: proceso A-65
+[2026-06-05 17:17:22.714] INFO: Context switch: proceso A-57, cambios: 2
+[2026-06-05 17:17:22.714] INFO: Quantum expirado: proceso A-57
+[2026-06-05 17:17:22.815] INFO: Context switch: proceso A-69, cambios: 1
+[2026-06-05 17:17:22.916] INFO: Context switch: proceso A-30, cambios: 4
+[2026-06-05 17:17:22.916] INFO: Quantum expirado: proceso A-30
+[2026-06-05 17:17:23.017] INFO: Context switch: proceso A-66, cambios: 2
+[2026-06-05 17:17:23.249] INFO: Context switch: proceso A-39, cambios: 4
+[2026-06-05 17:17:23.350] INFO: Context switch: proceso A-6, cambios: 5
+[2026-06-05 17:17:23.350] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:23.451] INFO: Context switch: proceso A-62, cambios: 2
+[2026-06-05 17:17:23.451] INFO: Quantum expirado: proceso A-62
+[2026-06-05 17:17:23.552] INFO: Context switch: proceso A-20, cambios: 5
+[2026-06-05 17:17:23.653] INFO: Context switch: proceso A-22, cambios: 3
+[2026-06-05 17:17:23.753] INFO: Context switch: proceso A-13, cambios: 3
+[2026-06-05 17:17:23.854] INFO: Context switch: proceso A-11, cambios: 4
+[2026-06-05 17:17:23.854] INFO: Quantum expirado: proceso A-11
+[2026-06-05 17:17:23.955] INFO: Context switch: proceso A-9, cambios: 2
+[2026-06-05 17:17:24.055] INFO: Context switch: proceso A-59, cambios: 2
+[2026-06-05 17:17:24.056] INFO: Quantum expirado: proceso A-59
+[2026-06-05 17:17:24.157] INFO: Context switch: proceso A-64, cambios: 2
+[2026-06-05 17:17:24.258] INFO: Context switch: proceso A-52, cambios: 4
+[2026-06-05 17:17:24.258] INFO: Quantum expirado: proceso A-52
+[2026-06-05 17:17:24.359] INFO: Context switch: proceso A-44, cambios: 3
+[2026-06-05 17:17:24.459] INFO: Context switch: proceso A-51, cambios: 4
+[2026-06-05 17:17:24.460] INFO: Quantum expirado: proceso A-51
+[2026-06-05 17:17:24.560] INFO: Context switch: proceso A-60, cambios: 3
+[2026-06-05 17:17:24.661] INFO: Context switch: proceso A-25, cambios: 5
+[2026-06-05 17:17:24.762] INFO: Context switch: proceso A-37, cambios: 5
+[2026-06-05 17:17:24.762] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:24.863] INFO: Context switch: proceso A-76, cambios: 1
+[2026-06-05 17:17:24.964] INFO: Context switch: proceso A-79, cambios: 1
+[2026-06-05 17:17:25.064] INFO: Context switch: proceso A-19, cambios: 5
+[2026-06-05 17:17:25.065] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:25.165] INFO: Context switch: proceso A-28, cambios: 3
+[2026-06-05 17:17:25.166] INFO: Quantum expirado: proceso A-28
+[2026-06-05 17:17:25.391] INFO: Context switch: proceso A-63, cambios: 3
+[2026-06-05 17:17:25.391] INFO: Quantum expirado: proceso A-63
+[2026-06-05 17:17:25.492] INFO: Context switch: proceso A-56, cambios: 3
+[2026-06-05 17:17:25.492] INFO: Quantum expirado: proceso A-56
+[2026-06-05 17:17:25.593] INFO: Context switch: proceso A-10, cambios: 5
+[2026-06-05 17:17:25.693] INFO: Context switch: proceso A-77, cambios: 1
+[2026-06-05 17:17:25.694] INFO: Quantum expirado: proceso A-77
+[2026-06-05 17:17:25.794] INFO: Context switch: proceso A-54, cambios: 3
+[2026-06-05 17:17:25.794] INFO: Quantum expirado: proceso A-54
+[2026-06-05 17:17:25.895] INFO: Context switch: proceso A-78, cambios: 1
+[2026-06-05 17:17:25.996] INFO: Context switch: proceso A-49, cambios: 4
+[2026-06-05 17:17:26.097] INFO: Context switch: proceso A-70, cambios: 1
+[2026-06-05 17:17:26.097] INFO: Quantum expirado: proceso A-70
+[2026-06-05 17:17:26.198] INFO: Context switch: proceso A-35, cambios: 4
+[2026-06-05 17:17:26.198] INFO: Quantum expirado: proceso A-35
+[2026-06-05 17:17:26.298] INFO: Context switch: proceso A-53, cambios: 3
+[2026-06-05 17:17:26.298] INFO: Quantum expirado: proceso A-53
+[2026-06-05 17:17:26.400] INFO: Context switch: proceso A-68, cambios: 2
+[2026-06-05 17:17:26.400] INFO: Quantum expirado: proceso A-68
+[2026-06-05 17:17:26.501] INFO: Context switch: proceso A-36, cambios: 3
+[2026-06-05 17:17:26.501] INFO: Quantum expirado: proceso A-36
+[2026-06-05 17:17:26.602] INFO: Context switch: proceso A-34, cambios: 5
+[2026-06-05 17:17:26.602] INFO: Quantum expirado: proceso A-34
+[2026-06-05 17:17:26.703] INFO: Context switch: proceso A-23, cambios: 4
+[2026-06-05 17:17:26.703] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:26.804] INFO: Context switch: proceso A-71, cambios: 1
+[2026-06-05 17:17:26.804] INFO: Quantum expirado: proceso A-71
+[2026-06-05 17:17:26.905] INFO: Context switch: proceso A-72, cambios: 1
+[2026-06-05 17:17:27.006] INFO: Context switch: proceso A-73, cambios: 1
+[2026-06-05 17:17:27.107] INFO: Context switch: proceso A-74, cambios: 1
+[2026-06-05 17:17:27.107] INFO: Quantum expirado: proceso A-74
+[2026-06-05 17:17:27.208] INFO: Context switch: proceso A-12, cambios: 3
+[2026-06-05 17:17:27.309] INFO: Context switch: proceso A-75, cambios: 1
+[2026-06-05 17:17:27.309] INFO: Quantum expirado: proceso A-75
+[2026-06-05 17:17:27.516] INFO: Context switch: proceso A-21, cambios: 2
+[2026-06-05 17:17:27.617] INFO: Context switch: proceso A-55, cambios: 2
+[2026-06-05 17:17:27.718] INFO: Context switch: proceso A-65, cambios: 3
+[2026-06-05 17:17:27.718] INFO: Quantum expirado: proceso A-65
+[2026-06-05 17:17:27.818] INFO: Context switch: proceso A-57, cambios: 3
+[2026-06-05 17:17:27.920] INFO: Context switch: proceso A-30, cambios: 5
+[2026-06-05 17:17:27.920] INFO: Quantum expirado: proceso A-30
+[2026-06-05 17:17:28.021] INFO: Context switch: proceso A-16, cambios: 4
+[2026-06-05 17:17:28.021] INFO: Quantum expirado: proceso A-16
+[2026-06-05 17:17:28.122] INFO: Context switch: proceso A-48, cambios: 2
+[2026-06-05 17:17:28.122] INFO: Quantum expirado: proceso A-48
+[2026-06-05 17:17:28.223] INFO: Context switch: proceso A-6, cambios: 6
+[2026-06-05 17:17:28.223] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:28.324] INFO: Context switch: proceso A-82, cambios: 1
+[2026-06-05 17:17:28.324] INFO: Quantum expirado: proceso A-82
+[2026-06-05 17:17:28.425] INFO: Context switch: proceso A-24, cambios: 2
+[2026-06-05 17:17:28.526] INFO: Context switch: proceso A-62, cambios: 3
+[2026-06-05 17:17:28.526] INFO: Quantum expirado: proceso A-62
+[2026-06-05 17:17:28.627] INFO: Context switch: proceso A-81, cambios: 1
+[2026-06-05 17:17:28.627] INFO: Quantum expirado: proceso A-81
+[2026-06-05 17:17:28.728] INFO: Context switch: proceso A-18, cambios: 2
+[2026-06-05 17:17:28.828] INFO: Context switch: proceso A-11, cambios: 5
+[2026-06-05 17:17:28.829] INFO: Quantum expirado: proceso A-11
+[2026-06-05 17:17:28.929] INFO: Context switch: proceso A-69, cambios: 2
+[2026-06-05 17:17:29.030] INFO: Context switch: proceso A-59, cambios: 3
+[2026-06-05 17:17:29.030] INFO: Quantum expirado: proceso A-59
+[2026-06-05 17:17:29.131] INFO: Context switch: proceso A-52, cambios: 5
+[2026-06-05 17:17:29.132] INFO: Quantum expirado: proceso A-52
+[2026-06-05 17:17:29.232] INFO: Context switch: proceso A-51, cambios: 5
+[2026-06-05 17:17:29.232] INFO: Quantum expirado: proceso A-51
+[2026-06-05 17:17:29.333] INFO: Context switch: proceso A-66, cambios: 3
+[2026-06-05 17:17:29.334] INFO: Quantum expirado: proceso A-66
+[2026-06-05 17:17:29.434] INFO: Context switch: proceso A-13, cambios: 4
+[2026-06-05 17:17:29.434] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:29.639] INFO: Context switch: proceso A-43, cambios: 3
+[2026-06-05 17:17:29.739] INFO: Context switch: proceso A-37, cambios: 6
+[2026-06-05 17:17:47.317] INFO: Context switch: proceso A-7, cambios: 1
+[2026-06-05 17:17:47.317] INFO: Quantum expirado: proceso A-7
+[2026-06-05 17:17:47.317] INFO: Context switch: proceso A-7, cambios: 2
+[2026-06-05 17:17:47.318] INFO: Quantum expirado: proceso A-7
+[2026-06-05 17:17:47.319] INFO: Context switch: proceso A-7, cambios: 3
+[2026-06-05 17:17:47.319] INFO: Quantum expirado: proceso A-7
+[2026-06-05 17:17:47.319] INFO: Context switch: proceso A-7, cambios: 4
+[2026-06-05 17:17:47.319] INFO: Context switch: proceso A-7, cambios: 5
+[2026-06-05 17:17:47.320] INFO: Context switch: proceso A-1, cambios: 1
+[2026-06-05 17:17:47.320] INFO: Context switch: proceso A-10, cambios: 1
+[2026-06-05 17:17:47.322] INFO: Context switch: proceso A-4, cambios: 1
+[2026-06-05 17:17:47.322] INFO: Quantum expirado: proceso A-4
+[2026-06-05 17:17:47.322] INFO: Context switch: proceso A-4, cambios: 2
+[2026-06-05 17:17:47.322] INFO: Quantum expirado: proceso A-4
+[2026-06-05 17:17:47.323] INFO: Context switch: proceso A-4, cambios: 3
+[2026-06-05 17:17:47.323] INFO: Context switch: proceso A-2, cambios: 1
+[2026-06-05 17:17:47.323] INFO: Quantum expirado: proceso A-2
+[2026-06-05 17:17:47.323] INFO: Context switch: proceso A-4, cambios: 4
+[2026-06-05 17:17:47.323] INFO: Quantum expirado: proceso A-4
+[2026-06-05 17:17:47.323] INFO: Context switch: proceso A-2, cambios: 2
+[2026-06-05 17:17:47.324] INFO: Context switch: proceso A-4, cambios: 5
+[2026-06-05 17:17:47.324] INFO: Quantum expirado: proceso A-4
+[2026-06-05 17:17:47.324] INFO: Context switch: proceso A-2, cambios: 3
+[2026-06-05 17:17:47.324] INFO: Context switch: proceso A-11, cambios: 1
+[2026-06-05 17:17:47.324] INFO: Quantum expirado: proceso A-11
+[2026-06-05 17:17:47.325] INFO: Context switch: proceso A-4, cambios: 6
+[2026-06-05 17:17:47.325] INFO: Context switch: proceso A-14, cambios: 1
+[2026-06-05 17:17:47.325] INFO: Quantum expirado: proceso A-14
+[2026-06-05 17:17:47.325] INFO: Context switch: proceso A-11, cambios: 2
+[2026-06-05 17:17:47.325] INFO: Context switch: proceso A-4, cambios: 7
+[2026-06-05 17:17:47.325] INFO: Quantum expirado: proceso A-4
+[2026-06-05 17:17:47.325] INFO: Context switch: proceso A-14, cambios: 2
+[2026-06-05 17:17:47.326] INFO: Context switch: proceso A-12, cambios: 1
+[2026-06-05 17:17:47.326] INFO: Context switch: proceso A-4, cambios: 8
+[2026-06-05 17:17:47.327] INFO: Context switch: proceso A-12, cambios: 2
+[2026-06-05 17:17:47.327] INFO: Quantum expirado: proceso A-12
+[2026-06-05 17:17:47.327] INFO: Context switch: proceso A-3, cambios: 1
+[2026-06-05 17:17:47.327] INFO: Quantum expirado: proceso A-3
+[2026-06-05 17:17:47.327] INFO: Context switch: proceso A-16, cambios: 1
+[2026-06-05 17:17:47.327] INFO: Quantum expirado: proceso A-16
+[2026-06-05 17:17:47.328] INFO: Context switch: proceso A-12, cambios: 3
+[2026-06-05 17:17:47.328] INFO: Context switch: proceso A-3, cambios: 2
+[2026-06-05 17:17:47.328] INFO: Quantum expirado: proceso A-3
+[2026-06-05 17:17:47.328] INFO: Context switch: proceso A-5, cambios: 1
+[2026-06-05 17:17:47.329] INFO: Context switch: proceso A-16, cambios: 2
+[2026-06-05 17:17:47.329] INFO: Context switch: proceso A-12, cambios: 4
+[2026-06-05 17:17:47.329] INFO: Quantum expirado: proceso A-12
+[2026-06-05 17:17:47.329] INFO: Context switch: proceso A-3, cambios: 3
+[2026-06-05 17:17:47.329] INFO: Quantum expirado: proceso A-3
+[2026-06-05 17:17:47.330] INFO: Context switch: proceso A-13, cambios: 1
+[2026-06-05 17:17:47.330] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:47.330] INFO: Context switch: proceso A-15, cambios: 1
+[2026-06-05 17:17:47.330] INFO: Context switch: proceso A-8, cambios: 1
+[2026-06-05 17:17:47.330] INFO: Quantum expirado: proceso A-8
+[2026-06-05 17:17:47.330] INFO: Context switch: proceso A-16, cambios: 3
+[2026-06-05 17:17:47.331] INFO: Context switch: proceso A-12, cambios: 5
+[2026-06-05 17:17:47.331] INFO: Context switch: proceso A-20, cambios: 1
+[2026-06-05 17:17:47.331] INFO: Quantum expirado: proceso A-20
+[2026-06-05 17:17:47.331] INFO: Context switch: proceso A-3, cambios: 4
+[2026-06-05 17:17:47.331] INFO: Context switch: proceso A-13, cambios: 2
+[2026-06-05 17:17:47.331] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:47.331] INFO: Context switch: proceso A-6, cambios: 1
+[2026-06-05 17:17:47.331] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:47.332] INFO: Context switch: proceso A-9, cambios: 1
+[2026-06-05 17:17:47.332] INFO: Quantum expirado: proceso A-9
+[2026-06-05 17:17:47.332] INFO: Context switch: proceso A-8, cambios: 2
+[2026-06-05 17:17:47.332] INFO: Quantum expirado: proceso A-8
+[2026-06-05 17:17:47.332] INFO: Context switch: proceso A-12, cambios: 6
+[2026-06-05 17:17:47.333] INFO: Quantum expirado: proceso A-12
+[2026-06-05 17:17:47.333] INFO: Context switch: proceso A-20, cambios: 2
+[2026-06-05 17:17:47.333] INFO: Context switch: proceso A-13, cambios: 3
+[2026-06-05 17:17:47.333] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:47.333] INFO: Context switch: proceso A-6, cambios: 2
+[2026-06-05 17:17:47.333] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:47.334] INFO: Context switch: proceso A-9, cambios: 2
+[2026-06-05 17:17:47.334] INFO: Quantum expirado: proceso A-9
+[2026-06-05 17:17:47.334] INFO: Context switch: proceso A-21, cambios: 1
+[2026-06-05 17:17:47.334] INFO: Quantum expirado: proceso A-21
+[2026-06-05 17:17:47.334] INFO: Context switch: proceso A-8, cambios: 3
+[2026-06-05 17:17:47.334] INFO: Quantum expirado: proceso A-8
+[2026-06-05 17:17:47.335] INFO: Context switch: proceso A-12, cambios: 7
+[2026-06-05 17:17:47.335] INFO: Quantum expirado: proceso A-12
+[2026-06-05 17:17:47.335] INFO: Context switch: proceso A-13, cambios: 4
+[2026-06-05 17:17:47.335] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:47.335] INFO: Context switch: proceso A-6, cambios: 3
+[2026-06-05 17:17:47.335] INFO: Context switch: proceso A-9, cambios: 3
+[2026-06-05 17:17:47.335] INFO: Context switch: proceso A-21, cambios: 2
+[2026-06-05 17:17:47.335] INFO: Quantum expirado: proceso A-21
+[2026-06-05 17:17:47.336] INFO: Context switch: proceso A-22, cambios: 1
+[2026-06-05 17:17:47.336] INFO: Context switch: proceso A-8, cambios: 4
+[2026-06-05 17:17:47.336] INFO: Context switch: proceso A-12, cambios: 8
+[2026-06-05 17:17:47.336] INFO: Quantum expirado: proceso A-12
+[2026-06-05 17:17:47.336] INFO: Context switch: proceso A-13, cambios: 5
+[2026-06-05 17:17:47.336] INFO: Context switch: proceso A-6, cambios: 4
+[2026-06-05 17:17:47.336] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:47.337] INFO: Context switch: proceso A-9, cambios: 4
+[2026-06-05 17:17:47.337] INFO: Context switch: proceso A-21, cambios: 3
+[2026-06-05 17:17:47.337] INFO: Context switch: proceso A-23, cambios: 1
+[2026-06-05 17:17:47.337] INFO: Context switch: proceso A-8, cambios: 5
+[2026-06-05 17:17:47.337] INFO: Quantum expirado: proceso A-8
+[2026-06-05 17:17:47.338] INFO: Context switch: proceso A-12, cambios: 9
+[2026-06-05 17:17:47.338] INFO: Context switch: proceso A-13, cambios: 6
+[2026-06-05 17:17:47.338] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:47.338] INFO: Context switch: proceso A-6, cambios: 5
+[2026-06-05 17:17:47.338] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:47.338] INFO: Context switch: proceso A-8, cambios: 6
+[2026-06-05 17:17:47.338] INFO: Context switch: proceso A-17, cambios: 1
+[2026-06-05 17:17:47.339] INFO: Context switch: proceso A-29, cambios: 1
+[2026-06-05 17:17:47.339] INFO: Quantum expirado: proceso A-29
+[2026-06-05 17:17:47.339] INFO: Context switch: proceso A-18, cambios: 1
+[2026-06-05 17:17:47.339] INFO: Quantum expirado: proceso A-18
+[2026-06-05 17:17:47.339] INFO: Context switch: proceso A-13, cambios: 7
+[2026-06-05 17:17:47.339] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:47.339] INFO: Context switch: proceso A-6, cambios: 6
+[2026-06-05 17:17:47.339] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:47.340] INFO: Context switch: proceso A-32, cambios: 1
+[2026-06-05 17:17:47.340] INFO: Quantum expirado: proceso A-32
+[2026-06-05 17:17:47.340] INFO: Context switch: proceso A-33, cambios: 1
+[2026-06-05 17:17:47.340] INFO: Quantum expirado: proceso A-33
+[2026-06-05 17:17:47.340] INFO: Context switch: proceso A-29, cambios: 2
+[2026-06-05 17:17:47.340] INFO: Quantum expirado: proceso A-29
+[2026-06-05 17:17:47.340] INFO: Context switch: proceso A-18, cambios: 2
+[2026-06-05 17:17:47.340] INFO: Context switch: proceso A-13, cambios: 8
+[2026-06-05 17:17:47.340] INFO: Context switch: proceso A-14, cambios: 3
+[2026-06-05 17:17:47.340] INFO: Context switch: proceso A-6, cambios: 7
+[2026-06-05 17:17:47.340] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:47.341] INFO: Context switch: proceso A-28, cambios: 1
+[2026-06-05 17:17:47.341] INFO: Context switch: proceso A-32, cambios: 2
+[2026-06-05 17:17:47.341] INFO: Context switch: proceso A-19, cambios: 1
+[2026-06-05 17:17:47.341] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.341] INFO: Context switch: proceso A-33, cambios: 2
+[2026-06-05 17:17:47.341] INFO: Context switch: proceso A-29, cambios: 3
+[2026-06-05 17:17:47.341] INFO: Context switch: proceso A-24, cambios: 1
+[2026-06-05 17:17:47.341] INFO: Quantum expirado: proceso A-24
+[2026-06-05 17:17:47.341] INFO: Context switch: proceso A-26, cambios: 1
+[2026-06-05 17:17:47.341] INFO: Quantum expirado: proceso A-26
+[2026-06-05 17:17:47.342] INFO: Context switch: proceso A-13, cambios: 9
+[2026-06-05 17:17:47.342] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:47.342] INFO: Context switch: proceso A-14, cambios: 4
+[2026-06-05 17:17:47.342] INFO: Quantum expirado: proceso A-14
+[2026-06-05 17:17:47.342] INFO: Context switch: proceso A-6, cambios: 8
+[2026-06-05 17:17:47.342] INFO: Context switch: proceso A-25, cambios: 1
+[2026-06-05 17:17:47.342] INFO: Quantum expirado: proceso A-25
+[2026-06-05 17:17:47.342] INFO: Context switch: proceso A-27, cambios: 1
+[2026-06-05 17:17:47.342] INFO: Quantum expirado: proceso A-27
+[2026-06-05 17:17:47.343] INFO: Context switch: proceso A-7, cambios: 6
+[2026-06-05 17:17:47.343] INFO: Quantum expirado: proceso A-7
+[2026-06-05 17:17:47.343] INFO: Context switch: proceso A-19, cambios: 2
+[2026-06-05 17:17:47.343] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.343] INFO: Context switch: proceso A-24, cambios: 2
+[2026-06-05 17:17:47.343] INFO: Quantum expirado: proceso A-24
+[2026-06-05 17:17:47.343] INFO: Context switch: proceso A-26, cambios: 2
+[2026-06-05 17:17:47.343] INFO: Context switch: proceso A-34, cambios: 1
+[2026-06-05 17:17:47.344] INFO: Context switch: proceso A-13, cambios: 10
+[2026-06-05 17:17:47.344] INFO: Context switch: proceso A-2, cambios: 4
+[2026-06-05 17:17:47.344] INFO: Context switch: proceso A-14, cambios: 5
+[2026-06-05 17:17:47.344] INFO: Context switch: proceso A-31, cambios: 1
+[2026-06-05 17:17:47.344] INFO: Quantum expirado: proceso A-31
+[2026-06-05 17:17:47.344] INFO: Context switch: proceso A-36, cambios: 1
+[2026-06-05 17:17:47.344] INFO: Quantum expirado: proceso A-36
+[2026-06-05 17:17:47.344] INFO: Context switch: proceso A-23, cambios: 2
+[2026-06-05 17:17:47.344] INFO: Context switch: proceso A-25, cambios: 2
+[2026-06-05 17:17:47.345] INFO: Context switch: proceso A-27, cambios: 2
+[2026-06-05 17:17:47.345] INFO: Context switch: proceso A-7, cambios: 7
+[2026-06-05 17:17:47.345] INFO: Context switch: proceso A-19, cambios: 3
+[2026-06-05 17:17:47.345] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.345] INFO: Context switch: proceso A-30, cambios: 1
+[2026-06-05 17:17:47.345] INFO: Quantum expirado: proceso A-30
+[2026-06-05 17:17:47.345] INFO: Context switch: proceso A-3, cambios: 5
+[2026-06-05 17:17:47.345] INFO: Context switch: proceso A-24, cambios: 3
+[2026-06-05 17:17:47.345] INFO: Context switch: proceso A-26, cambios: 3
+[2026-06-05 17:17:47.345] INFO: Quantum expirado: proceso A-26
+[2026-06-05 17:17:47.345] INFO: Context switch: proceso A-35, cambios: 1
+[2026-06-05 17:17:47.345] INFO: Quantum expirado: proceso A-35
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-13, cambios: 11
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-31, cambios: 2
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-36, cambios: 2
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-23, cambios: 3
+[2026-06-05 17:17:47.346] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-40, cambios: 1
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-19, cambios: 4
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-30, cambios: 2
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-22, cambios: 2
+[2026-06-05 17:17:47.346] INFO: Quantum expirado: proceso A-22
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-24, cambios: 4
+[2026-06-05 17:17:47.346] INFO: Quantum expirado: proceso A-24
+[2026-06-05 17:17:47.346] INFO: Context switch: proceso A-26, cambios: 4
+[2026-06-05 17:17:47.347] INFO: Context switch: proceso A-35, cambios: 2
+[2026-06-05 17:17:47.347] INFO: Context switch: proceso A-11, cambios: 3
+[2026-06-05 17:17:47.347] INFO: Quantum expirado: proceso A-11
+[2026-06-05 17:17:47.347] INFO: Context switch: proceso A-27, cambios: 3
+[2026-06-05 17:17:47.347] INFO: Context switch: proceso A-31, cambios: 3
+[2026-06-05 17:17:47.347] INFO: Quantum expirado: proceso A-31
+[2026-06-05 17:17:47.347] INFO: Context switch: proceso A-23, cambios: 4
+[2026-06-05 17:17:47.347] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:47.347] INFO: Context switch: proceso A-41, cambios: 1
+[2026-06-05 17:17:47.347] INFO: Quantum expirado: proceso A-41
+[2026-06-05 17:17:47.347] INFO: Context switch: proceso A-19, cambios: 5
+[2026-06-05 17:17:47.347] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.348] INFO: Context switch: proceso A-30, cambios: 3
+[2026-06-05 17:17:47.348] INFO: Quantum expirado: proceso A-30
+[2026-06-05 17:17:47.348] INFO: Context switch: proceso A-22, cambios: 3
+[2026-06-05 17:17:47.348] INFO: Quantum expirado: proceso A-22
+[2026-06-05 17:17:47.348] INFO: Context switch: proceso A-37, cambios: 1
+[2026-06-05 17:17:47.348] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:47.348] INFO: Context switch: proceso A-24, cambios: 5
+[2026-06-05 17:17:47.348] INFO: Quantum expirado: proceso A-24
+[2026-06-05 17:17:47.348] INFO: Context switch: proceso A-53, cambios: 1
+[2026-06-05 17:17:47.348] INFO: Quantum expirado: proceso A-53
+[2026-06-05 17:17:47.348] INFO: Context switch: proceso A-11, cambios: 4
+[2026-06-05 17:17:47.349] INFO: Context switch: proceso A-20, cambios: 3
+[2026-06-05 17:17:47.349] INFO: Context switch: proceso A-31, cambios: 4
+[2026-06-05 17:17:47.349] INFO: Context switch: proceso A-23, cambios: 5
+[2026-06-05 17:17:47.349] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:47.349] INFO: Context switch: proceso A-45, cambios: 1
+[2026-06-05 17:17:47.349] INFO: Quantum expirado: proceso A-45
+[2026-06-05 17:17:47.349] INFO: Context switch: proceso A-32, cambios: 3
+[2026-06-05 17:17:47.349] INFO: Quantum expirado: proceso A-32
+[2026-06-05 17:17:47.349] INFO: Context switch: proceso A-41, cambios: 2
+[2026-06-05 17:17:47.349] INFO: Context switch: proceso A-39, cambios: 1
+[2026-06-05 17:17:47.349] INFO: Context switch: proceso A-19, cambios: 6
+[2026-06-05 17:17:47.349] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-30, cambios: 4
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-36, cambios: 3
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-22, cambios: 4
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-38, cambios: 1
+[2026-06-05 17:17:47.350] INFO: Quantum expirado: proceso A-38
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-37, cambios: 2
+[2026-06-05 17:17:47.350] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-5, cambios: 2
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-40, cambios: 2
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-24, cambios: 6
+[2026-06-05 17:17:47.350] INFO: Context switch: proceso A-54, cambios: 1
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-53, cambios: 2
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-57, cambios: 1
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-29, cambios: 4
+[2026-06-05 17:17:47.351] INFO: Quantum expirado: proceso A-29
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-20, cambios: 4
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-42, cambios: 1
+[2026-06-05 17:17:47.351] INFO: Quantum expirado: proceso A-42
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-43, cambios: 1
+[2026-06-05 17:17:47.351] INFO: Quantum expirado: proceso A-43
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-31, cambios: 5
+[2026-06-05 17:17:47.351] INFO: Quantum expirado: proceso A-31
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-23, cambios: 6
+[2026-06-05 17:17:47.351] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:47.351] INFO: Context switch: proceso A-48, cambios: 1
+[2026-06-05 17:17:47.351] INFO: Quantum expirado: proceso A-48
+[2026-06-05 17:17:47.352] INFO: Context switch: proceso A-45, cambios: 2
+[2026-06-05 17:17:47.352] INFO: Quantum expirado: proceso A-45
+[2026-06-05 17:17:47.352] INFO: Context switch: proceso A-32, cambios: 4
+[2026-06-05 17:17:47.352] INFO: Context switch: proceso A-46, cambios: 1
+[2026-06-05 17:17:47.352] INFO: Quantum expirado: proceso A-46
+[2026-06-05 17:17:47.352] INFO: Context switch: proceso A-19, cambios: 7
+[2026-06-05 17:17:47.352] INFO: Context switch: proceso A-6, cambios: 9
+[2026-06-05 17:17:47.352] INFO: Quantum expirado: proceso A-6
+[2026-06-05 17:17:47.352] INFO: Context switch: proceso A-47, cambios: 1
+[2026-06-05 17:17:47.352] INFO: Quantum expirado: proceso A-47
+[2026-06-05 17:17:47.352] INFO: Context switch: proceso A-22, cambios: 5
+[2026-06-05 17:17:47.353] INFO: Context switch: proceso A-38, cambios: 2
+[2026-06-05 17:17:47.353] INFO: Quantum expirado: proceso A-38
+[2026-06-05 17:17:47.353] INFO: Context switch: proceso A-37, cambios: 3
+[2026-06-05 17:17:47.353] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:47.353] INFO: Context switch: proceso A-5, cambios: 3
+[2026-06-05 17:17:47.353] INFO: Quantum expirado: proceso A-5
+[2026-06-05 17:17:47.353] INFO: Context switch: proceso A-40, cambios: 3
+[2026-06-05 17:17:47.353] INFO: Quantum expirado: proceso A-40
+[2026-06-05 17:17:47.353] INFO: Context switch: proceso A-44, cambios: 1
+[2026-06-05 17:17:47.353] INFO: Quantum expirado: proceso A-44
+[2026-06-05 17:17:47.353] INFO: Context switch: proceso A-52, cambios: 1
+[2026-06-05 17:17:47.353] INFO: Quantum expirado: proceso A-52
+[2026-06-05 17:17:47.353] INFO: Context switch: proceso A-53, cambios: 3
+[2026-06-05 17:17:47.353] INFO: Quantum expirado: proceso A-53
+[2026-06-05 17:17:47.353] INFO: Context switch: proceso A-29, cambios: 5
+[2026-06-05 17:17:47.354] INFO: Context switch: proceso A-51, cambios: 1
+[2026-06-05 17:17:47.354] INFO: Quantum expirado: proceso A-51
+[2026-06-05 17:17:47.354] INFO: Context switch: proceso A-62, cambios: 1
+[2026-06-05 17:17:47.354] INFO: Quantum expirado: proceso A-62
+[2026-06-05 17:17:47.354] INFO: Context switch: proceso A-42, cambios: 2
+[2026-06-05 17:17:47.354] INFO: Context switch: proceso A-43, cambios: 2
+[2026-06-05 17:17:47.354] INFO: Quantum expirado: proceso A-43
+[2026-06-05 17:17:47.354] INFO: Context switch: proceso A-31, cambios: 6
+[2026-06-05 17:17:47.354] INFO: Context switch: proceso A-23, cambios: 7
+[2026-06-05 17:17:47.354] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:47.354] INFO: Context switch: proceso A-49, cambios: 1
+[2026-06-05 17:17:47.355] INFO: Context switch: proceso A-48, cambios: 2
+[2026-06-05 17:17:47.355] INFO: Quantum expirado: proceso A-48
+[2026-06-05 17:17:47.355] INFO: Context switch: proceso A-45, cambios: 3
+[2026-06-05 17:17:47.355] INFO: Context switch: proceso A-50, cambios: 1
+[2026-06-05 17:17:47.355] INFO: Quantum expirado: proceso A-50
+[2026-06-05 17:17:47.355] INFO: Context switch: proceso A-46, cambios: 2
+[2026-06-05 17:17:47.355] INFO: Context switch: proceso A-56, cambios: 1
+[2026-06-05 17:17:47.355] INFO: Quantum expirado: proceso A-56
+[2026-06-05 17:17:47.355] INFO: Context switch: proceso A-58, cambios: 1
+[2026-06-05 17:17:47.355] INFO: Quantum expirado: proceso A-58
+[2026-06-05 17:17:47.355] INFO: Context switch: proceso A-60, cambios: 1
+[2026-06-05 17:17:47.356] INFO: Context switch: proceso A-6, cambios: 10
+[2026-06-05 17:17:47.356] INFO: Context switch: proceso A-47, cambios: 2
+[2026-06-05 17:17:47.356] INFO: Quantum expirado: proceso A-47
+[2026-06-05 17:17:47.356] INFO: Context switch: proceso A-55, cambios: 1
+[2026-06-05 17:17:47.356] INFO: Quantum expirado: proceso A-55
+[2026-06-05 17:17:47.356] INFO: Context switch: proceso A-38, cambios: 3
+[2026-06-05 17:17:47.356] INFO: Context switch: proceso A-37, cambios: 4
+[2026-06-05 17:17:47.356] INFO: Context switch: proceso A-66, cambios: 1
+[2026-06-05 17:17:47.357] INFO: Context switch: proceso A-5, cambios: 4
+[2026-06-05 17:17:47.357] INFO: Quantum expirado: proceso A-5
+[2026-06-05 17:17:47.357] INFO: Context switch: proceso A-40, cambios: 4
+[2026-06-05 17:17:47.357] INFO: Context switch: proceso A-44, cambios: 2
+[2026-06-05 17:17:47.357] INFO: Context switch: proceso A-52, cambios: 2
+[2026-06-05 17:17:47.357] INFO: Context switch: proceso A-53, cambios: 4
+[2026-06-05 17:17:47.357] INFO: Quantum expirado: proceso A-53
+[2026-06-05 17:17:47.358] INFO: Context switch: proceso A-59, cambios: 1
+[2026-06-05 17:17:47.358] INFO: Context switch: proceso A-29, cambios: 6
+[2026-06-05 17:17:47.358] INFO: Quantum expirado: proceso A-29
+[2026-06-05 17:17:47.358] INFO: Context switch: proceso A-24, cambios: 7
+[2026-06-05 17:17:47.358] INFO: Quantum expirado: proceso A-24
+[2026-06-05 17:17:47.358] INFO: Context switch: proceso A-51, cambios: 2
+[2026-06-05 17:17:47.358] INFO: Quantum expirado: proceso A-51
+[2026-06-05 17:17:47.358] INFO: Context switch: proceso A-8, cambios: 7
+[2026-06-05 17:17:47.358] INFO: Context switch: proceso A-62, cambios: 2
+[2026-06-05 17:17:47.359] INFO: Context switch: proceso A-64, cambios: 1
+[2026-06-05 17:17:47.359] INFO: Quantum expirado: proceso A-64
+[2026-06-05 17:17:47.359] INFO: Context switch: proceso A-42, cambios: 3
+[2026-06-05 17:17:47.359] INFO: Context switch: proceso A-43, cambios: 3
+[2026-06-05 17:17:47.359] INFO: Quantum expirado: proceso A-43
+[2026-06-05 17:17:47.359] INFO: Context switch: proceso A-31, cambios: 7
+[2026-06-05 17:17:47.359] INFO: Quantum expirado: proceso A-31
+[2026-06-05 17:17:47.359] INFO: Context switch: proceso A-23, cambios: 8
+[2026-06-05 17:17:47.359] INFO: Context switch: proceso A-68, cambios: 1
+[2026-06-05 17:17:47.360] INFO: Context switch: proceso A-1, cambios: 2
+[2026-06-05 17:17:47.360] INFO: Quantum expirado: proceso A-1
+[2026-06-05 17:17:47.360] INFO: Context switch: proceso A-48, cambios: 3
+[2026-06-05 17:17:47.360] INFO: Context switch: proceso A-61, cambios: 1
+[2026-06-05 17:17:47.360] INFO: Context switch: proceso A-63, cambios: 1
+[2026-06-05 17:17:47.360] INFO: Quantum expirado: proceso A-63
+[2026-06-05 17:17:47.360] INFO: Context switch: proceso A-50, cambios: 2
+[2026-06-05 17:17:47.360] INFO: Quantum expirado: proceso A-50
+[2026-06-05 17:17:47.360] INFO: Context switch: proceso A-46, cambios: 3
+[2026-06-05 17:17:47.361] INFO: Context switch: proceso A-56, cambios: 2
+[2026-06-05 17:17:47.361] INFO: Context switch: proceso A-17, cambios: 2
+[2026-06-05 17:17:47.361] INFO: Context switch: proceso A-58, cambios: 2
+[2026-06-05 17:17:47.361] INFO: Context switch: proceso A-10, cambios: 2
+[2026-06-05 17:17:47.361] INFO: Quantum expirado: proceso A-10
+[2026-06-05 17:17:47.361] INFO: Context switch: proceso A-41, cambios: 3
+[2026-06-05 17:17:47.361] INFO: Context switch: proceso A-15, cambios: 2
+[2026-06-05 17:17:47.361] INFO: Quantum expirado: proceso A-15
+[2026-06-05 17:17:47.362] INFO: Context switch: proceso A-47, cambios: 3
+[2026-06-05 17:17:47.362] INFO: Context switch: proceso A-55, cambios: 2
+[2026-06-05 17:17:47.362] INFO: Context switch: proceso A-37, cambios: 5
+[2026-06-05 17:17:47.362] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:47.362] INFO: Context switch: proceso A-66, cambios: 2
+[2026-06-05 17:17:47.362] INFO: Context switch: proceso A-72, cambios: 1
+[2026-06-05 17:17:47.362] INFO: Quantum expirado: proceso A-72
+[2026-06-05 17:17:47.362] INFO: Context switch: proceso A-5, cambios: 5
+[2026-06-05 17:17:47.362] INFO: Quantum expirado: proceso A-5
+[2026-06-05 17:17:47.363] INFO: Context switch: proceso A-16, cambios: 4
+[2026-06-05 17:17:47.363] INFO: Context switch: proceso A-26, cambios: 5
+[2026-06-05 17:17:47.363] INFO: Quantum expirado: proceso A-26
+[2026-06-05 17:17:47.363] INFO: Context switch: proceso A-40, cambios: 5
+[2026-06-05 17:17:47.363] INFO: Quantum expirado: proceso A-40
+[2026-06-05 17:17:47.363] INFO: Context switch: proceso A-11, cambios: 5
+[2026-06-05 17:17:47.363] INFO: Context switch: proceso A-65, cambios: 1
+[2026-06-05 17:17:47.363] INFO: Quantum expirado: proceso A-65
+[2026-06-05 17:17:47.363] INFO: Context switch: proceso A-9, cambios: 5
+[2026-06-05 17:17:47.363] INFO: Quantum expirado: proceso A-9
+[2026-06-05 17:17:47.364] INFO: Context switch: proceso A-53, cambios: 5
+[2026-06-05 17:17:47.364] INFO: Quantum expirado: proceso A-53
+[2026-06-05 17:17:47.364] INFO: Context switch: proceso A-74, cambios: 1
+[2026-06-05 17:17:47.364] INFO: Quantum expirado: proceso A-74
+[2026-06-05 17:17:47.364] INFO: Context switch: proceso A-59, cambios: 2
+[2026-06-05 17:17:47.364] INFO: Quantum expirado: proceso A-59
+[2026-06-05 17:17:47.364] INFO: Context switch: proceso A-29, cambios: 7
+[2026-06-05 17:17:47.364] INFO: Quantum expirado: proceso A-29
+[2026-06-05 17:17:47.364] INFO: Context switch: proceso A-67, cambios: 1
+[2026-06-05 17:17:47.364] INFO: Quantum expirado: proceso A-67
+[2026-06-05 17:17:47.365] INFO: Context switch: proceso A-24, cambios: 8
+[2026-06-05 17:17:47.365] INFO: Context switch: proceso A-51, cambios: 3
+[2026-06-05 17:17:47.365] INFO: Quantum expirado: proceso A-51
+[2026-06-05 17:17:47.365] INFO: Context switch: proceso A-8, cambios: 8
+[2026-06-05 17:17:47.365] INFO: Quantum expirado: proceso A-8
+[2026-06-05 17:17:47.365] INFO: Context switch: proceso A-80, cambios: 1
+[2026-06-05 17:17:47.365] INFO: Context switch: proceso A-4, cambios: 9
+[2026-06-05 17:17:47.365] INFO: Context switch: proceso A-62, cambios: 3
+[2026-06-05 17:17:47.365] INFO: Quantum expirado: proceso A-62
+[2026-06-05 17:17:47.366] INFO: Context switch: proceso A-69, cambios: 1
+[2026-06-05 17:17:47.366] INFO: Quantum expirado: proceso A-69
+[2026-06-05 17:17:47.366] INFO: Context switch: proceso A-64, cambios: 2
+[2026-06-05 17:17:47.366] INFO: Quantum expirado: proceso A-64
+[2026-06-05 17:17:47.366] INFO: Context switch: proceso A-43, cambios: 4
+[2026-06-05 17:17:47.366] INFO: Quantum expirado: proceso A-43
+[2026-06-05 17:17:47.366] INFO: Context switch: proceso A-31, cambios: 8
+[2026-06-05 17:17:47.366] INFO: Quantum expirado: proceso A-31
+[2026-06-05 17:17:47.366] INFO: Context switch: proceso A-70, cambios: 1
+[2026-06-05 17:17:47.367] INFO: Context switch: proceso A-78, cambios: 1
+[2026-06-05 17:17:47.367] INFO: Quantum expirado: proceso A-78
+[2026-06-05 17:17:47.367] INFO: Context switch: proceso A-1, cambios: 3
+[2026-06-05 17:17:47.367] INFO: Context switch: proceso A-76, cambios: 1
+[2026-06-05 17:17:47.367] INFO: Quantum expirado: proceso A-76
+[2026-06-05 17:17:47.367] INFO: Context switch: proceso A-52, cambios: 3
+[2026-06-05 17:17:47.367] INFO: Quantum expirado: proceso A-52
+[2026-06-05 17:17:47.367] INFO: Context switch: proceso A-61, cambios: 2
+[2026-06-05 17:17:47.367] INFO: Quantum expirado: proceso A-61
+[2026-06-05 17:17:47.368] INFO: Context switch: proceso A-48, cambios: 4
+[2026-06-05 17:17:47.368] INFO: Context switch: proceso A-63, cambios: 2
+[2026-06-05 17:17:47.368] INFO: Context switch: proceso A-25, cambios: 3
+[2026-06-05 17:17:47.368] INFO: Context switch: proceso A-50, cambios: 3
+[2026-06-05 17:17:47.368] INFO: Quantum expirado: proceso A-50
+[2026-06-05 17:17:47.368] INFO: Context switch: proceso A-21, cambios: 4
+[2026-06-05 17:17:47.369] INFO: Context switch: proceso A-58, cambios: 3
+[2026-06-05 17:17:47.369] INFO: Context switch: proceso A-35, cambios: 3
+[2026-06-05 17:17:47.369] INFO: Quantum expirado: proceso A-35
+[2026-06-05 17:17:47.369] INFO: Context switch: proceso A-10, cambios: 3
+[2026-06-05 17:17:47.369] INFO: Context switch: proceso A-71, cambios: 1
+[2026-06-05 17:17:47.369] INFO: Quantum expirado: proceso A-71
+[2026-06-05 17:17:47.370] INFO: Context switch: proceso A-73, cambios: 1
+[2026-06-05 17:17:47.370] INFO: Context switch: proceso A-28, cambios: 2
+[2026-06-05 17:17:47.370] INFO: Context switch: proceso A-15, cambios: 3
+[2026-06-05 17:17:47.370] INFO: Quantum expirado: proceso A-15
+[2026-06-05 17:17:47.370] INFO: Context switch: proceso A-75, cambios: 1
+[2026-06-05 17:17:47.371] INFO: Context switch: proceso A-83, cambios: 1
+[2026-06-05 17:17:47.371] INFO: Quantum expirado: proceso A-83
+[2026-06-05 17:17:47.371] INFO: Context switch: proceso A-37, cambios: 6
+[2026-06-05 17:17:47.371] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:47.371] INFO: Context switch: proceso A-19, cambios: 8
+[2026-06-05 17:17:47.371] INFO: Context switch: proceso A-72, cambios: 2
+[2026-06-05 17:17:47.371] INFO: Quantum expirado: proceso A-72
+[2026-06-05 17:17:47.372] INFO: Context switch: proceso A-5, cambios: 6
+[2026-06-05 17:17:47.372] INFO: Context switch: proceso A-26, cambios: 6
+[2026-06-05 17:17:47.372] INFO: Context switch: proceso A-79, cambios: 1
+[2026-06-05 17:17:47.372] INFO: Quantum expirado: proceso A-79
+[2026-06-05 17:17:47.372] INFO: Context switch: proceso A-85, cambios: 1
+[2026-06-05 17:17:47.372] INFO: Quantum expirado: proceso A-85
+[2026-06-05 17:17:47.372] INFO: Context switch: proceso A-40, cambios: 6
+[2026-06-05 17:17:47.373] INFO: Context switch: proceso A-88, cambios: 1
+[2026-06-05 17:17:47.373] INFO: Context switch: proceso A-11, cambios: 6
+[2026-06-05 17:17:47.373] INFO: Quantum expirado: proceso A-11
+[2026-06-05 17:17:47.373] INFO: Context switch: proceso A-81, cambios: 1
+[2026-06-05 17:17:47.373] INFO: Quantum expirado: proceso A-81
+[2026-06-05 17:17:47.373] INFO: Context switch: proceso A-65, cambios: 2
+[2026-06-05 17:17:47.373] INFO: Quantum expirado: proceso A-65
+[2026-06-05 17:17:47.373] INFO: Context switch: proceso A-9, cambios: 6
+[2026-06-05 17:17:47.374] INFO: Context switch: proceso A-53, cambios: 6
+[2026-06-05 17:17:47.374] INFO: Context switch: proceso A-6, cambios: 11
+[2026-06-05 17:17:47.374] INFO: Context switch: proceso A-74, cambios: 2
+[2026-06-05 17:17:47.374] INFO: Context switch: proceso A-84, cambios: 1
+[2026-06-05 17:17:47.375] INFO: Context switch: proceso A-59, cambios: 3
+[2026-06-05 17:17:47.375] INFO: Quantum expirado: proceso A-59
+[2026-06-05 17:17:47.375] INFO: Context switch: proceso A-29, cambios: 8
+[2026-06-05 17:17:47.375] INFO: Quantum expirado: proceso A-29
+[2026-06-05 17:17:47.375] INFO: Context switch: proceso A-67, cambios: 2
+[2026-06-05 17:17:47.375] INFO: Quantum expirado: proceso A-67
+[2026-06-05 17:17:47.375] INFO: Context switch: proceso A-13, cambios: 12
+[2026-06-05 17:17:47.375] INFO: Quantum expirado: proceso A-13
+[2026-06-05 17:17:47.376] INFO: Context switch: proceso A-24, cambios: 9
+[2026-06-05 17:17:47.376] INFO: Quantum expirado: proceso A-24
+[2026-06-05 17:17:47.376] INFO: Context switch: proceso A-51, cambios: 4
+[2026-06-05 17:17:47.376] INFO: Context switch: proceso A-90, cambios: 1
+[2026-06-05 17:17:47.376] INFO: Quantum expirado: proceso A-90
+[2026-06-05 17:17:47.376] INFO: Context switch: proceso A-8, cambios: 9
+[2026-06-05 17:17:47.376] INFO: Quantum expirado: proceso A-8
+[2026-06-05 17:17:47.377] INFO: Context switch: proceso A-82, cambios: 1
+[2026-06-05 17:17:47.377] INFO: Quantum expirado: proceso A-82
+[2026-06-05 17:17:47.377] INFO: Context switch: proceso A-45, cambios: 4
+[2026-06-05 17:17:47.377] INFO: Context switch: proceso A-77, cambios: 1
+[2026-06-05 17:17:47.377] INFO: Quantum expirado: proceso A-77
+[2026-06-05 17:17:47.377] INFO: Context switch: proceso A-62, cambios: 4
+[2026-06-05 17:17:47.378] INFO: Context switch: proceso A-69, cambios: 2
+[2026-06-05 17:17:47.378] INFO: Context switch: proceso A-89, cambios: 1
+[2026-06-05 17:17:47.378] INFO: Quantum expirado: proceso A-89
+[2026-06-05 17:17:47.378] INFO: Context switch: proceso A-57, cambios: 2
+[2026-06-05 17:17:47.378] INFO: Quantum expirado: proceso A-57
+[2026-06-05 17:17:47.378] INFO: Context switch: proceso A-64, cambios: 3
+[2026-06-05 17:17:47.379] INFO: Context switch: proceso A-43, cambios: 5
+[2026-06-05 17:17:47.379] INFO: Context switch: proceso A-93, cambios: 1
+[2026-06-05 17:17:47.379] INFO: Quantum expirado: proceso A-93
+[2026-06-05 17:17:47.379] INFO: Context switch: proceso A-31, cambios: 9
+[2026-06-05 17:17:47.379] INFO: Context switch: proceso A-70, cambios: 2
+[2026-06-05 17:17:47.379] INFO: Quantum expirado: proceso A-70
+[2026-06-05 17:17:47.380] INFO: Context switch: proceso A-78, cambios: 2
+[2026-06-05 17:17:47.380] INFO: Quantum expirado: proceso A-78
+[2026-06-05 17:17:47.380] INFO: Context switch: proceso A-1, cambios: 4
+[2026-06-05 17:17:47.380] INFO: Context switch: proceso A-76, cambios: 2
+[2026-06-05 17:17:47.380] INFO: Quantum expirado: proceso A-76
+[2026-06-05 17:17:47.381] INFO: Context switch: proceso A-52, cambios: 4
+[2026-06-05 17:17:47.381] INFO: Context switch: proceso A-54, cambios: 2
+[2026-06-05 17:17:47.381] INFO: Quantum expirado: proceso A-54
+[2026-06-05 17:17:47.381] INFO: Context switch: proceso A-61, cambios: 3
+[2026-06-05 17:17:47.381] INFO: Context switch: proceso A-87, cambios: 1
+[2026-06-05 17:17:47.381] INFO: Quantum expirado: proceso A-87
+[2026-06-05 17:17:47.382] INFO: Context switch: proceso A-12, cambios: 10
+[2026-06-05 17:17:47.382] INFO: Context switch: proceso A-94, cambios: 1
+[2026-06-05 17:17:47.382] INFO: Context switch: proceso A-50, cambios: 4
+[2026-06-05 17:17:47.382] INFO: Context switch: proceso A-21, cambios: 5
+[2026-06-05 17:17:47.382] INFO: Quantum expirado: proceso A-21
+[2026-06-05 17:17:47.383] INFO: Context switch: proceso A-86, cambios: 1
+[2026-06-05 17:17:47.383] INFO: Quantum expirado: proceso A-86
+[2026-06-05 17:17:47.383] INFO: Context switch: proceso A-33, cambios: 3
+[2026-06-05 17:17:47.383] INFO: Context switch: proceso A-60, cambios: 2
+[2026-06-05 17:17:47.383] INFO: Quantum expirado: proceso A-60
+[2026-06-05 17:17:47.383] INFO: Context switch: proceso A-35, cambios: 4
+[2026-06-05 17:17:47.384] INFO: Context switch: proceso A-10, cambios: 4
+[2026-06-05 17:17:47.384] INFO: Quantum expirado: proceso A-10
+[2026-06-05 17:17:47.384] INFO: Context switch: proceso A-71, cambios: 2
+[2026-06-05 17:17:47.384] INFO: Context switch: proceso A-49, cambios: 2
+[2026-06-05 17:17:47.384] INFO: Context switch: proceso A-15, cambios: 4
+[2026-06-05 17:17:47.385] INFO: Context switch: proceso A-83, cambios: 2
+[2026-06-05 17:17:47.385] INFO: Context switch: proceso A-92, cambios: 1
+[2026-06-05 17:17:47.385] INFO: Quantum expirado: proceso A-92
+[2026-06-05 17:17:47.385] INFO: Context switch: proceso A-37, cambios: 7
+[2026-06-05 17:17:47.386] INFO: Context switch: proceso A-80, cambios: 2
+[2026-06-05 17:17:47.386] INFO: Context switch: proceso A-19, cambios: 9
+[2026-06-05 17:17:47.386] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.386] INFO: Context switch: proceso A-34, cambios: 2
+[2026-06-05 17:17:47.386] INFO: Quantum expirado: proceso A-34
+[2026-06-05 17:17:47.386] INFO: Context switch: proceso A-72, cambios: 3
+[2026-06-05 17:17:47.387] INFO: Context switch: proceso A-18, cambios: 3
+[2026-06-05 17:17:47.387] INFO: Context switch: proceso A-79, cambios: 2
+[2026-06-05 17:17:47.387] INFO: Context switch: proceso A-85, cambios: 2
+[2026-06-05 17:17:47.387] INFO: Context switch: proceso A-95, cambios: 1
+[2026-06-05 17:17:47.387] INFO: Context switch: proceso A-11, cambios: 7
+[2026-06-05 17:17:47.387] INFO: Context switch: proceso A-98, cambios: 1
+[2026-06-05 17:17:47.387] INFO: Quantum expirado: proceso A-98
+[2026-06-05 17:17:47.388] INFO: Context switch: proceso A-81, cambios: 2
+[2026-06-05 17:17:47.388] INFO: Context switch: proceso A-65, cambios: 3
+[2026-06-05 17:17:47.388] INFO: Quantum expirado: proceso A-65
+[2026-06-05 17:17:47.388] INFO: Context switch: proceso A-6, cambios: 12
+[2026-06-05 17:17:47.388] INFO: Context switch: proceso A-23, cambios: 9
+[2026-06-05 17:17:47.388] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:47.389] INFO: Context switch: proceso B-1, cambios: 1
+[2026-06-05 17:17:47.389] INFO: Context switch: proceso B-4, cambios: 1
+[2026-06-05 17:17:47.389] INFO: Quantum expirado: proceso B-4
+[2026-06-05 17:17:47.389] INFO: Context switch: proceso A-59, cambios: 4
+[2026-06-05 17:17:47.389] INFO: Context switch: proceso B-2, cambios: 1
+[2026-06-05 17:17:47.389] INFO: Quantum expirado: proceso B-2
+[2026-06-05 17:17:47.389] INFO: Context switch: proceso A-29, cambios: 9
+[2026-06-05 17:17:47.390] INFO: Context switch: proceso A-100, cambios: 1
+[2026-06-05 17:17:47.390] INFO: Quantum expirado: proceso A-100
+[2026-06-05 17:17:47.390] INFO: Context switch: proceso A-67, cambios: 3
+[2026-06-05 17:17:47.390] INFO: Context switch: proceso A-91, cambios: 1
+[2026-06-05 17:17:47.390] INFO: Context switch: proceso A-13, cambios: 13
+[2026-06-05 17:17:47.391] INFO: Context switch: proceso A-97, cambios: 1
+[2026-06-05 17:17:47.391] INFO: Context switch: proceso A-24, cambios: 10
+[2026-06-05 17:17:47.391] INFO: Context switch: proceso A-51, cambios: 5
+[2026-06-05 17:17:47.391] INFO: Quantum expirado: proceso A-51
+[2026-06-05 17:17:47.391] INFO: Context switch: proceso A-47, cambios: 4
+[2026-06-05 17:17:47.391] INFO: Context switch: proceso A-90, cambios: 2
+[2026-06-05 17:17:47.391] INFO: Context switch: proceso A-8, cambios: 10
+[2026-06-05 17:17:47.392] INFO: Context switch: proceso A-82, cambios: 2
+[2026-06-05 17:17:47.392] INFO: Context switch: proceso A-44, cambios: 3
+[2026-06-05 17:17:47.392] INFO: Context switch: proceso A-45, cambios: 5
+[2026-06-05 17:17:47.392] INFO: Quantum expirado: proceso A-45
+[2026-06-05 17:17:47.392] INFO: Context switch: proceso A-96, cambios: 1
+[2026-06-05 17:17:47.392] INFO: Context switch: proceso A-77, cambios: 2
+[2026-06-05 17:17:47.393] INFO: Context switch: proceso A-99, cambios: 1
+[2026-06-05 17:17:47.393] INFO: Context switch: proceso A-32, cambios: 5
+[2026-06-05 17:17:47.393] INFO: Context switch: proceso A-89, cambios: 2
+[2026-06-05 17:17:47.393] INFO: Context switch: proceso A-57, cambios: 3
+[2026-06-05 17:17:47.393] INFO: Context switch: proceso A-64, cambios: 4
+[2026-06-05 17:17:47.394] INFO: Context switch: proceso A-93, cambios: 2
+[2026-06-05 17:17:47.394] INFO: Quantum expirado: proceso A-93
+[2026-06-05 17:17:47.394] INFO: Context switch: proceso A-31, cambios: 10
+[2026-06-05 17:17:47.394] INFO: Context switch: proceso A-70, cambios: 3
+[2026-06-05 17:17:47.394] INFO: Quantum expirado: proceso A-70
+[2026-06-05 17:17:47.394] INFO: Context switch: proceso A-78, cambios: 3
+[2026-06-05 17:17:47.395] INFO: Context switch: proceso B-3, cambios: 1
+[2026-06-05 17:17:47.395] INFO: Context switch: proceso B-11, cambios: 1
+[2026-06-05 17:17:47.395] INFO: Context switch: proceso B-13, cambios: 1
+[2026-06-05 17:17:47.395] INFO: Quantum expirado: proceso B-13
+[2026-06-05 17:17:47.395] INFO: Context switch: proceso A-39, cambios: 2
+[2026-06-05 17:17:47.395] INFO: Context switch: proceso A-16, cambios: 5
+[2026-06-05 17:17:47.395] INFO: Quantum expirado: proceso A-16
+[2026-06-05 17:17:47.395] INFO: Context switch: proceso A-76, cambios: 3
+[2026-06-05 17:17:47.396] INFO: Context switch: proceso A-66, cambios: 3
+[2026-06-05 17:17:47.396] INFO: Context switch: proceso B-6, cambios: 1
+[2026-06-05 17:17:47.396] INFO: Context switch: proceso A-54, cambios: 3
+[2026-06-05 17:17:47.396] INFO: Context switch: proceso B-7, cambios: 1
+[2026-06-05 17:17:47.396] INFO: Context switch: proceso A-87, cambios: 2
+[2026-06-05 17:17:47.397] INFO: Context switch: proceso A-21, cambios: 6
+[2026-06-05 17:17:47.397] INFO: Context switch: proceso A-86, cambios: 2
+[2026-06-05 17:17:47.397] INFO: Context switch: proceso B-12, cambios: 1
+[2026-06-05 17:17:47.397] INFO: Context switch: proceso A-33, cambios: 4
+[2026-06-05 17:17:47.397] INFO: Quantum expirado: proceso A-33
+[2026-06-05 17:17:47.397] INFO: Context switch: proceso A-60, cambios: 3
+[2026-06-05 17:17:47.398] INFO: Context switch: proceso A-35, cambios: 5
+[2026-06-05 17:17:47.398] INFO: Quantum expirado: proceso A-35
+[2026-06-05 17:17:47.398] INFO: Context switch: proceso B-19, cambios: 1
+[2026-06-05 17:17:47.398] INFO: Context switch: proceso A-10, cambios: 5
+[2026-06-05 17:17:47.399] INFO: Context switch: proceso A-71, cambios: 3
+[2026-06-05 17:17:47.399] INFO: Context switch: proceso B-5, cambios: 1
+[2026-06-05 17:17:47.399] INFO: Quantum expirado: proceso B-5
+[2026-06-05 17:17:47.399] INFO: Context switch: proceso B-15, cambios: 1
+[2026-06-05 17:17:47.399] INFO: Context switch: proceso A-49, cambios: 3
+[2026-06-05 17:17:47.399] INFO: Quantum expirado: proceso A-49
+[2026-06-05 17:17:47.400] INFO: Context switch: proceso A-56, cambios: 3
+[2026-06-05 17:17:47.400] INFO: Context switch: proceso A-20, cambios: 5
+[2026-06-05 17:17:47.400] INFO: Context switch: proceso A-83, cambios: 3
+[2026-06-05 17:17:47.400] INFO: Context switch: proceso B-9, cambios: 1
+[2026-06-05 17:17:47.400] INFO: Context switch: proceso A-30, cambios: 5
+[2026-06-05 17:17:47.401] INFO: Context switch: proceso A-94, cambios: 2
+[2026-06-05 17:17:47.401] INFO: Context switch: proceso A-92, cambios: 2
+[2026-06-05 17:17:47.401] INFO: Context switch: proceso B-16, cambios: 1
+[2026-06-05 17:17:47.401] INFO: Quantum expirado: proceso B-16
+[2026-06-05 17:17:47.401] INFO: Context switch: proceso B-8, cambios: 1
+[2026-06-05 17:17:47.402] INFO: Context switch: proceso A-42, cambios: 4
+[2026-06-05 17:17:47.402] INFO: Quantum expirado: proceso A-42
+[2026-06-05 17:17:47.402] INFO: Context switch: proceso A-19, cambios: 10
+[2026-06-05 17:17:47.402] INFO: Context switch: proceso A-38, cambios: 4
+[2026-06-05 17:17:47.402] INFO: Context switch: proceso A-34, cambios: 3
+[2026-06-05 17:17:47.403] INFO: Context switch: proceso A-72, cambios: 4
+[2026-06-05 17:17:47.403] INFO: Quantum expirado: proceso A-72
+[2026-06-05 17:17:47.403] INFO: Context switch: proceso B-21, cambios: 1
+[2026-06-05 17:17:47.403] INFO: Context switch: proceso A-85, cambios: 3
+[2026-06-05 17:17:47.403] INFO: Quantum expirado: proceso A-85
+[2026-06-05 17:17:47.403] INFO: Context switch: proceso B-10, cambios: 1
+[2026-06-05 17:17:47.404] INFO: Context switch: proceso A-58, cambios: 4
+[2026-06-05 17:17:47.404] INFO: Context switch: proceso B-26, cambios: 1
+[2026-06-05 17:17:47.404] INFO: Context switch: proceso A-11, cambios: 8
+[2026-06-05 17:17:47.404] INFO: Quantum expirado: proceso A-11
+[2026-06-05 17:17:47.404] INFO: Context switch: proceso A-98, cambios: 2
+[2026-06-05 17:17:47.405] INFO: Context switch: proceso B-14, cambios: 1
+[2026-06-05 17:17:47.405] INFO: Quantum expirado: proceso B-14
+[2026-06-05 17:17:47.405] INFO: Context switch: proceso A-65, cambios: 4
+[2026-06-05 17:17:47.405] INFO: Context switch: proceso B-22, cambios: 1
+[2026-06-05 17:17:47.405] INFO: Quantum expirado: proceso B-22
+[2026-06-05 17:17:47.405] INFO: Context switch: proceso A-46, cambios: 4
+[2026-06-05 17:17:47.406] INFO: Context switch: proceso A-23, cambios: 10
+[2026-06-05 17:17:47.406] INFO: Quantum expirado: proceso A-23
+[2026-06-05 17:17:47.406] INFO: Context switch: proceso B-20, cambios: 1
+[2026-06-05 17:17:47.406] INFO: Context switch: proceso B-23, cambios: 1
+[2026-06-05 17:17:47.406] INFO: Quantum expirado: proceso B-23
+[2026-06-05 17:17:47.407] INFO: Context switch: proceso B-1, cambios: 2
+[2026-06-05 17:17:47.407] INFO: Context switch: proceso B-4, cambios: 2
+[2026-06-05 17:17:47.408] INFO: Context switch: proceso B-17, cambios: 1
+[2026-06-05 17:17:47.408] INFO: Context switch: proceso A-61, cambios: 4
+[2026-06-05 17:17:47.408] INFO: Context switch: proceso A-59, cambios: 5
+[2026-06-05 17:17:47.408] INFO: Context switch: proceso B-2, cambios: 2
+[2026-06-05 17:17:47.408] INFO: Quantum expirado: proceso B-2
+[2026-06-05 17:17:47.409] INFO: Context switch: proceso A-100, cambios: 2
+[2026-06-05 17:17:47.409] INFO: Context switch: proceso A-69, cambios: 3
+[2026-06-05 17:17:47.409] INFO: Context switch: proceso A-67, cambios: 4
+[2026-06-05 17:17:47.410] INFO: Context switch: proceso B-24, cambios: 1
+[2026-06-05 17:17:47.410] INFO: Context switch: proceso A-55, cambios: 3
+[2026-06-05 17:17:47.410] INFO: Context switch: proceso A-97, cambios: 2
+[2026-06-05 17:17:47.410] INFO: Quantum expirado: proceso A-97
+[2026-06-05 17:17:47.410] INFO: Context switch: proceso A-51, cambios: 6
+[2026-06-05 17:17:47.410] INFO: Context switch: proceso A-29, cambios: 10
+[2026-06-05 17:17:47.411] INFO: Context switch: proceso B-27, cambios: 1
+[2026-06-05 17:17:47.411] INFO: Context switch: proceso A-90, cambios: 3
+[2026-06-05 17:17:47.411] INFO: Context switch: proceso A-8, cambios: 11
+[2026-06-05 17:17:47.411] INFO: Context switch: proceso A-82, cambios: 3
+[2026-06-05 17:17:47.411] INFO: Quantum expirado: proceso A-82
+[2026-06-05 17:17:47.411] INFO: Context switch: proceso A-47, cambios: 5
+[2026-06-05 17:17:47.411] INFO: Context switch: proceso A-44, cambios: 4
+[2026-06-05 17:17:47.412] INFO: Context switch: proceso A-45, cambios: 6
+[2026-06-05 17:17:47.412] INFO: Context switch: proceso B-18, cambios: 1
+[2026-06-05 17:17:47.412] INFO: Quantum expirado: proceso B-18
+[2026-06-05 17:17:47.412] INFO: Context switch: proceso A-9, cambios: 7
+[2026-06-05 17:17:47.412] INFO: Context switch: proceso A-96, cambios: 2
+[2026-06-05 17:17:47.412] INFO: Quantum expirado: proceso A-96
+[2026-06-05 17:17:47.412] INFO: Context switch: proceso A-77, cambios: 3
+[2026-06-05 17:17:47.412] INFO: Context switch: proceso A-99, cambios: 2
+[2026-06-05 17:17:47.412] INFO: Quantum expirado: proceso A-99
+[2026-06-05 17:17:47.413] INFO: Context switch: proceso A-32, cambios: 6
+[2026-06-05 17:17:47.413] INFO: Context switch: proceso B-31, cambios: 1
+[2026-06-05 17:17:47.413] INFO: Quantum expirado: proceso B-31
+[2026-06-05 17:17:47.413] INFO: Context switch: proceso A-62, cambios: 5
+[2026-06-05 17:17:47.413] INFO: Context switch: proceso A-89, cambios: 3
+[2026-06-05 17:17:47.413] INFO: Context switch: proceso A-64, cambios: 5
+[2026-06-05 17:17:47.413] INFO: Context switch: proceso A-93, cambios: 3
+[2026-06-05 17:17:47.413] INFO: Quantum expirado: proceso A-93
+[2026-06-05 17:17:47.413] INFO: Context switch: proceso A-31, cambios: 11
+[2026-06-05 17:17:47.414] INFO: Context switch: proceso A-70, cambios: 4
+[2026-06-05 17:17:47.414] INFO: Quantum expirado: proceso A-70
+[2026-06-05 17:17:47.414] INFO: Context switch: proceso B-25, cambios: 1
+[2026-06-05 17:17:47.414] INFO: Context switch: proceso A-79, cambios: 3
+[2026-06-05 17:17:47.414] INFO: Quantum expirado: proceso A-79
+[2026-06-05 17:17:47.414] INFO: Context switch: proceso A-78, cambios: 4
+[2026-06-05 17:17:47.414] INFO: Context switch: proceso B-3, cambios: 2
+[2026-06-05 17:17:47.414] INFO: Context switch: proceso A-63, cambios: 3
+[2026-06-05 17:17:47.415] INFO: Context switch: proceso B-13, cambios: 2
+[2026-06-05 17:17:47.415] INFO: Quantum expirado: proceso B-13
+[2026-06-05 17:17:47.415] INFO: Context switch: proceso B-29, cambios: 1
+[2026-06-05 17:17:47.415] INFO: Context switch: proceso A-39, cambios: 3
+[2026-06-05 17:17:47.415] INFO: Quantum expirado: proceso A-39
+[2026-06-05 17:17:47.415] INFO: Context switch: proceso A-16, cambios: 6
+[2026-06-05 17:17:47.415] INFO: Context switch: proceso A-17, cambios: 3
+[2026-06-05 17:17:47.415] INFO: Context switch: proceso A-76, cambios: 4
+[2026-06-05 17:17:47.416] INFO: Context switch: proceso B-6, cambios: 2
+[2026-06-05 17:17:47.416] INFO: Context switch: proceso A-54, cambios: 4
+[2026-06-05 17:17:47.416] INFO: Context switch: proceso A-43, cambios: 6
+[2026-06-05 17:17:47.416] INFO: Context switch: proceso B-11, cambios: 2
+[2026-06-05 17:17:47.416] INFO: Context switch: proceso A-21, cambios: 7
+[2026-06-05 17:17:47.416] INFO: Quantum expirado: proceso A-21
+[2026-06-05 17:17:47.416] INFO: Context switch: proceso A-86, cambios: 3
+[2026-06-05 17:17:47.417] INFO: Context switch: proceso B-33, cambios: 1
+[2026-06-05 17:17:47.417] INFO: Quantum expirado: proceso B-33
+[2026-06-05 17:17:47.417] INFO: Context switch: proceso B-12, cambios: 2
+[2026-06-05 17:17:47.417] INFO: Context switch: proceso A-33, cambios: 5
+[2026-06-05 17:17:47.417] INFO: Quantum expirado: proceso A-33
+[2026-06-05 17:17:47.417] INFO: Context switch: proceso B-36, cambios: 1
+[2026-06-05 17:17:47.417] INFO: Context switch: proceso A-60, cambios: 4
+[2026-06-05 17:17:47.417] INFO: Context switch: proceso A-35, cambios: 6
+[2026-06-05 17:17:47.418] INFO: Context switch: proceso B-34, cambios: 1
+[2026-06-05 17:17:47.418] INFO: Quantum expirado: proceso B-34
+[2026-06-05 17:17:47.418] INFO: Context switch: proceso A-71, cambios: 4
+[2026-06-05 17:17:47.418] INFO: Context switch: proceso B-5, cambios: 2
+[2026-06-05 17:17:47.418] INFO: Quantum expirado: proceso B-5
+[2026-06-05 17:17:47.418] INFO: Context switch: proceso B-28, cambios: 1
+[2026-06-05 17:17:47.418] INFO: Context switch: proceso A-75, cambios: 2
+[2026-06-05 17:17:47.418] INFO: Quantum expirado: proceso A-75
+[2026-06-05 17:17:47.418] INFO: Context switch: proceso A-49, cambios: 4
+[2026-06-05 17:17:47.419] INFO: Context switch: proceso B-15, cambios: 2
+[2026-06-05 17:17:47.419] INFO: Quantum expirado: proceso B-15
+[2026-06-05 17:17:47.419] INFO: Context switch: proceso A-13, cambios: 14
+[2026-06-05 17:17:47.419] INFO: Context switch: proceso B-30, cambios: 1
+[2026-06-05 17:17:47.419] INFO: Context switch: proceso B-37, cambios: 1
+[2026-06-05 17:17:47.420] INFO: Context switch: proceso A-57, cambios: 4
+[2026-06-05 17:17:47.420] INFO: Context switch: proceso B-39, cambios: 1
+[2026-06-05 17:17:47.420] INFO: Context switch: proceso B-16, cambios: 2
+[2026-06-05 17:17:47.420] INFO: Quantum expirado: proceso B-16
+[2026-06-05 17:17:47.420] INFO: Context switch: proceso B-38, cambios: 1
+[2026-06-05 17:17:47.420] INFO: Context switch: proceso B-8, cambios: 2
+[2026-06-05 17:17:47.420] INFO: Quantum expirado: proceso B-8
+[2026-06-05 17:17:47.420] INFO: Context switch: proceso A-42, cambios: 5
+[2026-06-05 17:17:47.421] INFO: Context switch: proceso B-41, cambios: 1
+[2026-06-05 17:17:47.421] INFO: Quantum expirado: proceso B-41
+[2026-06-05 17:17:47.421] INFO: Context switch: proceso B-32, cambios: 1
+[2026-06-05 17:17:47.421] INFO: Context switch: proceso A-68, cambios: 2
+[2026-06-05 17:17:47.422] INFO: Context switch: proceso A-19, cambios: 11
+[2026-06-05 17:17:47.422] INFO: Context switch: proceso A-38, cambios: 5
+[2026-06-05 17:17:47.422] INFO: Quantum expirado: proceso A-38
+[2026-06-05 17:17:47.422] INFO: Context switch: proceso B-35, cambios: 1
+[2026-06-05 17:17:47.423] INFO: Context switch: proceso A-34, cambios: 4
+[2026-06-05 17:17:47.423] INFO: Quantum expirado: proceso A-34
+[2026-06-05 17:17:47.423] INFO: Context switch: proceso A-72, cambios: 5
+[2026-06-05 17:17:47.423] INFO: Context switch: proceso B-21, cambios: 2
+[2026-06-05 17:17:47.423] INFO: Quantum expirado: proceso B-21
+[2026-06-05 17:17:47.423] INFO: Context switch: proceso A-85, cambios: 4
+[2026-06-05 17:17:47.423] INFO: Context switch: proceso B-42, cambios: 1
+[2026-06-05 17:17:47.423] INFO: Quantum expirado: proceso B-42
+[2026-06-05 17:17:47.423] INFO: Context switch: proceso B-46, cambios: 1
+[2026-06-05 17:17:47.424] INFO: Context switch: proceso B-43, cambios: 1
+[2026-06-05 17:17:47.424] INFO: Context switch: proceso B-26, cambios: 2
+[2026-06-05 17:17:47.424] INFO: Context switch: proceso A-11, cambios: 9
+[2026-06-05 17:17:47.424] INFO: Context switch: proceso B-44, cambios: 1
+[2026-06-05 17:17:47.424] INFO: Context switch: proceso B-14, cambios: 2
+[2026-06-05 17:17:47.424] INFO: Context switch: proceso A-37, cambios: 8
+[2026-06-05 17:17:47.425] INFO: Context switch: proceso A-65, cambios: 5
+[2026-06-05 17:17:47.425] INFO: Context switch: proceso B-22, cambios: 2
+[2026-06-05 17:17:47.425] INFO: Context switch: proceso A-46, cambios: 5
+[2026-06-05 17:17:47.425] INFO: Quantum expirado: proceso A-46
+[2026-06-05 17:17:47.425] INFO: Context switch: proceso A-23, cambios: 11
+[2026-06-05 17:17:47.425] INFO: Context switch: proceso B-23, cambios: 2
+[2026-06-05 17:17:47.425] INFO: Quantum expirado: proceso B-23
+[2026-06-05 17:17:47.426] INFO: Context switch: proceso B-40, cambios: 1
+[2026-06-05 17:17:47.426] INFO: Context switch: proceso A-53, cambios: 7
+[2026-06-05 17:17:47.426] INFO: Context switch: proceso A-7, cambios: 8
+[2026-06-05 17:17:47.426] INFO: Context switch: proceso A-84, cambios: 2
+[2026-06-05 17:17:47.426] INFO: Quantum expirado: proceso A-84
+[2026-06-05 17:17:47.427] INFO: Context switch: proceso A-48, cambios: 5
+[2026-06-05 17:17:47.427] INFO: Context switch: proceso B-1, cambios: 3
+[2026-06-05 17:17:47.427] INFO: Quantum expirado: proceso B-1
+[2026-06-05 17:17:47.427] INFO: Context switch: proceso B-4, cambios: 3
+[2026-06-05 17:17:47.428] INFO: Context switch: proceso A-22, cambios: 6
+[2026-06-05 17:17:47.428] INFO: Quantum expirado: proceso A-22
+[2026-06-05 17:17:47.428] INFO: Context switch: proceso B-17, cambios: 2
+[2026-06-05 17:17:47.428] INFO: Context switch: proceso A-59, cambios: 6
+[2026-06-05 17:17:47.428] INFO: Quantum expirado: proceso A-59
+[2026-06-05 17:17:47.429] INFO: Context switch: proceso B-2, cambios: 3
+[2026-06-05 17:17:47.429] INFO: Context switch: proceso B-49, cambios: 1
+[2026-06-05 17:17:47.429] INFO: Context switch: proceso A-100, cambios: 3
+[2026-06-05 17:17:47.429] INFO: Context switch: proceso A-69, cambios: 4
+[2026-06-05 17:17:47.429] INFO: Quantum expirado: proceso A-69
+[2026-06-05 17:17:47.430] INFO: Context switch: proceso A-73, cambios: 2
+[2026-06-05 17:17:47.430] INFO: Context switch: proceso A-67, cambios: 5
+[2026-06-05 17:17:47.430] INFO: Quantum expirado: proceso A-67
+[2026-06-05 17:17:47.430] INFO: Context switch: proceso A-55, cambios: 4
+[2026-06-05 17:17:47.431] INFO: Context switch: proceso A-97, cambios: 3
+[2026-06-05 17:17:47.431] INFO: Quantum expirado: proceso A-97
+[2026-06-05 17:17:47.431] INFO: Context switch: proceso A-88, cambios: 2
+[2026-06-05 17:17:47.431] INFO: Context switch: proceso A-2, cambios: 5
+[2026-06-05 17:17:47.431] INFO: Quantum expirado: proceso A-2
+[2026-06-05 17:17:47.431] INFO: Context switch: proceso A-51, cambios: 7
+[2026-06-05 17:17:47.432] INFO: Context switch: proceso B-47, cambios: 1
+[2026-06-05 17:17:47.432] INFO: Context switch: proceso A-74, cambios: 3
+[2026-06-05 17:17:47.433] INFO: Context switch: proceso B-50, cambios: 1
+[2026-06-05 17:17:47.433] INFO: Context switch: proceso B-27, cambios: 2
+[2026-06-05 17:17:47.433] INFO: Context switch: proceso A-82, cambios: 4
+[2026-06-05 17:17:47.433] INFO: Quantum expirado: proceso A-82
+[2026-06-05 17:17:47.433] INFO: Context switch: proceso A-14, cambios: 6
+[2026-06-05 17:17:47.434] INFO: Context switch: proceso A-47, cambios: 6
+[2026-06-05 17:17:47.434] INFO: Quantum expirado: proceso A-47
+[2026-06-05 17:17:47.434] INFO: Context switch: proceso B-18, cambios: 2
+[2026-06-05 17:17:47.434] INFO: Context switch: proceso A-9, cambios: 8
+[2026-06-05 17:17:47.435] INFO: Context switch: proceso A-96, cambios: 3
+[2026-06-05 17:17:47.435] INFO: Context switch: proceso B-45, cambios: 1
+[2026-06-05 17:17:47.435] INFO: Quantum expirado: proceso B-45
+[2026-06-05 17:17:47.436] INFO: Context switch: proceso B-48, cambios: 1
+[2026-06-05 17:17:47.436] INFO: Context switch: proceso A-99, cambios: 3
+[2026-06-05 17:17:47.436] INFO: Quantum expirado: proceso A-99
+[2026-06-05 17:17:47.436] INFO: Context switch: proceso A-18, cambios: 4
+[2026-06-05 17:17:47.437] INFO: Context switch: proceso A-27, cambios: 4
+[2026-06-05 17:17:47.437] INFO: Context switch: proceso A-32, cambios: 7
+[2026-06-05 17:17:47.438] INFO: Context switch: proceso B-31, cambios: 2
+[2026-06-05 17:17:47.438] INFO: Quantum expirado: proceso B-31
+[2026-06-05 17:17:47.438] INFO: Context switch: proceso A-90, cambios: 4
+[2026-06-05 17:17:47.438] INFO: Context switch: proceso A-62, cambios: 6
+[2026-06-05 17:17:47.438] INFO: Quantum expirado: proceso A-62
+[2026-06-05 17:17:47.438] INFO: Context switch: proceso A-64, cambios: 6
+[2026-06-05 17:17:47.439] INFO: Context switch: proceso A-93, cambios: 4
+[2026-06-05 17:17:47.439] INFO: Quantum expirado: proceso A-93
+[2026-06-05 17:17:47.439] INFO: Context switch: proceso A-31, cambios: 12
+[2026-06-05 17:17:47.439] INFO: Context switch: proceso A-70, cambios: 5
+[2026-06-05 17:17:47.439] INFO: Context switch: proceso B-25, cambios: 2
+[2026-06-05 17:17:47.440] INFO: Context switch: proceso A-79, cambios: 4
+[2026-06-05 17:17:47.440] INFO: Context switch: proceso A-45, cambios: 7
+[2026-06-05 17:17:47.440] INFO: Context switch: proceso A-95, cambios: 2
+[2026-06-05 17:17:47.441] INFO: Context switch: proceso A-66, cambios: 4
+[2026-06-05 17:17:47.441] INFO: Context switch: proceso A-63, cambios: 4
+[2026-06-05 17:17:47.441] INFO: Quantum expirado: proceso A-63
+[2026-06-05 17:17:47.441] INFO: Context switch: proceso B-13, cambios: 3
+[2026-06-05 17:17:47.442] INFO: Context switch: proceso A-91, cambios: 2
+[2026-06-05 17:17:47.442] INFO: Context switch: proceso B-29, cambios: 2
+[2026-06-05 17:17:47.442] INFO: Context switch: proceso A-39, cambios: 4
+[2026-06-05 17:17:47.442] INFO: Context switch: proceso A-50, cambios: 5
+[2026-06-05 17:17:47.443] INFO: Context switch: proceso A-16, cambios: 7
+[2026-06-05 17:17:47.443] INFO: Quantum expirado: proceso A-16
+[2026-06-05 17:17:47.443] INFO: Context switch: proceso A-17, cambios: 4
+[2026-06-05 17:17:47.444] INFO: Context switch: proceso A-76, cambios: 5
+[2026-06-05 17:17:47.444] INFO: Quantum expirado: proceso A-76
+[2026-06-05 17:17:47.444] INFO: Context switch: proceso B-7, cambios: 2
+[2026-06-05 17:17:47.444] INFO: Context switch: proceso A-3, cambios: 6
+[2026-06-05 17:17:47.444] INFO: Quantum expirado: proceso A-3
+[2026-06-05 17:17:47.444] INFO: Context switch: proceso A-54, cambios: 5
+[2026-06-05 17:17:47.445] INFO: Context switch: proceso B-11, cambios: 3
+[2026-06-05 17:17:47.445] INFO: Quantum expirado: proceso B-11
+[2026-06-05 17:17:47.445] INFO: Context switch: proceso A-21, cambios: 8
+[2026-06-05 17:17:47.445] INFO: Context switch: proceso B-9, cambios: 2
+[2026-06-05 17:17:47.445] INFO: Quantum expirado: proceso B-9
+[2026-06-05 17:17:47.446] INFO: Context switch: proceso B-33, cambios: 2
+[2026-06-05 17:17:47.446] INFO: Context switch: proceso B-12, cambios: 3
+[2026-06-05 17:17:47.446] INFO: Quantum expirado: proceso B-12
+[2026-06-05 17:17:47.446] INFO: Context switch: proceso A-33, cambios: 6
+[2026-06-05 17:17:47.447] INFO: Context switch: proceso B-3, cambios: 3
+[2026-06-05 17:17:47.447] INFO: Quantum expirado: proceso B-3
+[2026-06-05 17:17:47.447] INFO: Context switch: proceso B-34, cambios: 2
+[2026-06-05 17:17:47.447] INFO: Context switch: proceso B-5, cambios: 3
+[2026-06-05 17:17:47.448] INFO: Context switch: proceso A-92, cambios: 3
+[2026-06-05 17:17:47.448] INFO: Context switch: proceso B-28, cambios: 2
+[2026-06-05 17:17:47.448] INFO: Quantum expirado: proceso B-28
+[2026-06-05 17:17:47.448] INFO: Context switch: proceso A-75, cambios: 3
+[2026-06-05 17:17:47.449] INFO: Context switch: proceso A-12, cambios: 11
+[2026-06-05 17:17:47.449] INFO: Context switch: proceso B-15, cambios: 3
+[2026-06-05 17:17:47.450] INFO: Context switch: proceso A-87, cambios: 3
+[2026-06-05 17:17:47.450] INFO: Quantum expirado: proceso A-87
+[2026-06-05 17:17:47.450] INFO: Context switch: proceso A-13, cambios: 15
+[2026-06-05 17:17:47.450] INFO: Context switch: proceso B-30, cambios: 2
+[2026-06-05 17:17:47.450] INFO: Quantum expirado: proceso B-30
+[2026-06-05 17:17:47.450] INFO: Context switch: proceso A-28, cambios: 3
+[2026-06-05 17:17:47.451] INFO: Context switch: proceso A-43, cambios: 7
+[2026-06-05 17:17:47.451] INFO: Quantum expirado: proceso A-43
+[2026-06-05 17:17:47.451] INFO: Context switch: proceso B-37, cambios: 2
+[2026-06-05 17:17:47.451] INFO: Context switch: proceso A-57, cambios: 5
+[2026-06-05 17:17:47.451] INFO: Quantum expirado: proceso A-57
+[2026-06-05 17:17:47.452] INFO: Context switch: proceso B-39, cambios: 2
+[2026-06-05 17:17:47.452] INFO: Context switch: proceso B-16, cambios: 3
+[2026-06-05 17:17:47.452] INFO: Quantum expirado: proceso B-16
+[2026-06-05 17:17:47.452] INFO: Context switch: proceso B-38, cambios: 2
+[2026-06-05 17:17:47.453] INFO: Context switch: proceso B-8, cambios: 3
+[2026-06-05 17:17:47.453] INFO: Quantum expirado: proceso B-8
+[2026-06-05 17:17:47.453] INFO: Context switch: proceso A-42, cambios: 6
+[2026-06-05 17:17:47.454] INFO: Context switch: proceso B-41, cambios: 2
+[2026-06-05 17:17:47.454] INFO: Quantum expirado: proceso B-41
+[2026-06-05 17:17:47.454] INFO: Context switch: proceso B-20, cambios: 2
+[2026-06-05 17:17:47.454] INFO: Context switch: proceso B-6, cambios: 3
+[2026-06-05 17:17:47.454] INFO: Quantum expirado: proceso B-6
+[2026-06-05 17:17:47.454] INFO: Context switch: proceso B-32, cambios: 2
+[2026-06-05 17:17:47.455] INFO: Context switch: proceso B-36, cambios: 2
+[2026-06-05 17:17:47.455] INFO: Quantum expirado: proceso B-36
+[2026-06-05 17:17:47.455] INFO: Context switch: proceso A-94, cambios: 3
+[2026-06-05 17:17:47.456] INFO: Context switch: proceso A-19, cambios: 12
+[2026-06-05 17:17:47.456] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.456] INFO: Context switch: proceso A-38, cambios: 6
+[2026-06-05 17:17:47.456] INFO: Context switch: proceso A-41, cambios: 4
+[2026-06-05 17:17:47.456] INFO: Quantum expirado: proceso A-41
+[2026-06-05 17:17:47.456] INFO: Context switch: proceso A-25, cambios: 4
+[2026-06-05 17:17:47.457] INFO: Context switch: proceso B-35, cambios: 2
+[2026-06-05 17:17:47.457] INFO: Context switch: proceso A-34, cambios: 5
+[2026-06-05 17:17:47.458] INFO: Context switch: proceso A-4, cambios: 10
+[2026-06-05 17:17:47.458] INFO: Quantum expirado: proceso A-4
+[2026-06-05 17:17:47.458] INFO: Context switch: proceso B-21, cambios: 3
+[2026-06-05 17:17:47.458] INFO: Context switch: proceso A-85, cambios: 5
+[2026-06-05 17:17:47.458] INFO: Quantum expirado: proceso A-85
+[2026-06-05 17:17:47.458] INFO: Context switch: proceso B-42, cambios: 2
+[2026-06-05 17:17:47.459] INFO: Context switch: proceso B-46, cambios: 2
+[2026-06-05 17:17:47.459] INFO: Context switch: proceso A-86, cambios: 4
+[2026-06-05 17:17:47.459] INFO: Context switch: proceso B-44, cambios: 2
+[2026-06-05 17:17:47.459] INFO: Quantum expirado: proceso B-44
+[2026-06-05 17:17:47.459] INFO: Context switch: proceso A-46, cambios: 6
+[2026-06-05 17:17:47.460] INFO: Context switch: proceso B-22, cambios: 3
+[2026-06-05 17:17:47.460] INFO: Quantum expirado: proceso B-22
+[2026-06-05 17:17:47.460] INFO: Context switch: proceso A-23, cambios: 12
+[2026-06-05 17:17:47.461] INFO: Context switch: proceso B-23, cambios: 3
+[2026-06-05 17:17:47.461] INFO: Context switch: proceso A-49, cambios: 5
+[2026-06-05 17:17:47.461] INFO: Context switch: proceso A-7, cambios: 9
+[2026-06-05 17:17:47.461] INFO: Quantum expirado: proceso A-7
+[2026-06-05 17:17:47.461] INFO: Context switch: proceso A-84, cambios: 3
+[2026-06-05 17:17:47.462] INFO: Context switch: proceso A-81, cambios: 3
+[2026-06-05 17:17:47.462] INFO: Quantum expirado: proceso A-81
+[2026-06-05 17:17:47.462] INFO: Context switch: proceso A-48, cambios: 6
+[2026-06-05 17:17:47.463] INFO: Context switch: proceso B-1, cambios: 4
+[2026-06-05 17:17:47.463] INFO: Quantum expirado: proceso B-1
+[2026-06-05 17:17:47.463] INFO: Context switch: proceso B-4, cambios: 4
+[2026-06-05 17:17:47.463] INFO: Context switch: proceso A-22, cambios: 7
+[2026-06-05 17:17:47.463] INFO: Quantum expirado: proceso A-22
+[2026-06-05 17:17:47.463] INFO: Context switch: proceso B-17, cambios: 3
+[2026-06-05 17:17:47.464] INFO: Context switch: proceso A-59, cambios: 7
+[2026-06-05 17:17:47.464] INFO: Quantum expirado: proceso A-59
+[2026-06-05 17:17:47.464] INFO: Context switch: proceso A-15, cambios: 5
+[2026-06-05 17:17:47.464] INFO: Context switch: proceso A-100, cambios: 4
+[2026-06-05 17:17:47.465] INFO: Context switch: proceso A-69, cambios: 5
+[2026-06-05 17:17:47.465] INFO: Context switch: proceso A-5, cambios: 7
+[2026-06-05 17:17:47.465] INFO: Context switch: proceso A-80, cambios: 3
+[2026-06-05 17:17:47.466] INFO: Context switch: proceso A-24, cambios: 11
+[2026-06-05 17:17:47.466] INFO: Quantum expirado: proceso A-24
+[2026-06-05 17:17:47.466] INFO: Context switch: proceso A-37, cambios: 9
+[2026-06-05 17:17:47.467] INFO: Context switch: proceso A-73, cambios: 3
+[2026-06-05 17:17:47.467] INFO: Quantum expirado: proceso A-73
+[2026-06-05 17:17:47.467] INFO: Context switch: proceso A-67, cambios: 6
+[2026-06-05 17:17:47.467] INFO: Context switch: proceso A-55, cambios: 5
+[2026-06-05 17:17:47.467] INFO: Quantum expirado: proceso A-55
+[2026-06-05 17:17:47.468] INFO: Context switch: proceso A-97, cambios: 4
+[2026-06-05 17:17:47.468] INFO: Context switch: proceso A-36, cambios: 4
+[2026-06-05 17:17:47.468] INFO: Context switch: proceso A-88, cambios: 3
+[2026-06-05 17:17:47.469] INFO: Context switch: proceso A-2, cambios: 6
+[2026-06-05 17:17:47.469] INFO: Context switch: proceso A-51, cambios: 8
+[2026-06-05 17:17:47.469] INFO: Context switch: proceso B-19, cambios: 2
+[2026-06-05 17:17:47.469] INFO: Quantum expirado: proceso B-19
+[2026-06-05 17:17:47.470] INFO: Context switch: proceso B-10, cambios: 2
+[2026-06-05 17:17:47.470] INFO: Context switch: proceso B-27, cambios: 3
+[2026-06-05 17:17:47.470] INFO: Quantum expirado: proceso B-27
+[2026-06-05 17:17:47.470] INFO: Context switch: proceso A-82, cambios: 5
+[2026-06-05 17:17:47.470] INFO: Context switch: proceso A-14, cambios: 7
+[2026-06-05 17:17:47.470] INFO: Context switch: proceso A-47, cambios: 7
+[2026-06-05 17:17:47.471] INFO: Context switch: proceso B-2, cambios: 4
+[2026-06-05 17:17:47.471] INFO: Quantum expirado: proceso B-2
+[2026-06-05 17:17:47.471] INFO: Context switch: proceso A-52, cambios: 5
+[2026-06-05 17:17:47.471] INFO: Context switch: proceso A-96, cambios: 4
+[2026-06-05 17:17:47.471] INFO: Quantum expirado: proceso A-96
+[2026-06-05 17:17:47.472] INFO: Context switch: proceso B-45, cambios: 2
+[2026-06-05 17:17:47.472] INFO: Context switch: proceso B-48, cambios: 2
+[2026-06-05 17:17:47.472] INFO: Context switch: proceso A-99, cambios: 4
+[2026-06-05 17:17:47.472] INFO: Context switch: proceso A-40, cambios: 7
+[2026-06-05 17:17:47.472] INFO: Context switch: proceso A-18, cambios: 5
+[2026-06-05 17:17:47.473] INFO: Context switch: proceso A-89, cambios: 4
+[2026-06-05 17:17:47.473] INFO: Quantum expirado: proceso A-89
+[2026-06-05 17:17:47.473] INFO: Context switch: proceso B-31, cambios: 3
+[2026-06-05 17:17:47.473] INFO: Context switch: proceso A-26, cambios: 7
+[2026-06-05 17:17:47.473] INFO: Quantum expirado: proceso A-26
+[2026-06-05 17:17:47.473] INFO: Context switch: proceso A-62, cambios: 7
+[2026-06-05 17:17:47.474] INFO: Context switch: proceso A-93, cambios: 5
+[2026-06-05 17:17:47.474] INFO: Context switch: proceso B-25, cambios: 3
+[2026-06-05 17:17:47.474] INFO: Context switch: proceso A-45, cambios: 8
+[2026-06-05 17:17:47.474] INFO: Quantum expirado: proceso A-45
+[2026-06-05 17:17:47.475] INFO: Context switch: proceso A-63, cambios: 5
+[2026-06-05 17:17:47.475] INFO: Context switch: proceso A-91, cambios: 3
+[2026-06-05 17:17:47.475] INFO: Quantum expirado: proceso A-91
+[2026-06-05 17:17:47.475] INFO: Context switch: proceso B-49, cambios: 2
+[2026-06-05 17:17:47.476] INFO: Context switch: proceso B-29, cambios: 3
+[2026-06-05 17:17:47.476] INFO: Quantum expirado: proceso B-29
+[2026-06-05 17:17:47.476] INFO: Context switch: proceso A-50, cambios: 6
+[2026-06-05 17:17:47.476] INFO: Context switch: proceso A-16, cambios: 8
+[2026-06-05 17:17:47.476] INFO: Context switch: proceso A-83, cambios: 4
+[2026-06-05 17:17:47.477] INFO: Context switch: proceso A-76, cambios: 6
+[2026-06-05 17:17:47.477] INFO: Context switch: proceso A-74, cambios: 4
+[2026-06-05 17:17:47.477] INFO: Context switch: proceso B-7, cambios: 3
+[2026-06-05 17:17:47.477] INFO: Quantum expirado: proceso B-7
+[2026-06-05 17:17:47.477] INFO: Context switch: proceso A-3, cambios: 7
+[2026-06-05 17:17:47.478] INFO: Context switch: proceso A-98, cambios: 3
+[2026-06-05 17:17:47.478] INFO: Quantum expirado: proceso A-98
+[2026-06-05 17:17:47.478] INFO: Context switch: proceso A-70, cambios: 6
+[2026-06-05 17:17:47.478] INFO: Context switch: proceso A-54, cambios: 6
+[2026-06-05 17:17:47.478] INFO: Quantum expirado: proceso A-54
+[2026-06-05 17:17:47.479] INFO: Context switch: proceso B-11, cambios: 4
+[2026-06-05 17:17:47.479] INFO: Context switch: proceso B-9, cambios: 3
+[2026-06-05 17:17:47.479] INFO: Quantum expirado: proceso B-9
+[2026-06-05 17:17:47.479] INFO: Context switch: proceso A-1, cambios: 5
+[2026-06-05 17:17:47.479] INFO: Context switch: proceso B-33, cambios: 3
+[2026-06-05 17:17:47.479] INFO: Quantum expirado: proceso B-33
+[2026-06-05 17:17:47.479] INFO: Context switch: proceso B-12, cambios: 4
+[2026-06-05 17:17:47.480] INFO: Context switch: proceso B-50, cambios: 2
+[2026-06-05 17:17:47.480] INFO: Quantum expirado: proceso B-50
+[2026-06-05 17:17:47.480] INFO: Context switch: proceso B-3, cambios: 4
+[2026-06-05 17:17:47.480] INFO: Context switch: proceso B-5, cambios: 4
+[2026-06-05 17:17:47.480] INFO: Quantum expirado: proceso B-5
+[2026-06-05 17:17:47.480] INFO: Context switch: proceso B-26, cambios: 3
+[2026-06-05 17:17:47.481] INFO: Context switch: proceso B-24, cambios: 2
+[2026-06-05 17:17:47.481] INFO: Quantum expirado: proceso B-24
+[2026-06-05 17:17:47.481] INFO: Context switch: proceso B-14, cambios: 3
+[2026-06-05 17:17:47.481] INFO: Context switch: proceso A-92, cambios: 4
+[2026-06-05 17:17:47.481] INFO: Context switch: proceso B-28, cambios: 3
+[2026-06-05 17:17:47.482] INFO: Context switch: proceso A-75, cambios: 4
+[2026-06-05 17:17:47.482] INFO: Quantum expirado: proceso A-75
+[2026-06-05 17:17:47.482] INFO: Context switch: proceso A-64, cambios: 7
+[2026-06-05 17:17:47.482] INFO: Context switch: proceso A-10, cambios: 6
+[2026-06-05 17:17:47.482] INFO: Context switch: proceso B-15, cambios: 4
+[2026-06-05 17:17:47.482] INFO: Context switch: proceso A-87, cambios: 4
+[2026-06-05 17:17:47.483] INFO: Context switch: proceso A-13, cambios: 16
+[2026-06-05 17:17:47.483] INFO: Context switch: proceso B-30, cambios: 3
+[2026-06-05 17:17:47.483] INFO: Quantum expirado: proceso B-30
+[2026-06-05 17:17:47.483] INFO: Context switch: proceso A-28, cambios: 4
+[2026-06-05 17:17:47.483] INFO: Context switch: proceso A-43, cambios: 8
+[2026-06-05 17:17:47.483] INFO: Quantum expirado: proceso A-43
+[2026-06-05 17:17:47.483] INFO: Context switch: proceso B-37, cambios: 3
+[2026-06-05 17:17:47.484] INFO: Context switch: proceso A-57, cambios: 6
+[2026-06-05 17:17:47.484] INFO: Quantum expirado: proceso A-57
+[2026-06-05 17:17:47.484] INFO: Context switch: proceso B-40, cambios: 2
+[2026-06-05 17:17:47.485] INFO: Context switch: proceso B-18, cambios: 3
+[2026-06-05 17:17:47.485] INFO: Quantum expirado: proceso B-18
+[2026-06-05 17:17:47.485] INFO: Context switch: proceso B-39, cambios: 3
+[2026-06-05 17:17:47.485] INFO: Context switch: proceso B-16, cambios: 4
+[2026-06-05 17:17:47.485] INFO: Context switch: proceso B-38, cambios: 3
+[2026-06-05 17:17:47.486] INFO: Context switch: proceso B-8, cambios: 4
+[2026-06-05 17:17:47.486] INFO: Quantum expirado: proceso B-8
+[2026-06-05 17:17:47.486] INFO: Context switch: proceso A-77, cambios: 4
+[2026-06-05 17:17:47.487] INFO: Context switch: proceso A-42, cambios: 7
+[2026-06-05 17:17:47.487] INFO: Context switch: proceso B-41, cambios: 3
+[2026-06-05 17:17:47.488] INFO: Context switch: proceso B-20, cambios: 3
+[2026-06-05 17:17:47.488] INFO: Quantum expirado: proceso B-20
+[2026-06-05 17:17:47.488] INFO: Context switch: proceso B-6, cambios: 4
+[2026-06-05 17:17:47.488] INFO: Context switch: proceso B-32, cambios: 3
+[2026-06-05 17:17:47.488] INFO: Quantum expirado: proceso B-32
+[2026-06-05 17:17:47.488] INFO: Context switch: proceso B-36, cambios: 3
+[2026-06-05 17:17:47.489] INFO: Context switch: proceso A-30, cambios: 6
+[2026-06-05 17:17:47.489] INFO: Context switch: proceso B-43, cambios: 2
+[2026-06-05 17:17:47.489] INFO: Context switch: proceso A-94, cambios: 4
+[2026-06-05 17:17:47.489] INFO: Quantum expirado: proceso A-94
+[2026-06-05 17:17:47.490] INFO: Context switch: proceso A-19, cambios: 13
+[2026-06-05 17:17:47.490] INFO: Context switch: proceso A-38, cambios: 7
+[2026-06-05 17:17:47.490] INFO: Quantum expirado: proceso A-38
+[2026-06-05 17:17:47.490] INFO: Context switch: proceso A-41, cambios: 5
+[2026-06-05 17:17:47.490] INFO: Context switch: proceso A-58, cambios: 5
+[2026-06-05 17:17:47.490] INFO: Quantum expirado: proceso A-58
+[2026-06-05 17:17:47.490] INFO: Context switch: proceso A-25, cambios: 5
+[2026-06-05 17:17:47.491] INFO: Context switch: proceso A-34, cambios: 6
+[2026-06-05 17:17:47.491] INFO: Context switch: proceso A-4, cambios: 11
+[2026-06-05 17:17:47.491] INFO: Context switch: proceso B-21, cambios: 4
+[2026-06-05 17:17:47.491] INFO: Quantum expirado: proceso B-21
+[2026-06-05 17:17:47.491] INFO: Context switch: proceso A-85, cambios: 6
+[2026-06-05 17:17:47.492] INFO: Context switch: proceso B-44, cambios: 3
+[2026-06-05 17:17:47.492] INFO: Quantum expirado: proceso B-44
+[2026-06-05 17:17:47.492] INFO: Context switch: proceso A-44, cambios: 5
+[2026-06-05 17:17:47.492] INFO: Context switch: proceso A-95, cambios: 3
+[2026-06-05 17:17:47.492] INFO: Context switch: proceso A-46, cambios: 7
+[2026-06-05 17:17:47.493] INFO: Context switch: proceso B-22, cambios: 4
+[2026-06-05 17:17:47.493] INFO: Quantum expirado: proceso B-22
+[2026-06-05 17:17:47.493] INFO: Context switch: proceso A-23, cambios: 13
+[2026-06-05 17:17:47.493] INFO: Context switch: proceso A-49, cambios: 6
+[2026-06-05 17:17:47.493] INFO: Quantum expirado: proceso A-49
+[2026-06-05 17:17:47.494] INFO: Context switch: proceso A-7, cambios: 10
+[2026-06-05 17:17:47.494] INFO: Context switch: proceso A-56, cambios: 4
+[2026-06-05 17:17:47.494] INFO: Quantum expirado: proceso A-56
+[2026-06-05 17:17:47.494] INFO: Context switch: proceso A-84, cambios: 4
+[2026-06-05 17:17:47.495] INFO: Context switch: proceso A-81, cambios: 4
+[2026-06-05 17:17:47.495] INFO: Quantum expirado: proceso A-81
+[2026-06-05 17:17:47.495] INFO: Context switch: proceso A-48, cambios: 7
+[2026-06-05 17:17:47.495] INFO: Context switch: proceso B-1, cambios: 5
+[2026-06-05 17:17:47.495] INFO: Quantum expirado: proceso B-1
+[2026-06-05 17:17:47.495] INFO: Context switch: proceso B-23, cambios: 4
+[2026-06-05 17:17:47.496] INFO: Context switch: proceso A-22, cambios: 8
+[2026-06-05 17:17:47.496] INFO: Quantum expirado: proceso A-22
+[2026-06-05 17:17:47.496] INFO: Context switch: proceso B-17, cambios: 4
+[2026-06-05 17:17:47.496] INFO: Context switch: proceso A-59, cambios: 8
+[2026-06-05 17:17:47.496] INFO: Context switch: proceso A-86, cambios: 5
+[2026-06-05 17:17:47.497] INFO: Context switch: proceso A-15, cambios: 6
+[2026-06-05 17:17:47.497] INFO: Quantum expirado: proceso A-15
+[2026-06-05 17:17:47.497] INFO: Context switch: proceso A-68, cambios: 3
+[2026-06-05 17:17:47.497] INFO: Context switch: proceso A-27, cambios: 5
+[2026-06-05 17:17:47.497] INFO: Quantum expirado: proceso A-27
+[2026-06-05 17:17:47.497] INFO: Context switch: proceso A-69, cambios: 6
+[2026-06-05 17:17:47.497] INFO: Context switch: proceso A-5, cambios: 8
+[2026-06-05 17:17:47.497] INFO: Quantum expirado: proceso A-5
+[2026-06-05 17:17:47.498] INFO: Context switch: proceso A-24, cambios: 12
+[2026-06-05 17:17:47.498] INFO: Context switch: proceso A-37, cambios: 10
+[2026-06-05 17:17:47.498] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:47.498] INFO: Context switch: proceso A-73, cambios: 4
+[2026-06-05 17:17:47.498] INFO: Context switch: proceso A-67, cambios: 7
+[2026-06-05 17:17:47.498] INFO: Quantum expirado: proceso A-67
+[2026-06-05 17:17:47.499] INFO: Context switch: proceso A-55, cambios: 6
+[2026-06-05 17:17:47.499] INFO: Context switch: proceso A-97, cambios: 5
+[2026-06-05 17:17:47.499] INFO: Context switch: proceso A-78, cambios: 5
+[2026-06-05 17:17:47.499] INFO: Context switch: proceso A-31, cambios: 13
+[2026-06-05 17:17:47.500] INFO: Context switch: proceso A-2, cambios: 7
+[2026-06-05 17:17:47.500] INFO: Context switch: proceso B-19, cambios: 3
+[2026-06-05 17:17:47.500] INFO: Context switch: proceso B-27, cambios: 4
+[2026-06-05 17:17:47.500] INFO: Context switch: proceso A-36, cambios: 5
+[2026-06-05 17:17:47.500] INFO: Quantum expirado: proceso A-36
+[2026-06-05 17:17:47.500] INFO: Context switch: proceso A-82, cambios: 6
+[2026-06-05 17:17:47.501] INFO: Context switch: proceso A-65, cambios: 6
+[2026-06-05 17:17:47.501] INFO: Quantum expirado: proceso A-65
+[2026-06-05 17:17:47.501] INFO: Context switch: proceso A-47, cambios: 8
+[2026-06-05 17:17:47.501] INFO: Context switch: proceso B-2, cambios: 5
+[2026-06-05 17:17:47.501] INFO: Quantum expirado: proceso B-2
+[2026-06-05 17:17:47.501] INFO: Context switch: proceso A-61, cambios: 5
+[2026-06-05 17:17:47.501] INFO: Context switch: proceso A-52, cambios: 6
+[2026-06-05 17:17:47.501] INFO: Quantum expirado: proceso A-52
+[2026-06-05 17:17:47.502] INFO: Context switch: proceso A-96, cambios: 5
+[2026-06-05 17:17:47.502] INFO: Context switch: proceso B-45, cambios: 3
+[2026-06-05 17:17:47.502] INFO: Quantum expirado: proceso B-45
+[2026-06-05 17:17:47.502] INFO: Context switch: proceso A-99, cambios: 5
+[2026-06-05 17:17:47.502] INFO: Context switch: proceso A-18, cambios: 6
+[2026-06-05 17:17:47.502] INFO: Quantum expirado: proceso A-18
+[2026-06-05 17:17:47.502] INFO: Context switch: proceso A-89, cambios: 5
+[2026-06-05 17:17:47.503] INFO: Context switch: proceso B-31, cambios: 4
+[2026-06-05 17:17:47.503] INFO: Quantum expirado: proceso B-31
+[2026-06-05 17:17:47.503] INFO: Context switch: proceso A-26, cambios: 8
+[2026-06-05 17:17:47.503] INFO: Context switch: proceso B-48, cambios: 3
+[2026-06-05 17:17:47.503] INFO: Quantum expirado: proceso B-48
+[2026-06-05 17:17:47.503] INFO: Context switch: proceso A-62, cambios: 8
+[2026-06-05 17:17:47.504] INFO: Context switch: proceso A-90, cambios: 5
+[2026-06-05 17:17:47.504] INFO: Quantum expirado: proceso A-90
+[2026-06-05 17:17:47.504] INFO: Context switch: proceso B-25, cambios: 4
+[2026-06-05 17:17:47.504] INFO: Context switch: proceso A-45, cambios: 9
+[2026-06-05 17:17:47.504] INFO: Quantum expirado: proceso A-45
+[2026-06-05 17:17:47.504] INFO: Context switch: proceso A-88, cambios: 4
+[2026-06-05 17:17:47.505] INFO: Context switch: proceso A-63, cambios: 6
+[2026-06-05 17:17:47.505] INFO: Context switch: proceso A-91, cambios: 4
+[2026-06-05 17:17:47.505] INFO: Context switch: proceso B-13, cambios: 4
+[2026-06-05 17:17:47.505] INFO: Quantum expirado: proceso B-13
+[2026-06-05 17:17:47.506] INFO: Context switch: proceso A-11, cambios: 10
+[2026-06-05 17:17:47.506] INFO: Context switch: proceso B-49, cambios: 3
+[2026-06-05 17:17:47.506] INFO: Quantum expirado: proceso B-49
+[2026-06-05 17:17:47.506] INFO: Context switch: proceso B-29, cambios: 4
+[2026-06-05 17:17:47.506] INFO: Context switch: proceso A-71, cambios: 5
+[2026-06-05 17:17:47.506] INFO: Quantum expirado: proceso A-71
+[2026-06-05 17:17:47.507] INFO: Context switch: proceso A-50, cambios: 7
+[2026-06-05 17:17:47.507] INFO: Context switch: proceso A-21, cambios: 9
+[2026-06-05 17:17:47.507] INFO: Quantum expirado: proceso A-21
+[2026-06-05 17:17:47.507] INFO: Context switch: proceso B-46, cambios: 3
+[2026-06-05 17:17:47.507] INFO: Context switch: proceso A-83, cambios: 5
+[2026-06-05 17:17:47.508] INFO: Context switch: proceso B-7, cambios: 4
+[2026-06-05 17:17:47.508] INFO: Context switch: proceso A-3, cambios: 8
+[2026-06-05 17:17:47.508] INFO: Quantum expirado: proceso A-3
+[2026-06-05 17:17:47.508] INFO: Context switch: proceso A-98, cambios: 4
+[2026-06-05 17:17:47.509] INFO: Context switch: proceso A-70, cambios: 7
+[2026-06-05 17:17:47.509] INFO: Quantum expirado: proceso A-70
+[2026-06-05 17:17:47.509] INFO: Context switch: proceso A-54, cambios: 7
+[2026-06-05 17:17:47.509] INFO: Context switch: proceso B-11, cambios: 5
+[2026-06-05 17:17:47.509] INFO: Quantum expirado: proceso B-11
+[2026-06-05 17:17:47.509] INFO: Context switch: proceso B-9, cambios: 4
+[2026-06-05 17:17:47.510] INFO: Context switch: proceso A-1, cambios: 6
+[2026-06-05 17:17:47.510] INFO: Quantum expirado: proceso A-1
+[2026-06-05 17:17:47.510] INFO: Context switch: proceso B-33, cambios: 4
+[2026-06-05 17:17:47.510] INFO: Context switch: proceso B-12, cambios: 5
+[2026-06-05 17:17:47.510] INFO: Context switch: proceso B-50, cambios: 3
+[2026-06-05 17:17:47.510] INFO: Context switch: proceso A-53, cambios: 8
+[2026-06-05 17:17:47.510] INFO: Context switch: proceso B-3, cambios: 5
+[2026-06-05 17:17:47.511] INFO: Context switch: proceso B-5, cambios: 5
+[2026-06-05 17:17:47.511] INFO: Quantum expirado: proceso B-5
+[2026-06-05 17:17:47.511] INFO: Context switch: proceso A-72, cambios: 6
+[2026-06-05 17:17:47.511] INFO: Context switch: proceso B-24, cambios: 3
+[2026-06-05 17:17:47.511] INFO: Context switch: proceso B-10, cambios: 3
+[2026-06-05 17:17:47.512] INFO: Context switch: proceso A-74, cambios: 5
+[2026-06-05 17:17:47.512] INFO: Quantum expirado: proceso A-74
+[2026-06-05 17:17:47.512] INFO: Context switch: proceso A-75, cambios: 5
+[2026-06-05 17:17:47.512] INFO: Context switch: proceso A-64, cambios: 8
+[2026-06-05 17:17:47.512] INFO: Quantum expirado: proceso A-64
+[2026-06-05 17:17:47.513] INFO: Context switch: proceso B-15, cambios: 5
+[2026-06-05 17:17:47.513] INFO: Context switch: proceso A-13, cambios: 17
+[2026-06-05 17:17:47.513] INFO: Context switch: proceso B-30, cambios: 4
+[2026-06-05 17:17:47.514] INFO: Context switch: proceso A-28, cambios: 5
+[2026-06-05 17:17:47.514] INFO: Quantum expirado: proceso A-28
+[2026-06-05 17:17:47.514] INFO: Context switch: proceso A-43, cambios: 9
+[2026-06-05 17:17:47.514] INFO: Context switch: proceso B-37, cambios: 4
+[2026-06-05 17:17:47.514] INFO: Quantum expirado: proceso B-37
+[2026-06-05 17:17:47.514] INFO: Context switch: proceso A-57, cambios: 7
+[2026-06-05 17:17:47.515] INFO: Context switch: proceso B-28, cambios: 4
+[2026-06-05 17:17:47.515] INFO: Context switch: proceso B-40, cambios: 3
+[2026-06-05 17:17:47.515] INFO: Context switch: proceso B-18, cambios: 4
+[2026-06-05 17:17:47.515] INFO: Quantum expirado: proceso B-18
+[2026-06-05 17:17:47.516] INFO: Context switch: proceso A-100, cambios: 5
+[2026-06-05 17:17:47.516] INFO: Context switch: proceso B-39, cambios: 4
+[2026-06-05 17:17:47.516] INFO: Quantum expirado: proceso B-39
+[2026-06-05 17:17:47.516] INFO: Context switch: proceso B-16, cambios: 5
+[2026-06-05 17:17:47.517] INFO: Context switch: proceso B-8, cambios: 5
+[2026-06-05 17:17:47.517] INFO: Quantum expirado: proceso B-8
+[2026-06-05 17:17:47.517] INFO: Context switch: proceso B-47, cambios: 2
+[2026-06-05 17:17:47.517] INFO: Context switch: proceso A-77, cambios: 5
+[2026-06-05 17:17:47.517] INFO: Quantum expirado: proceso A-77
+[2026-06-05 17:17:47.517] INFO: Context switch: proceso B-41, cambios: 4
+[2026-06-05 17:17:47.518] INFO: Context switch: proceso B-20, cambios: 4
+[2026-06-05 17:17:47.518] INFO: Context switch: proceso B-6, cambios: 5
+[2026-06-05 17:17:47.518] INFO: Context switch: proceso B-32, cambios: 4
+[2026-06-05 17:17:47.518] INFO: Quantum expirado: proceso B-32
+[2026-06-05 17:17:47.518] INFO: Context switch: proceso B-36, cambios: 4
+[2026-06-05 17:17:47.519] INFO: Context switch: proceso A-94, cambios: 5
+[2026-06-05 17:17:47.519] INFO: Context switch: proceso B-4, cambios: 5
+[2026-06-05 17:17:47.519] INFO: Context switch: proceso A-19, cambios: 14
+[2026-06-05 17:17:47.520] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.520] INFO: Context switch: proceso A-38, cambios: 8
+[2026-06-05 17:17:47.520] INFO: Context switch: proceso A-41, cambios: 6
+[2026-06-05 17:17:47.520] INFO: Quantum expirado: proceso A-41
+[2026-06-05 17:17:47.520] INFO: Context switch: proceso A-58, cambios: 6
+[2026-06-05 17:17:47.521] INFO: Context switch: proceso A-25, cambios: 6
+[2026-06-05 17:17:47.521] INFO: Quantum expirado: proceso A-25
+[2026-06-05 17:17:47.521] INFO: Context switch: proceso A-4, cambios: 12
+[2026-06-05 17:17:47.521] INFO: Context switch: proceso B-21, cambios: 5
+[2026-06-05 17:17:47.521] INFO: Quantum expirado: proceso B-21
+[2026-06-05 17:17:47.522] INFO: Context switch: proceso B-44, cambios: 4
+[2026-06-05 17:17:47.522] INFO: Context switch: proceso A-44, cambios: 6
+[2026-06-05 17:17:47.522] INFO: Context switch: proceso A-95, cambios: 4
+[2026-06-05 17:17:47.523] INFO: Context switch: proceso A-46, cambios: 8
+[2026-06-05 17:17:47.523] INFO: Quantum expirado: proceso A-46
+[2026-06-05 17:17:47.523] INFO: Context switch: proceso B-22, cambios: 5
+[2026-06-05 17:17:47.523] INFO: Context switch: proceso B-14, cambios: 4
+[2026-06-05 17:17:47.523] INFO: Quantum expirado: proceso B-14
+[2026-06-05 17:17:47.523] INFO: Context switch: proceso A-66, cambios: 5
+[2026-06-05 17:17:47.524] INFO: Context switch: proceso A-49, cambios: 7
+[2026-06-05 17:17:47.524] INFO: Quantum expirado: proceso A-49
+[2026-06-05 17:17:47.524] INFO: Context switch: proceso A-56, cambios: 5
+[2026-06-05 17:17:47.524] INFO: Context switch: proceso A-84, cambios: 5
+[2026-06-05 17:17:47.525] INFO: Quantum expirado: proceso A-84
+[2026-06-05 17:17:47.525] INFO: Context switch: proceso A-81, cambios: 5
+[2026-06-05 17:17:47.525] INFO: Context switch: proceso A-48, cambios: 8
+[2026-06-05 17:17:47.525] INFO: Quantum expirado: proceso A-48
+[2026-06-05 17:17:47.525] INFO: Context switch: proceso B-1, cambios: 6
+[2026-06-05 17:17:47.526] INFO: Context switch: proceso A-39, cambios: 5
+[2026-06-05 17:17:47.526] INFO: Quantum expirado: proceso A-39
+[2026-06-05 17:17:47.526] INFO: Context switch: proceso B-23, cambios: 5
+[2026-06-05 17:17:47.526] INFO: Context switch: proceso A-22, cambios: 9
+[2026-06-05 17:17:47.526] INFO: Quantum expirado: proceso A-22
+[2026-06-05 17:17:47.527] INFO: Context switch: proceso B-26, cambios: 4
+[2026-06-05 17:17:47.527] INFO: Context switch: proceso B-17, cambios: 5
+[2026-06-05 17:17:47.527] INFO: Context switch: proceso A-35, cambios: 7
+[2026-06-05 17:17:47.528] INFO: Context switch: proceso A-86, cambios: 6
+[2026-06-05 17:17:47.528] INFO: Quantum expirado: proceso A-86
+[2026-06-05 17:17:47.528] INFO: Context switch: proceso A-15, cambios: 7
+[2026-06-05 17:17:47.528] INFO: Context switch: proceso A-68, cambios: 4
+[2026-06-05 17:17:47.528] INFO: Quantum expirado: proceso A-68
+[2026-06-05 17:17:47.528] INFO: Context switch: proceso A-27, cambios: 6
+[2026-06-05 17:17:47.529] INFO: Context switch: proceso A-76, cambios: 7
+[2026-06-05 17:17:47.529] INFO: Context switch: proceso A-12, cambios: 12
+[2026-06-05 17:17:47.529] INFO: Context switch: proceso A-69, cambios: 7
+[2026-06-05 17:17:47.529] INFO: Quantum expirado: proceso A-69
+[2026-06-05 17:17:47.530] INFO: Context switch: proceso A-5, cambios: 9
+[2026-06-05 17:17:47.530] INFO: Context switch: proceso A-37, cambios: 11
+[2026-06-05 17:17:47.530] INFO: Quantum expirado: proceso A-37
+[2026-06-05 17:17:47.530] INFO: Context switch: proceso A-73, cambios: 5
+[2026-06-05 17:17:47.531] INFO: Context switch: proceso A-67, cambios: 8
+[2026-06-05 17:17:47.531] INFO: Context switch: proceso B-34, cambios: 3
+[2026-06-05 17:17:47.531] INFO: Context switch: proceso B-42, cambios: 3
+[2026-06-05 17:17:47.531] INFO: Quantum expirado: proceso B-42
+[2026-06-05 17:17:47.531] INFO: Context switch: proceso A-55, cambios: 7
+[2026-06-05 17:17:47.532] INFO: Context switch: proceso A-92, cambios: 5
+[2026-06-05 17:17:47.532] INFO: Quantum expirado: proceso A-92
+[2026-06-05 17:17:47.532] INFO: Context switch: proceso A-78, cambios: 6
+[2026-06-05 17:17:47.532] INFO: Context switch: proceso A-33, cambios: 7
+[2026-06-05 17:17:47.532] INFO: Quantum expirado: proceso A-33
+[2026-06-05 17:17:47.533] INFO: Context switch: proceso A-2, cambios: 8
+[2026-06-05 17:17:47.533] INFO: Context switch: proceso A-51, cambios: 9
+[2026-06-05 17:17:47.533] INFO: Context switch: proceso B-27, cambios: 5
+[2026-06-05 17:17:47.534] INFO: Context switch: proceso A-36, cambios: 6
+[2026-06-05 17:17:47.534] INFO: Quantum expirado: proceso A-36
+[2026-06-05 17:17:47.534] INFO: Context switch: proceso A-82, cambios: 7
+[2026-06-05 17:17:47.534] INFO: Context switch: proceso A-65, cambios: 7
+[2026-06-05 17:17:47.534] INFO: Quantum expirado: proceso A-65
+[2026-06-05 17:17:47.534] INFO: Context switch: proceso A-47, cambios: 9
+[2026-06-05 17:17:47.535] INFO: Context switch: proceso B-2, cambios: 6
+[2026-06-05 17:17:47.535] INFO: Quantum expirado: proceso B-2
+[2026-06-05 17:17:47.535] INFO: Context switch: proceso A-61, cambios: 6
+[2026-06-05 17:17:47.536] INFO: Context switch: proceso A-52, cambios: 7
+[2026-06-05 17:17:47.536] INFO: Context switch: proceso A-85, cambios: 7
+[2026-06-05 17:17:47.536] INFO: Context switch: proceso A-96, cambios: 6
+[2026-06-05 17:17:47.536] INFO: Quantum expirado: proceso A-96
+[2026-06-05 17:17:47.536] INFO: Context switch: proceso B-45, cambios: 4
+[2026-06-05 17:17:47.537] INFO: Context switch: proceso A-99, cambios: 6
+[2026-06-05 17:17:47.537] INFO: Quantum expirado: proceso A-99
+[2026-06-05 17:17:47.537] INFO: Context switch: proceso A-18, cambios: 7
+[2026-06-05 17:17:47.537] INFO: Context switch: proceso B-31, cambios: 5
+[2026-06-05 17:17:47.537] INFO: Quantum expirado: proceso B-31
+[2026-06-05 17:17:47.538] INFO: Context switch: proceso A-26, cambios: 9
+[2026-06-05 17:17:47.538] INFO: Context switch: proceso B-48, cambios: 4
+[2026-06-05 17:17:47.538] INFO: Quantum expirado: proceso B-48
+[2026-06-05 17:17:47.538] INFO: Context switch: proceso A-62, cambios: 9
+[2026-06-05 17:17:47.539] INFO: Context switch: proceso A-90, cambios: 6
+[2026-06-05 17:17:47.539] INFO: Quantum expirado: proceso A-90
+[2026-06-05 17:17:47.539] INFO: Context switch: proceso A-45, cambios: 10
+[2026-06-05 17:17:47.540] INFO: Context switch: proceso B-35, cambios: 3
+[2026-06-05 17:17:47.540] INFO: Quantum expirado: proceso B-35
+[2026-06-05 17:17:47.540] INFO: Context switch: proceso A-91, cambios: 5
+[2026-06-05 17:17:47.540] INFO: Context switch: proceso B-13, cambios: 5
+[2026-06-05 17:17:47.540] INFO: Quantum expirado: proceso B-13
+[2026-06-05 17:17:47.541] INFO: Context switch: proceso B-38, cambios: 4
+[2026-06-05 17:17:47.541] INFO: Context switch: proceso A-11, cambios: 11
+[2026-06-05 17:17:47.541] INFO: Quantum expirado: proceso A-11
+[2026-06-05 17:17:47.541] INFO: Context switch: proceso B-49, cambios: 4
+[2026-06-05 17:17:47.542] INFO: Context switch: proceso B-29, cambios: 5
+[2026-06-05 17:17:47.542] INFO: Quantum expirado: proceso B-29
+[2026-06-05 17:17:47.542] INFO: Context switch: proceso A-71, cambios: 6
+[2026-06-05 17:17:47.542] INFO: Context switch: proceso A-50, cambios: 8
+[2026-06-05 17:17:47.542] INFO: Quantum expirado: proceso A-50
+[2026-06-05 17:17:47.542] INFO: Context switch: proceso A-21, cambios: 10
+[2026-06-05 17:17:47.543] INFO: Context switch: proceso B-25, cambios: 5
+[2026-06-05 17:17:47.543] INFO: Quantum expirado: proceso B-25
+[2026-06-05 17:17:47.543] INFO: Context switch: proceso A-3, cambios: 9
+[2026-06-05 17:17:47.543] INFO: Context switch: proceso A-60, cambios: 5
+[2026-06-05 17:17:47.544] INFO: Context switch: proceso A-98, cambios: 5
+[2026-06-05 17:17:47.544] INFO: Context switch: proceso A-70, cambios: 8
+[2026-06-05 17:17:47.544] INFO: Context switch: proceso B-11, cambios: 6
+[2026-06-05 17:17:47.545] INFO: Context switch: proceso B-9, cambios: 5
+[2026-06-05 17:17:47.545] INFO: Context switch: proceso A-1, cambios: 7
+[2026-06-05 17:17:47.546] INFO: Context switch: proceso B-33, cambios: 5
+[2026-06-05 17:17:47.546] INFO: Quantum expirado: proceso B-33
+[2026-06-05 17:17:47.546] INFO: Context switch: proceso B-12, cambios: 6
+[2026-06-05 17:17:47.546] INFO: Context switch: proceso B-50, cambios: 4
+[2026-06-05 17:17:47.546] INFO: Quantum expirado: proceso B-50
+[2026-06-05 17:17:47.547] INFO: Context switch: proceso B-3, cambios: 6
+[2026-06-05 17:17:47.547] INFO: Context switch: proceso B-5, cambios: 6
+[2026-06-05 17:17:47.547] INFO: Quantum expirado: proceso B-5
+[2026-06-05 17:17:47.547] INFO: Context switch: proceso A-72, cambios: 7
+[2026-06-05 17:17:47.548] INFO: Context switch: proceso A-97, cambios: 6
+[2026-06-05 17:17:47.548] INFO: Quantum expirado: proceso A-97
+[2026-06-05 17:17:47.548] INFO: Context switch: proceso B-10, cambios: 4
+[2026-06-05 17:17:47.548] INFO: Context switch: proceso A-74, cambios: 6
+[2026-06-05 17:17:47.548] INFO: Quantum expirado: proceso A-74
+[2026-06-05 17:17:47.548] INFO: Context switch: proceso A-75, cambios: 6
+[2026-06-05 17:17:47.549] INFO: Context switch: proceso A-64, cambios: 9
+[2026-06-05 17:17:47.549] INFO: Quantum expirado: proceso A-64
+[2026-06-05 17:17:47.549] INFO: Context switch: proceso A-8, cambios: 12
+[2026-06-05 17:17:47.549] INFO: Context switch: proceso B-15, cambios: 6
+[2026-06-05 17:17:47.550] INFO: Quantum expirado: proceso B-15
+[2026-06-05 17:17:47.550] INFO: Context switch: proceso B-30, cambios: 5
+[2026-06-05 17:17:47.550] INFO: Context switch: proceso A-28, cambios: 6
+[2026-06-05 17:17:47.550] INFO: Quantum expirado: proceso A-28
+[2026-06-05 17:17:47.550] INFO: Context switch: proceso A-9, cambios: 9
+[2026-06-05 17:17:47.551] INFO: Context switch: proceso A-43, cambios: 10
+[2026-06-05 17:17:47.551] INFO: Context switch: proceso B-37, cambios: 5
+[2026-06-05 17:17:47.551] INFO: Context switch: proceso A-57, cambios: 8
+[2026-06-05 17:17:47.551] INFO: Quantum expirado: proceso A-57
+[2026-06-05 17:17:47.551] INFO: Context switch: proceso B-40, cambios: 4
+[2026-06-05 17:17:47.552] INFO: Context switch: proceso B-18, cambios: 5
+[2026-06-05 17:17:47.552] INFO: Quantum expirado: proceso B-18
+[2026-06-05 17:17:47.552] INFO: Context switch: proceso B-39, cambios: 5
+[2026-06-05 17:17:47.552] INFO: Context switch: proceso B-16, cambios: 6
+[2026-06-05 17:17:47.553] INFO: Quantum expirado: proceso B-16
+[2026-06-05 17:17:47.553] INFO: Context switch: proceso B-8, cambios: 6
+[2026-06-05 17:17:47.553] INFO: Context switch: proceso B-47, cambios: 3
+[2026-06-05 17:17:47.553] INFO: Context switch: proceso A-77, cambios: 6
+[2026-06-05 17:17:47.554] INFO: Context switch: proceso B-41, cambios: 5
+[2026-06-05 17:17:47.554] INFO: Quantum expirado: proceso B-41
+[2026-06-05 17:17:47.554] INFO: Context switch: proceso B-6, cambios: 6
+[2026-06-05 17:17:47.554] INFO: Context switch: proceso B-32, cambios: 5
+[2026-06-05 17:17:47.555] INFO: Quantum expirado: proceso B-32
+[2026-06-05 17:17:47.555] INFO: Context switch: proceso B-36, cambios: 5
+[2026-06-05 17:17:47.555] INFO: Context switch: proceso A-19, cambios: 15
+[2026-06-05 17:17:47.555] INFO: Quantum expirado: proceso A-19
+[2026-06-05 17:17:47.555] INFO: Context switch: proceso A-38, cambios: 9
+[2026-06-05 17:17:47.556] INFO: Context switch: proceso A-41, cambios: 7
+[2026-06-05 17:17:47.556] INFO: Quantum expirado: proceso A-41
+[2026-06-05 17:17:47.556] INFO: Context switch: proceso A-58, cambios: 7
+[2026-06-05 17:17:47.557] INFO: Context switch: proceso A-25, cambios: 7
+[2026-06-05 17:17:47.557] INFO: Quantum expirado: proceso A-25
+[2026-06-05 17:17:47.557] INFO: Context switch: proceso A-80, cambios: 4
+[2026-06-05 17:17:47.557] INFO: Context switch: proceso B-21, cambios: 6
+[2026-06-05 17:17:47.557] INFO: Quantum expirado: proceso B-21
+[2026-06-05 17:17:47.557] INFO: Context switch: proceso A-93, cambios: 6
+[2026-06-05 17:17:47.558] INFO: Context switch: proceso B-44, cambios: 5
+[2026-06-05 17:17:47.558] INFO: Quantum expirado: proceso B-44
+[2026-06-05 17:17:47.558] INFO: Context switch: proceso A-88, cambios: 5
+[2026-06-05 17:17:47.558] INFO: Context switch: proceso A-95, cambios: 5
+[2026-06-05 17:17:47.558] INFO: Quantum expirado: proceso A-95
+[2026-06-05 17:18:23.076] INFO: Context switch: proceso A-5, cambios: 1
+[2026-06-05 17:18:23.681] INFO: Context switch: proceso A-7, cambios: 1
+[2026-06-05 17:18:25.088] INFO: Context switch: proceso A-3, cambios: 1
+[2026-06-05 17:18:25.189] INFO: Context switch: proceso A-10, cambios: 1
+[2026-06-05 17:18:25.289] INFO: Context switch: proceso A-4, cambios: 1
+[2026-06-05 17:18:25.793] INFO: Context switch: proceso A-1, cambios: 1
+[2026-06-05 17:18:25.927] INFO: Context switch: proceso A-9, cambios: 1
+[2026-06-05 17:18:26.028] INFO: Context switch: proceso A-6, cambios: 1
+[2026-06-05 17:18:26.229] INFO: Context switch: proceso A-13, cambios: 1
+[2026-06-05 17:18:26.330] INFO: Context switch: proceso A-11, cambios: 1
+[2026-06-05 17:18:26.631] INFO: Context switch: proceso A-4, cambios: 2

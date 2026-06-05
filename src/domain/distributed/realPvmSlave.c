@@ -134,17 +134,20 @@ int main(void) {
 
     fprintf(stderr, "[Slave TID=%d] Listo, esperando tareas...\n", slave->slaveTid);
 
-    for (int task = 0; task < 2; task++) {
+    while (1) {
         PvmMessage* incoming = pvmSlaveReceiveMessage(slave, 15);
         if (!incoming) {
-            fprintf(stderr, "[Slave] Timeout esperando tarea %d\n", task + 1);
-            break;
+            fprintf(stderr, "[Slave] Timeout esperando mensaje\n");
+            continue;
         }
 
-        if (task == 0) {
+        if (incoming->messageType == MessageBcpSnapshot) {
             pvmSlaveHandleStatsMessage(slave, incoming);
-        } else {
+        } else if (incoming->messageType == MessageAging) {
             pvmSlaveHandleAgingMessage(slave, incoming);
+        } else if (incoming->messageType == MessageFinish) {
+            pvmMessageDestroy(incoming);
+            break;
         }
         pvmMessageDestroy(incoming);
     }

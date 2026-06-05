@@ -156,7 +156,7 @@ void pvmMasterTask1Stats(PvmMaster* master) {
             if (active[start + i] && active[start + i]->bcp)
                 bcpToBcpSummary(active[start + i]->bcp, &summaries[i]);
         }
-        PvmMessage* msg = packBcpMessage(slaveIdx, master->masterTid, master->slaveTids[slaveIdx],
+        PvmMessage* msg = packBcpMessage(slaveIdx, master->masterTid, slaveIdx,
                                         summaries, count * sizeof(BcpSummary));
         if (msg) {
             msg->messageType = MessageBcpSnapshot;
@@ -191,10 +191,10 @@ void pvmMasterTask2Aging(PvmMaster* master) {
             if (active[start + i] && active[start + i]->bcp)
                 bcpToRrProcessData(active[start + i]->bcp, &rrData[i]);
         }
-        PvmMessage* msg = packBcpMessage(slaveIdx, master->masterTid, master->slaveTids[slaveIdx],
+        PvmMessage* msg = packBcpMessage(slaveIdx, master->masterTid, slaveIdx,
                                         rrData, count * sizeof(RrProcessData));
         if (msg) {
-            msg->messageType = MessageBcpSnapshot;
+            msg->messageType = MessageAging;
             pvmMasterSendData(master, msg);
             pvmMessageDestroy(msg);
         }
