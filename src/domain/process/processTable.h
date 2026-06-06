@@ -1,64 +1,58 @@
-// === src/domain/process/processTable.h ===
+#ifndef CpuMemoryProcessTableH
+#define CpuMemoryProcessTableH
 
-#ifndef PROCESS_TABLE_H
-#define PROCESS_TABLE_H
+#include "bcp.h"
+#include "ioQueue.h"
+#include "readyQueue.h"
+#include "../../distributed/protocol.h"
+#include "../../utils/logger.h"
 
-#include "../../utils/constants.h"
-#include "process.h"
-
-struct ReadyQueue;
-struct IoQueue;
-
-// Propietario exclusivo de Process arrays
-// Solo referencia a ReadyQueue e IoQueue
 typedef struct ProcessTable {
-    Process* runningProcesses[procesosEnEjecucion];
-    Process* newRequests[procesosEnEspera];
-    int totalProcesses;
-    int finishedProcesses;
-    struct ReadyQueue* readyQueue;
-    struct IoQueue* ioQueue;
+    Bcp processes[TotalProcesses];
+    int activeSlots[ActiveProcessCount];
+    int newSlots[NewRequestCount];
+    int activeCount;
+    int newCount;
+    int finishedCount;
+    int currentTime;
+    int cpuIterations;
+    int totalCpuCyclesExecuted;
+    int totalCpuWasteCycles;
+    int totalContextSwitches;
+    int totalContextSwitchTime;
+    int totalIoOperations;
+    int totalPageFaults;
+    int totalSwapIns;
+    int totalSwapOuts;
+    int memoryUsedFrames;
+    int memoryFreeFrames;
+    int memoryLargestFreeRun;
+    int memoryFreeRunCount;
+    int internalWaste;
+    int externalWaste;
+    float fragmentation;
     float avgWaitingTime;
-    float avgTurnaroundTime;
-    int currentCycle;
-    int simulationStartTime;
-    int totalCpuCyclesExecuted;                         // Total de ciclos CPU ejecutados por todos los procesos
-    int totalContextSwitches;                           // Total de cambios de contexto realizados
-    int algorithmChangeCount;                           // Cantidad de veces que se cambió el algoritmo
-    int totalIoOperations;                              // Total de operaciones de E/S realizadas
-    float cpuUtilization;                               // Porcentaje de utilización de CPU
-    int internalWaste;                                  // Fragmentación interna
-    int externalWaste;                                  // Fragmentación externa
-    int totalPageFaults;                                // Total de fallos de página ocurridos
-    float fragmentation;                                // Nivel actual de fragmentación
-    int quantumCurrent;                                 // Valor actual de quantum
-    int quantumHistory[historialAlgoritmoMaximo];   // Historial de valores de Quantum
-    float proportionReady;                              // Proporción actual lista/total
-    float proportionWaiting;                            // Proporción actual en espera/total
-    int iterationsSinceBalance;                         // Iteraciones desde el último balance
-    int shouldSwitchAlgorithm;                          // Indicador: debe cambiar algoritmo
+    float avgExecutionTime;
+    float avgFinishedPerTime;
+    float cpuUtilization;
+    float readyProportion;
+    float waitingProportion;
+    int currentQuantum;
+    int algorithmChanges;
+    int resizeCount;
+    ReadyQueue readyQueue;
+    IoQueue ioQueue;
 } ProcessTable;
 
-ProcessTable* processTableCreate(void);
-
-void processTableDestroy(ProcessTable* table);
-
-int processTableAddRunning(ProcessTable* table, Process* process);
-
-int processTableAddNew(ProcessTable* table, Process* process);
-
-Process* processTableGetRunning(ProcessTable* table, int index);
-
-Process* processTableGetNew(ProcessTable* table, int index);
-
-void processTableRemoveRunning(ProcessTable* table, int index);
-
-int processTableGetTotalProcesses(ProcessTable* table);
-
-int processTableGetFinishedProcesses(ProcessTable* table);
-
-void processTableIncrementFinished(ProcessTable* table);
-
+void processTableInit(ProcessTable* table);
+void processTablePromoteNew(ProcessTable* table);
+void processTableFinishProcess(ProcessTable* table, int processIndex);
+void processTableUpdateQueueMetrics(ProcessTable* table);
 void processTableUpdateAverages(ProcessTable* table);
+void processTableLogSnapshot(ProcessTable* table, Logger* logger);
+void processTableLogBcps(ProcessTable* table, Logger* logger);
+int processTableExportStatsRows(const ProcessTable* table, ProcessStatsRow rows[], int maxRows);
+int processTableExportRrRows(const ProcessTable* table, RrAnalysisRow rows[], int maxRows);
+int processTableFindById(ProcessTable* table, const char* processId);
 
 #endif

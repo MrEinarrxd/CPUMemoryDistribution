@@ -1,75 +1,88 @@
-#ifndef DISTRIBUTED_PROTOCOL_H
-#define DISTRIBUTED_PROTOCOL_H
+#ifndef CpuMemoryDistributedProtocolH
+#define CpuMemoryDistributedProtocolH
 
-#include "../simulation/config.h"
+#include "../utils/constants.h"
 
-typedef enum WireMessageType {
-    WIRE_STATS_REQUEST = 1,
-    WIRE_STATS_RESPONSE = 2,
-    WIRE_AGING_REQUEST = 3,
-    WIRE_AGING_RESPONSE = 4,
-    WIRE_FINISH = 5
-} WireMessageType;
+typedef enum DistributedMessageType {
+    pvmMessageStatsRequest = 1,
+    pvmMessageStatsResult = 2,
+    pvmMessageAgingRequest = 3,
+    pvmMessageAgingResult = 4,
+    pvmMessageFinish = 5
+} DistributedMessageType;
 
-typedef struct BcpSummary {
+typedef struct ProcessStatsRow {
     int pid;
-    char process_id[SIM_ID_LEN];
+    char processId[ProcessIdLen];
     int state;
-    int remaining_cycles;
-    int total_cpu_cycles;
-    int time_in_execution;
-    int times_in_io;
-    int wasted_cpu_cycles;
-} BcpSummary;
+    int remainingCycles;
+    int totalCpuCycles;
+    int executedCycles;
+    int timesInIo;
+    int wastedCpuCycles;
+    int timesReturnedToReady;
+} ProcessStatsRow;
 
-typedef struct RrProcessData {
+typedef struct RrAnalysisRow {
     int pid;
-    char process_id[SIM_ID_LEN];
-    int remaining_cycles;
-    int total_cpu_cycles;
-    int time_in_execution;
-    int quantum_assigned;
-    int quantum_used;
-    int times_returned_to_ready;
-    int wasted_cpu_cycles;
-    float cpu_waste_ratio;
-} RrProcessData;
+    char processId[ProcessIdLen];
+    int remainingCycles;
+    int totalCpuCycles;
+    int executedCycles;
+    int quantumAssigned;
+    int quantumUsed;
+    int rrExecutionCount;
+    int rrQuantumAssignedTotal;
+    int rrQuantumUsedTotal;
+    int timesReturnedToReady;
+    int wastedCpuCycles;
+    float cpuWasteRatio;
+} RrAnalysisRow;
 
-typedef struct DistributedStats {
-    int process_count;
-    int active_count;
-    int finished_count;
-    int waiting_count;
-    long total_remaining_cycles;
-    long total_assigned_cycles;
-    long total_executed_cycles;
-    int avg_remaining_cycles;
-    int total_io_operations;
-    float avg_cpu_utilization;
-    char top_wasters_ids[SIM_TOP_N][SIM_ID_LEN];
-    int top_wasters_waste[SIM_TOP_N];
-    int top_wasters_count;
-} DistributedStats;
+typedef struct DistributedStatsResult {
+    int processCount;
+    int activeCount;
+    int finishedCount;
+    int waitingCount;
+    long totalRemainingCycles;
+    long totalAssignedCycles;
+    long totalExecutedCycles;
+    int avgRemainingCycles;
+    int ioOperations;
+    float avgCpuUtilization;
+    char topWastersIds[TopRankingCount][ProcessIdLen];
+    int topWastersWaste[TopRankingCount];
+    int topWastersCount;
+} DistributedStatsResult;
 
-typedef struct AgingResults {
-    char top_aged_ids[SIM_TOP_N][SIM_ID_LEN];
-    int top_aged_returns[SIM_TOP_N];
-    int top_aged_remaining[SIM_TOP_N];
-    int top_aged_count;
-    char top_wasters_ids[SIM_TOP_N][SIM_ID_LEN];
-    int top_wasters_waste[SIM_TOP_N];
-    int top_wasters_count;
-    int total_returns_to_ready;
-    float avg_cpu_utilization;
-} AgingResults;
+typedef struct DistributedAgingResult {
+    int processCount;
+    char topAgedIds[TopRankingCount][ProcessIdLen];
+    int topAgedReturns[TopRankingCount];
+    int topAgedRemaining[TopRankingCount];
+    int topAgedCount;
+    char topWastersIds[TopRankingCount][ProcessIdLen];
+    int topWastersWaste[TopRankingCount];
+    int topWastersCount;
+    float avgCpuUtilization;
+    int totalReturnsToReady;
+} DistributedAgingResult;
 
-typedef struct WireMessage {
-    int type;
-    int payload_size;
-    char payload[SIM_WIRE_PAYLOAD_SIZE];
-} WireMessage;
+typedef struct DistributedReport {
+    DistributedStatsResult stats;
+    DistributedAgingResult aging;
+} DistributedReport;
 
-void wire_message_init(WireMessage* message, WireMessageType type);
-int wire_message_set_payload(WireMessage* message, const void* payload, int payload_size);
+typedef struct PvmPacket {
+    int messageType;
+    int workerIndex;
+    int rowCount;
+    ProcessStatsRow statsRows[TotalProcesses];
+    RrAnalysisRow rrRows[TotalProcesses];
+    DistributedStatsResult statsResult;
+    DistributedAgingResult agingResult;
+} PvmPacket;
+
+void protocolClearPacket(PvmPacket* packet, DistributedMessageType type, int workerIndex);
 
 #endif

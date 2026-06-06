@@ -1,47 +1,42 @@
-// === src/domain/scheduler/scheduler.h ===
+#ifndef CpuMemorySchedulerH
+#define CpuMemorySchedulerH
 
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#include "../process/processTable.h"
 
-#include "../../utils/constants.h"
-
-struct ProcessTable;
-struct Process;
-struct FcfsScheduler;
-struct RrScheduler;
-
-typedef enum {
-    SchedulerAlgorithmFcfs,
-    SchedulerAlgorithmRr
+typedef enum SchedulerAlgorithm {
+    schedulerFcfs = 0,
+    schedulerRr = 1
 } SchedulerAlgorithm;
 
-// Solo referencia, no destruye FcfsScheduler y RrScheduler
+typedef struct RankingEntry {
+    char processId[ProcessIdLen];
+    int primary;
+    int secondary;
+} RankingEntry;
+
 typedef struct Scheduler {
-    SchedulerAlgorithm currentAlgorithm;
-    struct FcfsScheduler* fcfsScheduler;
-    struct RrScheduler* rrScheduler;
-    int totalContextSwitches;
-    int cycleCount;
+    SchedulerAlgorithm algorithm;
+    int quantum;
+    int quantumHistory[HistoryBars];
+    int historyCount;
+    int iterationsSinceRebalance;
+    RankingEntry topAged[TopRankingCount];
+    RankingEntry topWasters[TopRankingCount];
+    int topAgedCount;
+    int topWastersCount;
+    int hasPrivilegedProcess;
+    int lastAutoSwitchIteration;
+    char privilegedProcessId[ProcessIdLen];
 } Scheduler;
 
-Scheduler* schedulerCreate(SchedulerAlgorithm algorithm);
-
-void schedulerDestroy(Scheduler* scheduler);
-
-struct Process* schedulerSelectNext(Scheduler* scheduler, struct ProcessTable* table);
-
-void schedulerOnContextSwitch(Scheduler* scheduler);
-
-void schedulerSetAlgorithm(Scheduler* scheduler, SchedulerAlgorithm algorithm);
-
-void schedulerSetFcfs(Scheduler* scheduler, struct FcfsScheduler* fcfs);
-// Asigna el planificador FCFS al scheduler
-
-void schedulerSetRr(Scheduler* scheduler, struct RrScheduler* rr);
-// Asigna el planificador RR al scheduler
-
-SchedulerAlgorithm schedulerGetAlgorithm(Scheduler* scheduler);
-
-int schedulerGetTotalContextSwitches(Scheduler* scheduler);
+void schedulerInit(Scheduler* scheduler, SchedulerAlgorithm algorithm, int quantum);
+const char* schedulerAlgorithmName(SchedulerAlgorithm algorithm);
+int schedulerSelectNext(Scheduler* scheduler, ProcessTable* table);
+void schedulerRecordQuantum(Scheduler* scheduler);
+void schedulerRebalanceQuantum(Scheduler* scheduler, ProcessTable* table);
+int schedulerAutoSwitchIfNeeded(Scheduler* scheduler, ProcessTable* table);
+void schedulerUpdateRankings(Scheduler* scheduler, ProcessTable* table);
+void schedulerPrivilegeProcess(Scheduler* scheduler, ProcessTable* table, const char* processId);
+void schedulerClearPrivilegedProcess(Scheduler* scheduler, ProcessTable* table);
 
 #endif

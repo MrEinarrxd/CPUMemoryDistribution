@@ -1,83 +1,61 @@
-// === src/domain/process/bcp.h ===
-
-#ifndef BCP_H
-#define BCP_H
+#ifndef CpuMemoryBcpH
+#define CpuMemoryBcpH
 
 #include "../../utils/constants.h"
 
-typedef enum {
-    ProcessStateNew,
-    ProcessStateReady,
-    ProcessStateRunning,
-    ProcessStateWaitingIo,
-    ProcessStateSwap,
-    ProcessStateSuspended,
-    ProcessStateFinished
+typedef enum ProcessState {
+    processStateNew = 0,
+    processStateReady,
+    processStateRunning,
+    processStateWaitingIo,
+    processStateFinished
 } ProcessState;
 
 typedef struct Bcp {
-    char processId[idProcesoLen];
+    char processId[ProcessIdLen];
     int pid;
     ProcessState state;
     int priority;
-    int totalCpuCycles;
-    int remainingCycles;
+    int generatedAsActive;
     int arrivalTime;
-    int currentTimeSlice;
-    int contextSwitchTime;
-    int timeInExecution;
-    int timesExecuted;
-    int creationTime;
+    int creationDelay;
     int startTime;
     int finishTime;
-    int timeInWaiting;
-    int ageingTimeSlices;
+    int lastReadyTime;
+    int totalCpuCycles;
+    int remainingCpuCycles;
+    int currentInstanceCycles;
+    int contextSwitchTime;
+    int contextSwitchCount;
+    int totalContextSwitchTime;
+    int timeInExecution;
+    int timesExecuted;
+    int waitingTime;
+    int turnaroundTime;
+    int ioDevice;
+    int ioTimeRemaining;
     int timesInIo;
-    int ioTimeRemaining;   // Tiempo restante en cola de E/S (1-100 * multiplicador)
-
-    // ============ I/O PHRASE HANDLING (NEW) ============
-    // Cuando proceso va a E/S: se lee una frase aleatoria de frases.txt
-    // La frase se divide en palabras que se verifican en memoria
-    char ioPhrase[tamanoFraseIo];        // Frase completa leída de frases.txt
-    char requiredWords[palabrasPorFrase][maxCaracteresPalabra]; // Las 5 palabras clave de la frase
-    int requiredWordsCount;    // Cuántas palabras requiere (típicamente 5)
-
-    int pageCount;
+    int ioOperationsPending;
+    char ioPhrase[PhraseLen];
     int memoryRequested;
     int totalMemoryAllocated;
-    int assignedPages[maxPaginasPorProceso];
+    int pageCount;
+    int pageFaults;
+    int swapIns;
+    int swapOuts;
     int quantumAssigned;
     int quantumUsed;
+    int rrExecutionCount;
+    int rrQuantumAssignedTotal;
+    int rrQuantumUsedTotal;
+    int cpuWasteCycles;
     float cpuWasteRatio;
     int agingCounter;
     int timesReturnedToReady;
-    int wastedCpuCycles;
-    int pageTableBase;
-    int swapAddress;
-    int ioOperationsPending;
-    int contextSwitchCount;
+    int privileged;
 } Bcp;
 
-// Propietario exclusivo de: phraseBuffer, requiredWords[][], assignedPages[]
-// Solo referencia: pageTableBase, swapAddress
-// Los campos numéricos (ioOperationsPending, etc.) son propiedad del BCP
-
-Bcp* bcpCreate(const char* processId, int pid);
-
-void bcpDestroy(Bcp* bcp);
-
-void bcpInitialize(Bcp* bcp, int priority, int executionTime, int arrivalTime);
-
-void bcpSetState(Bcp* bcp, ProcessState state);
-
-ProcessState bcpGetState(Bcp* bcp);
-
-void bcpIncrementContextSwitches(Bcp* bcp);
-
-void bcpUpdateRemainingTime(Bcp* bcp, int cycles);
-
-void bcpAddPage(Bcp* bcp, int pageIndex);
-
-void bcpAddPhrase(Bcp* bcp, const char* phrase);
+void bcpInit(Bcp* bcp, int pid, const char* processId, int arrival, int cycles, int active);
+const char* processStateName(ProcessState state);
 
 #endif

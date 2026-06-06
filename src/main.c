@@ -1,17 +1,9 @@
-<<<<<<< Updated upstream
-#include "src/business/systemController.h"
+#include "business/appController.h"
+/*  
+./build/CPUMemoryDistributionSimulator
+*/
 
-int main() {
-    SystemController* controller = systemControllerCreate();
-    systemControllerInit(controller);
-    systemControllerRun(controller);
-    systemControllerDestroy(controller);
-    return 0;
-}
-=======
-#include "app/app.h"
 
 int main(void) {
-    return app_run();
+    return appControllerRun();
 }
->>>>>>> Stashed changes

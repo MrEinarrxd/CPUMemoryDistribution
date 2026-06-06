@@ -1,0 +1,522 @@
+# GUIA COMPLETA PARA USAR PVM CON CPUMemoryDistribution
+
+Versión estable y validada después de las pruebas realizadas.
+
+## Objetivo
+
+Usar:
+
+* masterOne (usuario: master) como nodo maestro.
+* slave1 (usuario: damian) como nodo esclavo.
+* slave2 (usuario: master) como nodo esclavo.
+
+La configuración utiliza:
+
+* SSH sin contraseña.
+* PVM (Parallel Virtual Machine).
+* Ejecutable distribuido simSlave.
+* Nombres de host fijos (slave1, slave2, masterOne).
+* Ruta común /tmp/simSlave para evitar problemas por usuarios distintos.
+
+# REQUISITOS
+
+En los tres equipos:
+
+```
+sudo apt update
+sudo apt install pvm pvm-dev openssh-server
+```
+
+Verificar:
+
+```
+which pvm
+which pvmd
+systemctl status ssh
+```
+
+# PASO 1 - IDENTIFICAR LAS IPS
+
+En cada equipo:
+
+```
+hostname
+hostname -I
+```
+
+Ejemplo:
+
+```
+masterOne -> 192.168.100.10
+slave1    -> 192.168.100.97
+slave2    -> 192.168.100.55
+```
+
+Anotar las IPs reales.
+
+# PASO 2 - CONFIGURAR /etc/hosts
+
+En los tres equipos:
+
+```
+sudo nano /etc/hosts
+```
+
+Agregar:
+
+```
+192.168.100.10 masterOne
+192.168.100.97 slave1
+192.168.100.55 slave2
+```
+
+Guardar.
+
+Verificar:
+
+```
+ping slave1
+ping slave2
+ping masterOne
+```
+
+Si responde correctamente, la resolución de nombres funciona.
+
+# PASO 3 - CREAR LLAVE SSH
+
+En masterOne:
+
+```
+ssh-keygen
+```
+
+Presionar Enter en todas las preguntas.
+
+Se generará:
+
+```
+~/.ssh/id_rsa
+~/.ssh/id_rsa.pub
+```
+
+# PASO 4 - COPIAR LLAVE SSH
+
+Copiar la llave pública a cada slave.
+
+Para slave1:
+
+```
+ssh-copy-id damian@slave1
+```
+
+Para slave2:
+
+```
+ssh-copy-id master@slave2
+```
+
+Verificar:
+
+```
+ssh damian@slave1 hostname
+ssh master@slave2 hostname
+```
+
+No debe pedir contraseña.
+
+# PASO 5 - CONFIGURAR ~/.ssh/config
+
+En masterOne:
+
+```
+nano ~/.ssh/config
+```
+
+Contenido:
+
+```
+Host slave1
+    HostName slave1
+    User damian
+
+Host slave2
+    HostName slave2
+    User master
+```
+
+Guardar.
+
+Verificar:
+
+```
+ssh slave1 hostname
+ssh slave2 hostname
+```
+
+Debe responder:
+
+```
+slave1
+slave2
+```
+
+# PASO 6 - CONFIGURAR PVM EN LOS SLAVES
+
+Verificar instalación:
+
+```
+ssh slave1 'find /usr -type d -name pvm3 2>/dev/null | head -1'
+ssh slave2 'find /usr -type d -name pvm3 2>/dev/null | head -1'
+```
+
+Debe aparecer:
+
+```
+/usr/lib/pvm3
+```
+
+Configurar:
+
+```
+ssh slave1 'cat > ~/.profile << "EOF"
+export PVM_ROOT=/usr/lib/pvm3
+export PVM_ARCH=$(/usr/lib/pvm3/lib/pvmgetarch)
+export PATH=$PVM_ROOT/lib:$PVM_ROOT/bin/$PVM_ARCH:$PATH
+EOF'
+
+ssh slave2 'cat > ~/.profile << "EOF"
+export PVM_ROOT=/usr/lib/pvm3
+export PVM_ARCH=$(/usr/lib/pvm3/lib/pvmgetarch)
+export PATH=$PVM_ROOT/lib:$PVM_ROOT/bin/$PVM_ARCH:$PATH
+EOF'
+```
+
+Verificar:
+
+```
+ssh slave1 'bash -lc "echo $PVM_ROOT"'
+ssh slave2 'bash -lc "echo $PVM_ROOT"'
+```
+
+Debe mostrar:
+
+```
+/usr/lib/pvm3
+```
+
+# PASO 7 - COMPILAR EL PROYECTO
+
+En masterOne:
+
+```
+cd ~/Documents/GitHub/CPUMemoryDistribution
+
+make clean
+make -B
+```
+
+Debe generar:
+
+```
+./build/CPUMemoryDistributionSimulator
+./build/simSlave
+```
+
+Verificar:
+
+```
+ls -l build/simSlave
+ls -l build/CPUMemoryDistributionSimulator
+```
+
+# PASO 8 - DISTRIBUIR simSlave
+
+Copiar a una ruta común para todos los equipos:
+
+```
+scp ./build/simSlave slave1:/tmp/simSlave
+scp ./build/simSlave slave2:/tmp/simSlave
+```
+
+Dar permisos:
+
+```
+ssh slave1 'chmod +x /tmp/simSlave'
+ssh slave2 'chmod +x /tmp/simSlave'
+```
+
+Verificar:
+
+```
+ssh slave1 'ls -l /tmp/simSlave'
+ssh slave2 'ls -l /tmp/simSlave'
+```
+
+Debe aparecer:
+
+```
+-rwxrwxr-x
+```
+
+# PASO 9 - PROBAR PVM
+
+Iniciar:
+
+```
+pvm
+```
+
+Dentro de PVM:
+
+```
+add slave1
+add slave2
+conf
+```
+
+Debe mostrar:
+
+```
+masterOne
+slave1
+slave2
+```
+
+Salir:
+
+```
+halt
+```
+
+Si slave2 no aparece:
+
+Verificar:
+
+```
+ssh slave2 'bash -lc "echo $PVM_ROOT"'
+```
+
+Debe responder:
+
+```
+/usr/lib/pvm3
+```
+
+# PASO 10 - CONFIGURAR VARIABLES DEL PROYECTO
+
+En masterOne:
+
+```
+export PVM_RSH=ssh
+
+export PVM_SLAVE_HOSTS=slave1,slave2
+
+export PVM_SLAVE_EXEC=/tmp/simSlave
+```
+
+Verificar:
+
+```
+echo $PVM_RSH
+echo $PVM_SLAVE_HOSTS
+echo $PVM_SLAVE_EXEC
+```
+
+# PASO 11 - EJECUTAR LA SIMULACIÓN
+
+En masterOne:
+
+```
+cd ~/Documents/GitHub/CPUMemoryDistribution
+
+./build/CPUMemoryDistributionSimulator
+```
+
+Elegir:
+
+```
+1. Simulación completa con PVM real
+```
+
+# COMANDOS DE DIAGNÓSTICO
+
+Verificar SSH:
+
+```
+ssh slave1 hostname
+ssh slave2 hostname
+```
+
+Verificar ejecutable:
+
+```
+ssh slave1 'ls -l /tmp/simSlave'
+ssh slave2 'ls -l /tmp/simSlave'
+```
+
+Verificar PVM:
+
+```
+pvm
+```
+
+Dentro:
+
+```
+conf
+```
+
+Verificar variables:
+
+```
+env | grep PVM
+```
+
+Verificar slaves:
+
+```
+ssh slave1 'bash -lc "echo $PVM_ROOT"'
+ssh slave2 'bash -lc "echo $PVM_ROOT"'
+```
+
+# ERRORES COMUNES
+
+Error:
+
+```
+PVM real requiere exportar PVM_SLAVE_HOSTS
+```
+
+Solución:
+
+```
+export PVM_SLAVE_HOSTS=slave1,slave2
+```
+
+Error:
+
+```
+no se pudieron lanzar todos los hosts configurados
+```
+
+Solución:
+
+```
+verificar SSH
+verificar /tmp/simSlave
+verificar permisos
+```
+
+Error:
+
+```
+The value of the $PVM_ROOT environment variable is invalid
+```
+
+Solución:
+
+```
+configurar ~/.profile correctamente
+verificar:
+
+    ssh slaveX 'bash -lc "echo $PVM_ROOT"'
+```
+
+Error:
+
+```
+Permission denied
+```
+
+Solución:
+
+```
+repetir:
+
+    ssh-copy-id usuario@host
+```
+
+Error:
+
+```
+simSlave no encontrado
+```
+
+Solución:
+
+```
+volver a copiar:
+
+scp ./build/simSlave slave1:/tmp/simSlave
+scp ./build/simSlave slave2:/tmp/simSlave
+```
+
+Error:
+
+```
+Segmentation fault
+```
+
+Solución:
+
+```
+revisar logs del simulador
+recompilar con:
+
+    make clean
+    make -B
+```
+
+# SCRIPT RÁPIDO DE DESPLIEGUE
+
+Guardar como:
+
+```
+deploy.sh
+```
+
+Contenido:
+
+```
+#!/bin/bash
+
+make -B
+
+scp ./build/simSlave slave1:/tmp/simSlave
+scp ./build/simSlave slave2:/tmp/simSlave
+
+ssh slave1 'chmod +x /tmp/simSlave'
+ssh slave2 'chmod +x /tmp/simSlave'
+
+export PVM_RSH=ssh
+export PVM_SLAVE_HOSTS=slave1,slave2
+export PVM_SLAVE_EXEC=/tmp/simSlave
+
+./build/CPUMemoryDistributionSimulator
+```
+
+Dar permisos:
+
+```
+chmod +x deploy.sh
+```
+
+Ejecutar:
+
+```
+./deploy.sh
+```
+
+# CONFIGURACIÓN FINAL CORRECTA
+
+Siempre usar:
+
+```
+export PVM_RSH=ssh
+
+export PVM_SLAVE_HOSTS=slave1,slave2
+
+export PVM_SLAVE_EXEC=/tmp/simSlave
+```
+
+Con esta configuración el proyecto funciona incluso si los usuarios remotos son distintos.
