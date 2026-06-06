@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 // === src/domain/process/process.h ===
 
 #ifndef PROCESS_H
@@ -21,20 +20,5 @@ void processActivate(Process* process);
 void processDeactivate(Process* process);
 
 int processIsActive(Process* process);
-=======
-#ifndef DOMAIN_PROCESS_PROCESS_H
-#define DOMAIN_PROCESS_PROCESS_H
-
-#include "pcb.h"
-
-typedef struct Process {
-    Pcb pcb;
-    int is_active;
-} Process;
-
-void process_init(Process* process, int index, int arrival, int creation, int total_cycles, int page_count);
-void process_activate(Process* process);
-void process_deactivate(Process* process);
->>>>>>> Stashed changes
 
 #endif
