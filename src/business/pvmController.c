@@ -4,7 +4,6 @@
 #include "../utils/constants.h"
 #include "../utils/randomUtils.h"
 
-#include <pvm3.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -49,10 +48,42 @@ static void pvmControllerPrepareTestTable(ProcessTable* table) {
     processTableUpdateQueueMetrics(table);
 }
 
+static int pvmControllerEnsureRealSession(PvmController* controller) {
+    if (!controller) return -1;
+    if (controller->realSession.active) return 0;
+    if (pvmMasterSessionStart(&controller->realSession) != 0) {
+        snprintf(controller->statusText, sizeof(controller->statusText),
+                 "[PVM ERROR] no se pudieron iniciar slaves persistentes");
+        return -1;
+    }
+    snprintf(controller->statusText, sizeof(controller->statusText),
+             "[PVM REAL] slaves persistentes activos");
+    return 0;
+}
+
+static int pvmControllerRunRealAnalysis(PvmController* controller,
+                                        const ProcessTable* table) {
+    if (!controller || !table) return -1;
+    if (pvmControllerEnsureRealSession(controller) != 0) return -1;
+    if (pvmMasterSessionAnalyze(&controller->realSession, table,
+                                &controller->lastReport) == 0) {
+        controller->analysisCount++;
+        snprintf(controller->statusText, sizeof(controller->statusText),
+                 "[PVM REAL] analisis %d", controller->analysisCount);
+        return 0;
+    }
+
+    pvmMasterSessionStop(&controller->realSession);
+    snprintf(controller->statusText, sizeof(controller->statusText),
+             "[PVM ERROR] fallo en analisis PVM real");
+    return -1;
+}
+
 void pvmControllerInit(PvmController* controller, PvmMode mode) {
     if (!controller) return;
     memset(controller, 0, sizeof(*controller));
     controller->mode = mode;
+    pvmMasterSessionInit(&controller->realSession);
     if (mode == pvmModeReal) {
         snprintf(controller->statusText, sizeof(controller->statusText), "[PVM REAL] sin iniciar");
     } else if (mode == pvmModeDisabled) {
@@ -63,7 +94,6 @@ void pvmControllerInit(PvmController* controller, PvmMode mode) {
 }
 
 int pvmControllerStart(PvmController* controller) {
-    int tid;
     if (!controller) return -1;
     if (controller->mode == pvmModeDisabled) {
         controller->started = 0;
@@ -76,14 +106,8 @@ int pvmControllerStart(PvmController* controller) {
         return 0;
     }
 
-    tid = pvm_mytid();
-    if (tid < 0) {
-        snprintf(controller->statusText, sizeof(controller->statusText), "[PVM ERROR] pvmd no disponible");
-        return -1;
-    }
-    pvm_exit();
+    if (pvmControllerEnsureRealSession(controller) != 0) return -1;
     controller->started = 1;
-    snprintf(controller->statusText, sizeof(controller->statusText), "[PVM REAL] activo");
     return 0;
 }
 
@@ -95,6 +119,11 @@ int pvmControllerRunPeriodic(PvmController* controller, const ProcessTable* tabl
         return 0;
     }
     controller->lastAnalysisIteration = currentIteration;
+
+    if (controller->mode == pvmModeReal) {
+        return pvmControllerRunRealAnalysis(controller, table);
+    }
+
     return pvmControllerRunFinal(controller, table);
 }
 
@@ -115,15 +144,8 @@ int pvmControllerRunFinal(PvmController* controller, const ProcessTable* table) 
         return 0;
     }
 
-    result = pvmMasterRunReal(table, &controller->lastReport);
-    if (result == 0) {
-        controller->analysisCount++;
-        snprintf(controller->statusText, sizeof(controller->statusText),
-                 "[PVM REAL] analisis %d", controller->analysisCount);
-    } else {
-        snprintf(controller->statusText, sizeof(controller->statusText),
-                 "[PVM ERROR] fallo en analisis PVM real");
-    }
+    result = pvmControllerRunRealAnalysis(controller, table);
+    pvmMasterSessionStop(&controller->realSession);
     return result;
 }
 
@@ -170,5 +192,8 @@ void pvmControllerPrintReport(const char* title, const DistributedReport* report
 
 void pvmControllerDestroy(PvmController* controller) {
     if (!controller) return;
+    if (controller->mode == pvmModeReal) {
+        pvmMasterSessionStop(&controller->realSession);
+    }
     controller->started = 0;
 }

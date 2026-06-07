@@ -38,7 +38,7 @@ enum {
     MinQuantum = 10,
     MaxQuantum = 120,
     RrRebalanceInterval = 20,
-    PvmAnalysisInterval = 1000,
+    PvmAnalysisInterval = 5000,
     QueueImbalanceThreshold = 75,
     AutoSwitchInterval = 40,
     AutoSwitchCooldownIterations = 5000,
@@ -51,6 +51,6 @@ static const char ProcessTableLog[] = "logs/process_table.log";
 static const char BcpLog[] = "logs/bcp.log";
 static const char WordBookPath[] = "logs/libro1.odt";
 static const char PhraseBookPath[] = "logs/frases.odt";
-static const char DefaultPvmSlaveExec[] = "./build/simSlave";
+static const char DefaultPvmSlaveExec[] = "/tmp/simSlave";
 
 #endif

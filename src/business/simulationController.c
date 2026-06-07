@@ -179,19 +179,28 @@ static void fillSnapshot(SimulationController* controller, SimulationSnapshot* s
         snprintf(snapshot->eventLog[1], sizeof(snapshot->eventLog[1]),
                  "[STATS] Sin reporte distribuido.");
     } else if (controller->pvmMode == pvmModeReal) {
-        snprintf(snapshot->eventLog[0], sizeof(snapshot->eventLog[0]),
-                 "[PVM REAL] Resultado integrado por slaves reales. %s",
-                 controller->pvmController.statusText);
-        snprintf(snapshot->eventLog[1], sizeof(snapshot->eventLog[1]),
-                 "[STATS] Finalizados=%d | En E/S=%d | Prom. pendientes=%d.",
-                 controller->pvmController.lastReport.stats.finishedCount,
-                 controller->pvmController.lastReport.stats.waitingCount,
-                 controller->pvmController.lastReport.stats.avgRemainingCycles);
-        snprintf(snapshot->eventLog[2], sizeof(snapshot->eventLog[2]),
-                 "[RR] Procesos RR=%d | retornos=%d | uso promedio=%.0f%%.",
-                 controller->pvmController.lastReport.aging.processCount,
-                 controller->pvmController.lastReport.aging.totalReturnsToReady,
-                 controller->pvmController.lastReport.aging.avgCpuUtilization * 100.0f);
+        if (controller->pvmController.analysisCount <= 0) {
+            snprintf(snapshot->eventLog[0], sizeof(snapshot->eventLog[0]),
+                     "[PVM REAL] Activo; analisis distribuido final pendiente.");
+            snprintf(snapshot->eventLog[1], sizeof(snapshot->eventLog[1]),
+                     "[STATS] Pendiente hasta finalizar la simulacion.");
+            snprintf(snapshot->eventLog[2], sizeof(snapshot->eventLog[2]),
+                     "[RR] Pendiente hasta finalizar la simulacion.");
+        } else {
+            snprintf(snapshot->eventLog[0], sizeof(snapshot->eventLog[0]),
+                     "[PVM REAL] Resultado integrado por slaves reales. %s",
+                     controller->pvmController.statusText);
+            snprintf(snapshot->eventLog[1], sizeof(snapshot->eventLog[1]),
+                     "[STATS] Finalizados=%d | En E/S=%d | Prom. pendientes=%d.",
+                     controller->pvmController.lastReport.stats.finishedCount,
+                     controller->pvmController.lastReport.stats.waitingCount,
+                     controller->pvmController.lastReport.stats.avgRemainingCycles);
+            snprintf(snapshot->eventLog[2], sizeof(snapshot->eventLog[2]),
+                     "[RR] Procesos RR=%d | retornos=%d | uso promedio=%.0f%%.",
+                     controller->pvmController.lastReport.aging.processCount,
+                     controller->pvmController.lastReport.aging.totalReturnsToReady,
+                     controller->pvmController.lastReport.aging.avgCpuUtilization * 100.0f);
+        }
     } else {
         snprintf(snapshot->eventLog[0], sizeof(snapshot->eventLog[0]),
                  "[PVM LOCAL] Analisis local equivalente. %s",

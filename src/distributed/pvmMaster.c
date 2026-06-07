@@ -60,13 +60,13 @@ static int spawnSlaves(const char* slaveExec, const char* slaveHosts, int tids[]
     while (token && spawned < count) {
         int result;
         trimHost(token);
-        if (token[0] == '\0') return -1;
+        if (token[0] == '\0') return spawned > 0 ? spawned : -1;
         result = pvm_spawn((char*)slaveExec, NULL, PvmTaskHost, token, 1, &tids[spawned]);
-        if (result != 1) return -1;
+        if (result != 1) return spawned > 0 ? spawned : -1;
         spawned++;
         token = strtok(NULL, ",");
     }
-    return spawned == count ? spawned : -1;
+    return spawned;
 }
 
 static void sendFinishToSlaves(const int tids[], int count) {
@@ -92,96 +92,122 @@ static void fillAgingPacket(PvmPacket* packet, const RrAnalysisRow rows[], int s
     for (int i = 0; i < count; ++i) packet->rrRows[i] = rows[start + i];
 }
 
-int pvmMasterRunReal(const ProcessTable* table, DistributedReport* report) {
-    int masterTid;
-    int tids[2] = {0, 0};
-    int spawned;
-    const char* slaveExec;
-    const char* slaveHosts;
+static int analyzeWithWorkers(const int tids[], int workerCount, const ProcessTable* table,
+                              DistributedReport* report) {
     ProcessStatsRow statsRows[TotalProcesses];
     RrAnalysisRow rrRows[TotalProcesses];
-    DistributedStatsResult statsPartials[2];
-    DistributedAgingResult agingPartials[2];
+    DistributedStatsResult statsPartials[PvmMasterWorkerCount];
+    DistributedAgingResult agingPartials[PvmMasterWorkerCount];
     PvmPacket packet;
     int statsCount;
     int rrCount;
-    int statsSplit;
-    int rrSplit;
 
-    if (!table || !report) return -1;
+    if (!tids || !table || !report) return -1;
+    if (workerCount <= 0 || workerCount > PvmMasterWorkerCount) return -1;
     memset(report, 0, sizeof(*report));
     memset(statsPartials, 0, sizeof(statsPartials));
     memset(agingPartials, 0, sizeof(agingPartials));
 
-    masterTid = pvm_mytid();
-    if (masterTid < 0) return -1;
+    statsCount = processTableExportStatsRows(table, statsRows, TotalProcesses);
+    rrCount = processTableExportRrRows(table, rrRows, TotalProcesses);
+
+    for (int worker = 0; worker < workerCount; ++worker) {
+        int start = (statsCount * worker) / workerCount;
+        int end = (statsCount * (worker + 1)) / workerCount;
+        fillStatsPacket(&packet, statsRows, start, end - start, worker);
+        if (sendPacket(tids[worker], &packet) < 0) return -1;
+    }
+
+    for (int i = 0; i < workerCount; ++i) {
+        if (receivePacket(pvmMessageStatsResult, &packet) == 0 &&
+            packet.workerIndex >= 0 && packet.workerIndex < workerCount) {
+            statsPartials[packet.workerIndex] = packet.statsResult;
+        } else {
+            return -1;
+        }
+    }
+
+    for (int worker = 0; worker < workerCount; ++worker) {
+        int start = (rrCount * worker) / workerCount;
+        int end = (rrCount * (worker + 1)) / workerCount;
+        fillAgingPacket(&packet, rrRows, start, end - start, worker);
+        if (sendPacket(tids[worker], &packet) < 0) return -1;
+    }
+
+    for (int i = 0; i < workerCount; ++i) {
+        if (receivePacket(pvmMessageAgingResult, &packet) == 0 &&
+            packet.workerIndex >= 0 && packet.workerIndex < workerCount) {
+            agingPartials[packet.workerIndex] = packet.agingResult;
+        } else {
+            return -1;
+        }
+    }
+
+    distributedTasksIntegrateStats(statsPartials, workerCount, &report->stats);
+    distributedTasksIntegrateAging(agingPartials, workerCount, &report->aging);
+    return 0;
+}
+
+void pvmMasterSessionInit(PvmMasterSession* session) {
+    if (!session) return;
+    memset(session, 0, sizeof(*session));
+    session->masterTid = -1;
+}
+
+int pvmMasterSessionStart(PvmMasterSession* session) {
+    int spawned;
+    const char* slaveExec;
+    const char* slaveHosts;
+
+    if (!session) return -1;
+    if (session->active) return 0;
+
+    pvmMasterSessionInit(session);
+    session->masterTid = pvm_mytid();
+    if (session->masterTid < 0) {
+        pvmMasterSessionInit(session);
+        return -1;
+    }
 
     slaveExec = getenv("PVM_SLAVE_EXEC");
     if (!slaveExec || slaveExec[0] == '\0') slaveExec = DefaultPvmSlaveExec;
     slaveHosts = getenv("PVM_SLAVE_HOSTS");
-    spawned = spawnSlaves(slaveExec, slaveHosts, tids, 2);
-    if (spawned != 2) {
+    spawned = spawnSlaves(slaveExec, slaveHosts, session->tids, PvmMasterWorkerCount);
+    if (spawned != PvmMasterWorkerCount) {
+        if (spawned > 0) sendFinishToSlaves(session->tids, spawned);
         pvm_exit();
+        pvmMasterSessionInit(session);
         return -1;
     }
 
-    statsCount = processTableExportStatsRows(table, statsRows, TotalProcesses);
-    rrCount = processTableExportRrRows(table, rrRows, TotalProcesses);
-    statsSplit = statsCount / 2;
-    rrSplit = rrCount / 2;
+    session->workerCount = PvmMasterWorkerCount;
+    session->active = 1;
+    return 0;
+}
 
-    fillStatsPacket(&packet, statsRows, 0, statsSplit, 0);
-    if (sendPacket(tids[0], &packet) < 0) {
-        sendFinishToSlaves(tids, 2);
+int pvmMasterSessionAnalyze(PvmMasterSession* session, const ProcessTable* table,
+                            DistributedReport* report) {
+    if (!session || !session->active) return -1;
+    return analyzeWithWorkers(session->tids, session->workerCount, table, report);
+}
+
+void pvmMasterSessionStop(PvmMasterSession* session) {
+    if (!session) return;
+    if (session->active) {
+        sendFinishToSlaves(session->tids, session->workerCount);
         pvm_exit();
-        return -1;
     }
-    fillStatsPacket(&packet, statsRows, statsSplit, statsCount - statsSplit, 1);
-    if (sendPacket(tids[1], &packet) < 0) {
-        sendFinishToSlaves(tids, 2);
-        pvm_exit();
-        return -1;
-    }
+    pvmMasterSessionInit(session);
+}
 
-    for (int i = 0; i < 2; ++i) {
-        if (receivePacket(pvmMessageStatsResult, &packet) == 0 &&
-            packet.workerIndex >= 0 && packet.workerIndex < 2) {
-            statsPartials[packet.workerIndex] = packet.statsResult;
-        } else {
-            sendFinishToSlaves(tids, 2);
-            pvm_exit();
-            return -1;
-        }
-    }
+int pvmMasterRunReal(const ProcessTable* table, DistributedReport* report) {
+    int result;
+    PvmMasterSession session;
 
-    fillAgingPacket(&packet, rrRows, 0, rrSplit, 0);
-    if (sendPacket(tids[0], &packet) < 0) {
-        sendFinishToSlaves(tids, 2);
-        pvm_exit();
-        return -1;
-    }
-    fillAgingPacket(&packet, rrRows, rrSplit, rrCount - rrSplit, 1);
-    if (sendPacket(tids[1], &packet) < 0) {
-        sendFinishToSlaves(tids, 2);
-        pvm_exit();
-        return -1;
-    }
-
-    for (int i = 0; i < 2; ++i) {
-        if (receivePacket(pvmMessageAgingResult, &packet) == 0 &&
-            packet.workerIndex >= 0 && packet.workerIndex < 2) {
-            agingPartials[packet.workerIndex] = packet.agingResult;
-        } else {
-            sendFinishToSlaves(tids, 2);
-            pvm_exit();
-            return -1;
-        }
-    }
-
-    sendFinishToSlaves(tids, 2);
-
-    distributedTasksIntegrateStats(statsPartials, 2, &report->stats);
-    distributedTasksIntegrateAging(agingPartials, 2, &report->aging);
-    pvm_exit();
+    pvmMasterSessionInit(&session);
+    if (pvmMasterSessionStart(&session) != 0) return -1;
+    result = pvmMasterSessionAnalyze(&session, table, report);
+    pvmMasterSessionStop(&session);
+    if (result != 0) return -1;
     return 0;
 }

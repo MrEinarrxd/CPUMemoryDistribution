@@ -1,7 +1,7 @@
 #ifndef CpuMemoryPvmControllerH
 #define CpuMemoryPvmControllerH
 
-#include "../distributed/protocol.h"
+#include "../distributed/pvmMaster.h"
 #include "../domain/process/processTable.h"
 
 typedef enum PvmMode {
@@ -16,6 +16,7 @@ typedef struct PvmController {
     int started;
     int lastAnalysisIteration;
     int analysisCount;
+    PvmMasterSession realSession;
     char statusText[96];
     DistributedReport lastReport;
 } PvmController;
