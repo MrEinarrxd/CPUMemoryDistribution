@@ -3,20 +3,7 @@
 #include "../../utils/randomUtils.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
-typedef struct ArrivalPair {
-    int arrival;
-    int index;
-} ArrivalPair;
-
-static int compareArrivalPair(const void* left, const void* right) {
-    const ArrivalPair* a = (const ArrivalPair*)left;
-    const ArrivalPair* b = (const ArrivalPair*)right;
-    if (a->arrival != b->arrival) return a->arrival - b->arrival;
-    return a->index - b->index;
-}
 
 static int processReadyTime(const Bcp* bcp) {
     if (!bcp) return 0;
@@ -77,7 +64,7 @@ static void addToActive(ProcessTable* table, int slot, int processIndex) {
 
 void processTableInit(ProcessTable* table) {
     int arrivals[TotalProcesses];
-    ArrivalPair order[TotalProcesses];
+    int order[TotalProcesses];
 
     if (!table) return;
     memset(table, 0, sizeof(*table));
@@ -94,20 +81,24 @@ void processTableInit(ProcessTable* table) {
                  randomCpuCycles(), 0);
         table->processes[i].creationDelay = randomCreationSleep();
         table->processes[i].pageCount = randomEvenPageCount();
-        order[i].arrival = arrivals[i];
-        order[i].index = i;
+        order[i] = i;
     }
 
-    qsort(order, TotalProcesses, sizeof(order[0]), compareArrivalPair);
+    for (int i = TotalProcesses - 1; i > 0; --i) {
+        int j = randomInt(0, i);
+        int tmp = order[i];
+        order[i] = order[j];
+        order[j] = tmp;
+    }
 
     for (int i = 0; i < ActiveProcessCount; ++i) {
-        table->processes[order[i].index].generatedAsActive = 1;
-        addToActive(table, i, order[i].index);
+        table->processes[order[i]].generatedAsActive = 1;
+        addToActive(table, i, order[i]);
     }
 
     table->newCount = NewRequestCount;
     for (int i = 0; i < NewRequestCount; ++i) {
-        int processIndex = order[ActiveProcessCount + i].index;
+        int processIndex = order[ActiveProcessCount + i];
         table->newSlots[i] = processIndex;
         table->processes[processIndex].state = processStateNew;
     }

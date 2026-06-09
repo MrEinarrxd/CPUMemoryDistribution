@@ -20,13 +20,18 @@ static int receivePacket(int messageType, PvmPacket* packet) {
     int ret;
 
     if (!packet) return -1;
-    timeout.tv_sec = 10;
+    timeout.tv_sec = PvmReceiveTimeoutSeconds;
     timeout.tv_usec = 0;
     ret = pvm_trecv(-1, messageType, &timeout);
     if (ret <= 0) return -1;
     memset(packet, 0, sizeof(*packet));
     pvm_upkbyte((char*)packet, (int)sizeof(*packet), 1);
     return 0;
+}
+
+static int connectToPvm(void) {
+    pvm_setopt(PvmAutoErr, 0);
+    return pvm_mytid();
 }
 
 static void trimHost(char* text) {
@@ -37,11 +42,60 @@ static void trimHost(char* text) {
     start = text;
     while (*start == ' ' || *start == '\t') start++;
     if (start != text) memmove(text, start, strlen(start) + 1);
+
     end = text + strlen(text);
-    while (end > text && (end[-1] == ' ' || end[-1] == '\t')) {
-        end--;
-    }
+    while (end > text && (end[-1] == ' ' || end[-1] == '\t')) end--;
     *end = '\0';
+}
+
+static int hostNameMatches(const char* configured, const char* requested) {
+    size_t requestedLen;
+
+    if (!configured || !requested) return 0;
+    if (strcmp(configured, requested) == 0) return 1;
+
+    requestedLen = strlen(requested);
+    return strncmp(configured, requested, requestedLen) == 0 &&
+           configured[requestedLen] == '.';
+}
+
+static int configuredHostExists(const char* requested,
+                                struct pvmhostinfo* hosts,
+                                int hostCount) {
+    if (!requested || !hosts || hostCount <= 0) return 0;
+    for (int i = 0; i < hostCount; ++i) {
+        if (hostNameMatches(hosts[i].hi_name, requested)) return 1;
+    }
+    return 0;
+}
+
+static int validateSpawnHosts(const char* slaveHosts) {
+    char hostsText[256];
+    char* token;
+    struct pvmhostinfo* hosts = NULL;
+    int hostCount = 0;
+    int archCount = 0;
+    int requestedCount = 0;
+
+    if (!slaveHosts || slaveHosts[0] == '\0') return -1;
+    if (pvm_config(&hostCount, &archCount, &hosts) < 0) return -1;
+    if (!hosts || hostCount <= 0) return -1;
+
+    strncpy(hostsText, slaveHosts, sizeof(hostsText) - 1);
+    hostsText[sizeof(hostsText) - 1] = '\0';
+
+    token = strtok(hostsText, ",");
+    while (token) {
+        trimHost(token);
+        if (token[0] == '\0') return -1;
+        if (!configuredHostExists(token, hosts, hostCount)) {
+            return -1;
+        }
+        requestedCount++;
+        token = strtok(NULL, ",");
+    }
+
+    return requestedCount > 0 ? 0 : -1;
 }
 
 static int spawnSlaves(const char* slaveExec, const char* slaveHosts, int tids[], int count) {
@@ -49,23 +103,24 @@ static int spawnSlaves(const char* slaveExec, const char* slaveHosts, int tids[]
     char* token;
     int spawned = 0;
 
-    if (!slaveExec || !tids || count <= 0) return -1;
-    if (!slaveHosts || slaveHosts[0] == '\0') {
-        return pvm_spawn((char*)slaveExec, NULL, 0, "", count, tids);
-    }
+    if (!slaveExec || !slaveHosts || !tids || count <= 0) return -1;
 
     strncpy(hosts, slaveHosts, sizeof(hosts) - 1);
     hosts[sizeof(hosts) - 1] = '\0';
+
     token = strtok(hosts, ",");
     while (token && spawned < count) {
         int result;
         trimHost(token);
-        if (token[0] == '\0') return spawned > 0 ? spawned : -1;
+        if (token[0] == '\0') return -1;
+
         result = pvm_spawn((char*)slaveExec, NULL, PvmTaskHost, token, 1, &tids[spawned]);
-        if (result != 1) return spawned > 0 ? spawned : -1;
+        if (result != 1) return spawned;
+
         spawned++;
         token = strtok(NULL, ",");
     }
+
     return spawned;
 }
 
@@ -163,7 +218,7 @@ int pvmMasterSessionStart(PvmMasterSession* session) {
     if (session->active) return 0;
 
     pvmMasterSessionInit(session);
-    session->masterTid = pvm_mytid();
+    session->masterTid = connectToPvm();
     if (session->masterTid < 0) {
         pvmMasterSessionInit(session);
         return -1;
@@ -172,6 +227,14 @@ int pvmMasterSessionStart(PvmMasterSession* session) {
     slaveExec = getenv("PVM_SLAVE_EXEC");
     if (!slaveExec || slaveExec[0] == '\0') slaveExec = DefaultPvmSlaveExec;
     slaveHosts = getenv("PVM_SLAVE_HOSTS");
+    if (!slaveHosts || slaveHosts[0] == '\0') slaveHosts = DefaultPvmSlaveHosts;
+
+    if (validateSpawnHosts(slaveHosts) != 0) {
+        pvm_exit();
+        pvmMasterSessionInit(session);
+        return -1;
+    }
+
     spawned = spawnSlaves(slaveExec, slaveHosts, session->tids, PvmMasterWorkerCount);
     if (spawned != PvmMasterWorkerCount) {
         if (spawned > 0) sendFinishToSlaves(session->tids, spawned);

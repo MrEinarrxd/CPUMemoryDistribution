@@ -2,51 +2,9 @@
 #include "../distributed/localRunner.h"
 #include "../distributed/pvmMaster.h"
 #include "../utils/constants.h"
-#include "../utils/randomUtils.h"
 
 #include <stdio.h>
 #include <string.h>
-
-static void pvmControllerPrepareTestTable(ProcessTable* table) {
-    if (!table) return;
-    randomInit(7);
-    processTableInit(table);
-    table->currentTime = 5000;
-    table->cpuIterations = 120;
-
-    for (int i = 0; i < TotalProcesses; ++i) {
-        Bcp* bcp = &table->processes[i];
-        bcp->timeInExecution = i * 3;
-        bcp->timesInIo = i % 6;
-        bcp->timesReturnedToReady = i % 11;
-        bcp->cpuWasteCycles = (i * 7) % 200;
-        bcp->quantumAssigned = DefaultQuantum;
-        bcp->quantumUsed = DefaultQuantum - (i % 5);
-        bcp->rrExecutionCount = i % 9 + 1;
-        bcp->rrQuantumAssignedTotal = bcp->quantumAssigned * bcp->rrExecutionCount;
-        bcp->rrQuantumUsedTotal = bcp->rrQuantumAssignedTotal - bcp->cpuWasteCycles;
-        if (bcp->rrQuantumUsedTotal < 0) bcp->rrQuantumUsedTotal = 0;
-        bcp->cpuWasteRatio = bcp->rrQuantumAssignedTotal > 0
-            ? (float)bcp->cpuWasteCycles / (float)bcp->rrQuantumAssignedTotal
-            : 0.0f;
-        if (bcp->cpuWasteRatio > 1.0f) bcp->cpuWasteRatio = 1.0f;
-
-        if (i < 40) {
-            bcp->state = processStateFinished;
-            bcp->remainingCpuCycles = 0;
-            bcp->finishTime = table->currentTime + i;
-        } else if (i < 90) {
-            bcp->state = processStateWaitingIo;
-        } else {
-            bcp->state = processStateReady;
-        }
-    }
-
-    table->finishedCount = 40;
-    table->totalIoOperations = 90;
-    processTableUpdateAverages(table);
-    processTableUpdateQueueMetrics(table);
-}
 
 static int pvmControllerEnsureRealSession(PvmController* controller) {
     if (!controller) return -1;
@@ -86,23 +44,16 @@ void pvmControllerInit(PvmController* controller, PvmMode mode) {
     pvmMasterSessionInit(&controller->realSession);
     if (mode == pvmModeReal) {
         snprintf(controller->statusText, sizeof(controller->statusText), "[PVM REAL] sin iniciar");
-    } else if (mode == pvmModeDisabled) {
-        snprintf(controller->statusText, sizeof(controller->statusText), "[PVM DESACTIVADO]");
     } else {
-        snprintf(controller->statusText, sizeof(controller->statusText), "[PVM LOCAL] listo");
+        snprintf(controller->statusText, sizeof(controller->statusText), "[PVM VIRTUAL] listo");
     }
 }
 
 int pvmControllerStart(PvmController* controller) {
     if (!controller) return -1;
-    if (controller->mode == pvmModeDisabled) {
-        controller->started = 0;
-        snprintf(controller->statusText, sizeof(controller->statusText), "[PVM DESACTIVADO]");
-        return 0;
-    }
     if (controller->mode == pvmModeLocal) {
         controller->started = 1;
-        snprintf(controller->statusText, sizeof(controller->statusText), "[PVM LOCAL] activo");
+        snprintf(controller->statusText, sizeof(controller->statusText), "[PVM VIRTUAL] activo");
         return 0;
     }
 
@@ -112,7 +63,6 @@ int pvmControllerStart(PvmController* controller) {
 }
 
 int pvmControllerRunPeriodic(PvmController* controller, const ProcessTable* table, int currentIteration) {
-    if (!controller || controller->mode == pvmModeDisabled) return 0;
     if (!controller || !table || !controller->started) return -1;
     if (currentIteration <= 0 || currentIteration == controller->lastAnalysisIteration ||
         currentIteration % PvmAnalysisInterval != 0) {
@@ -130,35 +80,19 @@ int pvmControllerRunPeriodic(PvmController* controller, const ProcessTable* tabl
 int pvmControllerRunFinal(PvmController* controller, const ProcessTable* table) {
     int result;
     if (!controller || !table) return -1;
-    if (controller->mode == pvmModeDisabled) {
-        snprintf(controller->statusText, sizeof(controller->statusText), "[PVM DESACTIVADO]");
-        return 0;
-    }
     if (!controller->started) return -1;
 
     if (controller->mode == pvmModeLocal) {
         localRunnerRun(table, &controller->lastReport);
         controller->analysisCount++;
         snprintf(controller->statusText, sizeof(controller->statusText),
-                 "[PVM LOCAL] analisis %d", controller->analysisCount);
+                 "[PVM VIRTUAL] analisis %d", controller->analysisCount);
         return 0;
     }
 
     result = pvmControllerRunRealAnalysis(controller, table);
     pvmMasterSessionStop(&controller->realSession);
     return result;
-}
-
-int pvmControllerRunTest(void) {
-    ProcessTable table;
-    DistributedReport report;
-    pvmControllerPrepareTestTable(&table);
-    if (pvmMasterRunReal(&table, &report) != 0) {
-        printf("Prueba PVM fallida. Verifique pvmd y %s.\n", DefaultPvmSlaveExec);
-        return 1;
-    }
-    pvmControllerPrintReport("Prueba PVM real", &report);
-    return 0;
 }
 
 void pvmControllerPrintReport(const char* title, const DistributedReport* report) {

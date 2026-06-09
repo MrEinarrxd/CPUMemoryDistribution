@@ -61,12 +61,83 @@ static int swapAlloc(PagingSystem* paging) {
     return -1;
 }
 
-static void fifoPush(PagingSystem* paging, int processIndex, int pageIndex) {
-    if (!paging || paging->fifoCount >= PhysicalFrameCount) return;
+static int fifoRefIsLive(PagingSystem* paging, PageRef ref) {
+    Page* page;
+    if (!paging) return 0;
+    if (ref.processIndex < 0 || ref.processIndex >= TotalProcesses ||
+        ref.pageIndex < 0 || ref.pageIndex >= MaxPagesPerProcess) {
+        return 0;
+    }
+    page = &paging->pages[ref.processIndex][ref.pageIndex];
+    return page->inMemory && page->frameIndex >= 0;
+}
+
+static void fifoCompact(PagingSystem* paging) {
+    PageRef refs[PhysicalFrameCount];
+    int originalCount;
+    int kept = 0;
+
+    if (!paging) return;
+    originalCount = paging->fifoCount;
+    for (int i = 0; i < originalCount; ++i) {
+        PageRef ref;
+        ref = paging->fifo[paging->fifoHead];
+        paging->fifoHead = (paging->fifoHead + 1) % PhysicalFrameCount;
+        paging->fifoCount--;
+        if (fifoRefIsLive(paging, ref)) {
+            refs[kept++] = ref;
+        }
+    }
+
+    paging->fifoHead = 0;
+    paging->fifoTail = 0;
+    paging->fifoCount = 0;
+    for (int i = 0; i < kept; ++i) {
+        paging->fifo[paging->fifoTail] = refs[i];
+        paging->fifoTail = (paging->fifoTail + 1) % PhysicalFrameCount;
+        paging->fifoCount++;
+    }
+}
+
+static void fifoRemove(PagingSystem* paging, int processIndex, int pageIndex) {
+    PageRef refs[PhysicalFrameCount];
+    int originalCount;
+    int kept = 0;
+
+    if (!paging) return;
+    originalCount = paging->fifoCount;
+    for (int i = 0; i < originalCount; ++i) {
+        PageRef ref;
+        ref = paging->fifo[paging->fifoHead];
+        paging->fifoHead = (paging->fifoHead + 1) % PhysicalFrameCount;
+        paging->fifoCount--;
+        if (ref.processIndex == processIndex && ref.pageIndex == pageIndex) {
+            continue;
+        }
+        if (fifoRefIsLive(paging, ref)) {
+            refs[kept++] = ref;
+        }
+    }
+
+    paging->fifoHead = 0;
+    paging->fifoTail = 0;
+    paging->fifoCount = 0;
+    for (int i = 0; i < kept; ++i) {
+        paging->fifo[paging->fifoTail] = refs[i];
+        paging->fifoTail = (paging->fifoTail + 1) % PhysicalFrameCount;
+        paging->fifoCount++;
+    }
+}
+
+static int fifoPush(PagingSystem* paging, int processIndex, int pageIndex) {
+    if (!paging) return -1;
+    if (paging->fifoCount >= PhysicalFrameCount) fifoCompact(paging);
+    if (paging->fifoCount >= PhysicalFrameCount) return -1;
     paging->fifo[paging->fifoTail].processIndex = processIndex;
     paging->fifo[paging->fifoTail].pageIndex = pageIndex;
     paging->fifoTail = (paging->fifoTail + 1) % PhysicalFrameCount;
     paging->fifoCount++;
+    return 0;
 }
 
 static PageRef fifoPop(PagingSystem* paging) {
@@ -142,12 +213,18 @@ static int loadPage(PagingSystem* paging, Bcp* bcp, int processIndex, int pageIn
 
     page->inMemory = 1;
     page->frameIndex = frame;
-    fifoPush(paging, processIndex, pageIndex);
+    if (fifoPush(paging, processIndex, pageIndex) != 0) {
+        bitmapMemoryFreeFrame(&paging->bitmap, frame);
+        page->inMemory = 0;
+        page->frameIndex = -1;
+        return -1;
+    }
     return 0;
 }
 
 static void clearPage(PagingSystem* paging, Page* page) {
     if (!paging || !page) return;
+    fifoRemove(paging, page->processIndex, page->pageIndex);
     if (page->inMemory && page->frameIndex >= 0) {
         bitmapMemoryFreeFrame(&paging->bitmap, page->frameIndex);
     }
@@ -173,19 +250,19 @@ static void normalizeWord(char* token) {
     token[writePos] = '\0';
 }
 
+static void pagingSystemInitProcess(PagingSystem* paging, int processIndex);
+
 void pagingSystemInit(PagingSystem* paging, Bcp processes[]) {
     if (!paging) return;
     memset(paging, 0, sizeof(*paging));
     paging->processes = processes;
     bitmapMemoryInit(&paging->bitmap);
     for (int p = 0; p < TotalProcesses; ++p) {
-        int count = processes ? processes[p].pageCount : MinPageFrames;
-        pagingSystemInitProcess(paging, p, count);
+        pagingSystemInitProcess(paging, p);
     }
 }
 
-void pagingSystemInitProcess(PagingSystem* paging, int processIndex, int pageCount) {
-    int normalized = normalizePageCount(pageCount);
+static void pagingSystemInitProcess(PagingSystem* paging, int processIndex) {
     if (!paging || processIndex < 0 || processIndex >= TotalProcesses) return;
     for (int page = 0; page < MaxPagesPerProcess; ++page) {
         paging->pages[processIndex][page].processIndex = processIndex;
@@ -197,7 +274,6 @@ void pagingSystemInitProcess(PagingSystem* paging, int processIndex, int pageCou
         memset(paging->pages[processIndex][page].words, 0,
                sizeof(paging->pages[processIndex][page].words));
     }
-    (void)normalized;
 }
 
 void pagingSystemTouchProcess(PagingSystem* paging, Bcp* bcp, int processIndex, TextRepository* repo) {
@@ -303,11 +379,4 @@ void pagingSystemDeallocateProcess(PagingSystem* paging, int processIndex) {
     for (int page = 0; page < MaxPagesPerProcess; ++page) {
         clearPage(paging, &paging->pages[processIndex][page]);
     }
-}
-
-void pagingSystemUpdateBcpCounters(PagingSystem* paging, Bcp* bcp) {
-    int remainder;
-    if (!paging || !bcp) return;
-    remainder = bcp->totalMemoryAllocated % WordsPerPage;
-    paging->internalWaste += remainder == 0 ? 0 : WordsPerPage - remainder;
 }

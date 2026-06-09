@@ -2,14 +2,16 @@
 #include "../presentation/consoleIo.h"
 #include "../utils/constants.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define ScreenWidth 86
-#define LabelWidth 18
-#define BarWidth 24
+#define ScreenWidth 78
+#define LabelWidth 12
+#define BarWidth 18
+#define SmallBarWidth 12
+#define DashboardBufferSize 20000
 
 static int readIntPrompt(const char* prompt) {
     int value = 0;
@@ -29,6 +31,10 @@ static float clampRatio(float value) {
     return value;
 }
 
+static int percentFromRatio(float ratio) {
+    return (int)(clampRatio(ratio) * 100.0f + 0.5f);
+}
+
 static void appendText(char* buffer, size_t bufferSize, size_t* used, const char* format, ...) {
     va_list args;
     int written;
@@ -37,7 +43,9 @@ static void appendText(char* buffer, size_t bufferSize, size_t* used, const char
     va_start(args, format);
     written = vsnprintf(buffer + *used, bufferSize - *used, format, args);
     va_end(args);
-    if (written > 0) *used += (size_t)written;
+    if (written <= 0) return;
+    *used += (size_t)written;
+    if (*used >= bufferSize) *used = bufferSize - 1;
 }
 
 static void appendLine(char* buffer, size_t bufferSize, size_t* used, const char* line) {
@@ -51,26 +59,32 @@ static void appendRule(char* buffer, size_t bufferSize, size_t* used, char chara
     appendLine(buffer, bufferSize, used, line);
 }
 
-static void makeBar(char* out, size_t outSize, float ratio) {
+static void appendSection(char* buffer, size_t bufferSize, size_t* used, const char* title) {
+    appendRule(buffer, bufferSize, used, '-');
+    appendText(buffer, bufferSize, used, "%s\n", title ? title : "");
+}
+
+static void makeBarWidth(char* out, size_t outSize, float ratio, int width) {
     int filled;
     int percent;
     size_t used = 0;
 
     if (!out || outSize == 0) return;
+    if (width <= 0) width = BarWidth;
     ratio = clampRatio(ratio);
-    filled = (int)(ratio * (float)BarWidth + 0.5f);
-    percent = (int)(ratio * 100.0f + 0.5f);
+    filled = (int)(ratio * (float)width + 0.5f);
+    percent = percentFromRatio(ratio);
 
     used += snprintf(out + used, outSize > used ? outSize - used : 0, "[");
-    for (int i = 0; i < BarWidth; ++i) {
-        used += snprintf(out + used, outSize > used ? outSize - used : 0, "%c", i < filled ? '#' : '.');
+    for (int i = 0; i < width; ++i) {
+        used += snprintf(out + used, outSize > used ? outSize - used : 0, "%c",
+                         i < filled ? '#' : '.');
     }
     snprintf(out + used, outSize > used ? outSize - used : 0, "] %3d%%", percent);
 }
 
-static int safePercent(int value, int total) {
-    if (total <= 0) return 0;
-    return (value * 100) / total;
+static void makeBar(char* out, size_t outSize, float ratio) {
+    makeBarWidth(out, outSize, ratio, BarWidth);
 }
 
 static const char* algorithmKind(const SimulationSnapshot* snapshot) {
@@ -80,171 +94,237 @@ static const char* algorithmKind(const SimulationSnapshot* snapshot) {
 
 static int isRoundRobin(const SimulationSnapshot* snapshot) {
     const char* name = algorithmKind(snapshot);
-    return strstr(name, "Round") != NULL || strstr(name, "Robin") != NULL || strstr(name, "RR") != NULL;
+    return strstr(name, "Round") != NULL || strstr(name, "Robin") != NULL ||
+           strstr(name, "RR") != NULL;
 }
 
-static float lastHistoryOrCurrent(const SimulationSnapshot* snapshot, int reverseIndex) {
+static const char* rrState(const SimulationSnapshot* snapshot) {
+    if (!snapshot) return "sin datos";
+    if (isRoundRobin(snapshot)) return "activo";
+    if (snapshot->rrProcessCount > 0 ||
+        snapshot->topAgedCount > 0 ||
+        snapshot->topWastersCount > 0) {
+        return "datos acumulados";
+    }
+    return "sin datos";
+}
+
+static float lastHistoryOrCurrent(const SimulationSnapshot* snapshot, int reverseIndex, int useWaste) {
     int index;
     if (!snapshot) return 0.0f;
     if (snapshot->historyCount <= reverseIndex) {
-        return reverseIndex == 0 ? clampRatio(snapshot->cpuUtilization) : 0.0f;
+        if (reverseIndex != 0) return 0.0f;
+        return clampRatio(useWaste ? snapshot->cpuWasteRatio : snapshot->cpuUtilization);
     }
     index = snapshot->historyCount - 1 - reverseIndex;
-    return clampRatio(snapshot->utilizationHistory[index]);
+    return clampRatio(useWaste ? snapshot->wasteHistory[index] : snapshot->utilizationHistory[index]);
 }
 
 static void appendMetric(char* buffer, size_t bufferSize, size_t* used,
                          const char* label, const char* value) {
-    appendText(buffer, bufferSize, used, "  %-*s %s\n", LabelWidth, label ? label : "", value ? value : "");
+    appendText(buffer, bufferSize, used, "  %-*s %s\n",
+               LabelWidth, label ? label : "", value ? value : "");
 }
 
-static void appendHeader(const SimulationSnapshot* snapshot, char* buffer, size_t bufferSize, size_t* used) {
+static void appendPair(char* buffer, size_t bufferSize, size_t* used,
+                       const char* leftLabel, const char* leftValue,
+                       const char* rightLabel, const char* rightValue) {
+    appendText(buffer, bufferSize, used, "  %-12s %-21.21s | %-12s %.24s\n",
+               leftLabel ? leftLabel : "",
+               leftValue ? leftValue : "",
+               rightLabel ? rightLabel : "",
+               rightValue ? rightValue : "");
+}
+
+static void appendHeader(const SimulationSnapshot* snapshot, char* buffer,
+                         size_t bufferSize, size_t* used) {
     appendRule(buffer, bufferSize, used, '=');
     appendText(buffer, bufferSize, used,
-               " CPU-MEM-DIST | %-13s | Q=%-3d | t=%-7d | iter=%d\n",
+               " CPU-MEM-DIST | Alg=%-12.12s | Q=%3d | t=%-8d | iter=%d\n",
                algorithmKind(snapshot),
                snapshot->currentQuantum,
                snapshot->currentTime,
                snapshot->cpuIterations);
+    appendText(buffer, bufferSize, used, " Modo=%-24.24s | PVM=%.42s\n",
+               snapshot->modeName ? snapshot->modeName : "--",
+               snapshot->pvmStatus ? snapshot->pvmStatus : "--");
     appendRule(buffer, bufferSize, used, '=');
 }
 
-static void appendResumen(const SimulationSnapshot* snapshot, char* buffer, size_t bufferSize, size_t* used) {
-    char value[160];
+static void appendResumen(const SimulationSnapshot* snapshot, char* buffer,
+                          size_t bufferSize, size_t* used) {
+    char left[80];
+    char right[80];
     char bar[80];
-    int totalKnown;
 
-    appendLine(buffer, bufferSize, used, "RESUMEN GENERAL");
-    totalKnown = snapshot->finishedCount + snapshot->activeCount + snapshot->newCount;
-    if (totalKnown <= 0) totalKnown = TotalProcesses;
-
-    snprintf(value, sizeof(value), "%d/%d terminados | %d activos | %d nuevos",
-             snapshot->finishedCount, TotalProcesses, snapshot->activeCount, snapshot->newCount);
-    appendMetric(buffer, bufferSize, used, "Procesos", value);
-
-    snprintf(value, sizeof(value), "%d listos | %d en E/S", snapshot->readyCount, snapshot->ioCount);
-    appendMetric(buffer, bufferSize, used, "Colas", value);
-
-    snprintf(value, sizeof(value), "%s | %s", snapshot->modeName ? snapshot->modeName : "--",
-             snapshot->pvmStatus ? snapshot->pvmStatus : "--");
-    appendMetric(buffer, bufferSize, used, "PVM", value);
-
+    appendSection(buffer, bufferSize, used, "RESUMEN");
     makeBar(bar, sizeof(bar), (float)snapshot->finishedCount / (float)TotalProcesses);
     appendMetric(buffer, bufferSize, used, "Avance", bar);
+
+    snprintf(left, sizeof(left), "%d/%d fin | %d act",
+             snapshot->finishedCount, TotalProcesses, snapshot->activeCount);
+    snprintf(right, sizeof(right), "%d nuevas | %.4f/t",
+             snapshot->newCount, snapshot->avgFinishedPerTime);
+    appendPair(buffer, bufferSize, used, "Procesos", left, "Rend.", right);
+
+    snprintf(left, sizeof(left), "%d listos | %d E/S",
+             snapshot->readyCount, snapshot->ioCount);
+    snprintf(right, sizeof(right), "D1=%d D2=%d D3=%d D4=%d",
+             snapshot->ioDeviceCounts[0],
+             snapshot->ioDeviceCounts[1],
+             snapshot->ioDeviceCounts[2],
+             snapshot->ioDeviceCounts[3]);
+    appendPair(buffer, bufferSize, used, "Colas", left, "Dispositivos", right);
+
+    snprintf(left, sizeof(left), "%d cambios", snapshot->algorithmChanges);
+    snprintf(right, sizeof(right), "%d ctx | %d E/S",
+             snapshot->totalContextSwitches, snapshot->totalIoOperations);
+    appendPair(buffer, bufferSize, used, "Algoritmo", left, "Eventos", right);
 }
 
-static void appendCpu(const SimulationSnapshot* snapshot, char* buffer, size_t bufferSize, size_t* used) {
-    char value[160];
+static void appendCpu(const SimulationSnapshot* snapshot, char* buffer,
+                      size_t bufferSize, size_t* used) {
+    char value[120];
     char bar[80];
+    char wasteBar[80];
 
-    appendRule(buffer, bufferSize, used, '-');
-    appendLine(buffer, bufferSize, used, "CPU");
-
+    appendSection(buffer, bufferSize, used, "CPU / PLANIFICADOR");
     makeBar(bar, sizeof(bar), snapshot->cpuUtilization);
+    makeBar(wasteBar, sizeof(wasteBar), snapshot->cpuWasteRatio);
     appendMetric(buffer, bufferSize, used, "Uso CPU", bar);
+    appendMetric(buffer, bufferSize, used, "Desp. RR", wasteBar);
 
-    if (isRoundRobin(snapshot)) {
-        makeBar(bar, sizeof(bar), snapshot->cpuWasteRatio);
-        appendMetric(buffer, bufferSize, used, "Desperdicio RR", bar);
-    } else {
-        appendMetric(buffer, bufferSize, used, "Desperdicio RR", "no aplica en FCFS");
-    }
-
-    snprintf(value, sizeof(value), "espera %.0f ciclos | ejecucion %.0f ciclos",
-             snapshot->avgWaitingTime, snapshot->avgExecutionTime);
+    snprintf(value, sizeof(value), "espera %.0f | ejecucion %.0f | Q=%d",
+             snapshot->avgWaitingTime,
+             snapshot->avgExecutionTime,
+             snapshot->currentQuantum);
     appendMetric(buffer, bufferSize, used, "Promedios", value);
 
-    appendText(buffer, bufferSize, used, "  %-*s ", LabelWidth, "Historial");
+    appendLine(buffer, bufferSize, used, "  Historial CPU y desperdicio RR");
     for (int i = 0; i < HistoryBars; ++i) {
-        appendText(buffer, bufferSize, used, "T-%d:%02d%% ", i,
-                   (int)(lastHistoryOrCurrent(snapshot, i) * 100.0f + 0.5f));
+        char use[48];
+        char waste[48];
+        makeBarWidth(use, sizeof(use), lastHistoryOrCurrent(snapshot, i, 0), SmallBarWidth);
+        makeBarWidth(waste, sizeof(waste), lastHistoryOrCurrent(snapshot, i, 1), SmallBarWidth);
+        appendText(buffer, bufferSize, used, "  T-%d uso %-20.20s | desp %.20s\n", i, use, waste);
     }
-    appendText(buffer, bufferSize, used, "\n");
 }
 
-static void appendMemoria(const SimulationSnapshot* snapshot, char* buffer, size_t bufferSize, size_t* used) {
-    char value[160];
+static void appendMemoria(const SimulationSnapshot* snapshot, char* buffer,
+                          size_t bufferSize, size_t* used) {
+    char left[80];
+    char right[80];
     char bar[80];
     int totalFrames = snapshot->memoryUsedFrames + snapshot->memoryFreeFrames;
     if (totalFrames <= 0) totalFrames = PhysicalFrameCount;
 
-    appendRule(buffer, bufferSize, used, '-');
-    appendLine(buffer, bufferSize, used, "MEMORIA");
-
+    appendSection(buffer, bufferSize, used, "MEMORIA / PAGINACION");
     makeBar(bar, sizeof(bar), (float)snapshot->memoryUsedFrames / (float)totalFrames);
-    appendMetric(buffer, bufferSize, used, "Marcos usados", bar);
+    appendMetric(buffer, bufferSize, used, "Marcos", bar);
 
-    snprintf(value, sizeof(value), "%d usados | %d libres | bloque libre mayor: %d",
-             snapshot->memoryUsedFrames, snapshot->memoryFreeFrames, snapshot->memoryLargestFreeRun);
-    appendMetric(buffer, bufferSize, used, "Detalle", value);
+    snprintf(left, sizeof(left), "%d usados | %d libres",
+             snapshot->memoryUsedFrames, snapshot->memoryFreeFrames);
+    snprintf(right, sizeof(right), "mayor=%d | runs=%d",
+             snapshot->memoryLargestFreeRun, snapshot->memoryFreeRunCount);
+    appendPair(buffer, bufferSize, used, "Detalle", left, "Libres", right);
 
-    snprintf(value, sizeof(value), "interno %d | externo %d | fragmentacion %.2f%%",
-             snapshot->internalWaste, snapshot->externalWaste, snapshot->fragmentation);
-    appendMetric(buffer, bufferSize, used, "Desperdicio", value);
+    snprintf(left, sizeof(left), "int=%d | ext=%d",
+             snapshot->internalWaste, snapshot->externalWaste);
+    snprintf(right, sizeof(right), "%.2f%% | resize=%d",
+             snapshot->fragmentation * 100.0f, snapshot->resizeCount);
+    appendPair(buffer, bufferSize, used, "Desperd.", left, "Frag.", right);
 
-    snprintf(value, sizeof(value), "%d fallos | swap in %d | swap out %d",
-             snapshot->totalPageFaults, snapshot->totalSwapIns, snapshot->totalSwapOuts);
-    appendMetric(buffer, bufferSize, used, "Paginacion", value);
+    snprintf(left, sizeof(left), "%d fallos", snapshot->totalPageFaults);
+    snprintf(right, sizeof(right), "in=%d | out=%d",
+             snapshot->totalSwapIns, snapshot->totalSwapOuts);
+    appendPair(buffer, bufferSize, used, "Paginas", left, "Swap", right);
 }
 
 static void appendRankingLine(char* buffer, size_t bufferSize, size_t* used,
-                              int number, const RankingEntry* aged, const RankingEntry* waster,
-                              const SimulationSnapshot* snapshot) {
-    char left[42];
-    char right[42];
+                              int number, const RankingEntry* aged,
+                              const RankingEntry* waster) {
+    char left[48];
+    char right[48];
 
     if (aged) {
-        snprintf(left, sizeof(left), "%d) %-8s pendientes=%d", number, aged->processId, aged->secondary);
+        snprintf(left, sizeof(left), "%s ret=%d pend=%d",
+                 aged->processId, aged->primary, aged->secondary);
     } else {
-        snprintf(left, sizeof(left), "%d) --", number);
+        snprintf(left, sizeof(left), "--");
     }
 
     if (waster) {
-        int usedPercent = snapshot->currentQuantum > 0
-            ? safePercent(waster->secondary, snapshot->currentQuantum)
-            : 0;
-        if (usedPercent > 100) usedPercent = 100;
-        snprintf(right, sizeof(right), "%d) %-8s usa=%d%%", number, waster->processId, usedPercent);
+        snprintf(right, sizeof(right), "%s waste=%d usoQ=%d",
+                 waster->processId, waster->primary, waster->secondary);
     } else {
-        snprintf(right, sizeof(right), "%d) --", number);
+        snprintf(right, sizeof(right), "--");
     }
 
-    appendText(buffer, bufferSize, used, "  %-40s | %-40s\n", left, right);
+    appendText(buffer, bufferSize, used, "  %-2d %-27.27s | %.35s\n",
+               number, left, right);
 }
 
-static void appendRoundRobin(const SimulationSnapshot* snapshot, char* buffer, size_t bufferSize, size_t* used) {
-    appendRule(buffer, bufferSize, used, '-');
-    appendLine(buffer, bufferSize, used, "ROUND ROBIN");
+static void appendRoundRobin(const SimulationSnapshot* snapshot, char* buffer,
+                             size_t bufferSize, size_t* used) {
+    char left[80];
+    char right[80];
 
-    if (!isRoundRobin(snapshot)) {
-        appendLine(buffer, bufferSize, used,
-                   "  FCFS esta activo. Los rankings RR se ocultan para no mezclar datos que no aplican.");
-        appendLine(buffer, bufferSize, used,
-                   "  Presione X y seleccione Round Robin para ver envejecimiento y desperdicio real.");
-        return;
-    }
+    appendSection(buffer, bufferSize, used, "ROUND ROBIN");
+    snprintf(left, sizeof(left), "%s | procesos=%d",
+             rrState(snapshot), snapshot->rrProcessCount);
+    snprintf(right, sizeof(right), "retornos=%d | Q=%d",
+             snapshot->rrReturnsToReady, snapshot->currentQuantum);
+    appendPair(buffer, bufferSize, used, "Estado", left, "Carga", right);
 
-    appendLine(buffer, bufferSize, used,
-               "  Mas envejecidos                          | Mayor desperdicio");
+    snprintf(left, sizeof(left), "desp=%d%% local", percentFromRatio(snapshot->cpuWasteRatio));
+    snprintf(right, sizeof(right), "uso dist=%d%%",
+             percentFromRatio(snapshot->rrDistributedCpuUtilization));
+    appendPair(buffer, bufferSize, used, "CPU RR", left, "PVM RR", right);
+
+    appendLine(buffer, bufferSize, used, "  #  Envejecidos                 | Mayor desperdicio");
     for (int i = 0; i < TopRankingCount; ++i) {
         const RankingEntry* aged = i < snapshot->topAgedCount ? &snapshot->topAged[i] : NULL;
         const RankingEntry* waster = i < snapshot->topWastersCount ? &snapshot->topWasters[i] : NULL;
-        appendRankingLine(buffer, bufferSize, used, i + 1, aged, waster, snapshot);
+        appendRankingLine(buffer, bufferSize, used, i + 1, aged, waster);
     }
 }
 
-static void appendPvmLog(const SimulationSnapshot* snapshot, char* buffer, size_t bufferSize, size_t* used) {
-    appendRule(buffer, bufferSize, used, '-');
-    appendLine(buffer, bufferSize, used, "PVM / EVENTOS");
+static void appendPvmLog(const SimulationSnapshot* snapshot, char* buffer,
+                         size_t bufferSize, size_t* used) {
+    char left[80];
+    char right[80];
 
-    if (snapshot->eventLog[0][0] != '\0') appendText(buffer, bufferSize, used, "  %s\n", snapshot->eventLog[0]);
-    if (snapshot->eventLog[1][0] != '\0') appendText(buffer, bufferSize, used, "  %s\n", snapshot->eventLog[1]);
-    if (snapshot->eventLog[2][0] != '\0') appendText(buffer, bufferSize, used, "  %s\n", snapshot->eventLog[2]);
-    if (snapshot->eventLog[3][0] != '\0') appendText(buffer, bufferSize, used, "  %s\n", snapshot->eventLog[3]);
-    if (snapshot->eventLog[4][0] != '\0') appendText(buffer, bufferSize, used, "  %s\n", snapshot->eventLog[4]);
+    appendSection(buffer, bufferSize, used, "PVM / EVENTOS");
+    snprintf(left, sizeof(left), "fin=%d | espera=%d",
+             snapshot->distributedFinishedCount, snapshot->distributedWaitingCount);
+    snprintf(right, sizeof(right), "pend=%d | usoRR=%d%%",
+             snapshot->distributedAvgRemainingCycles,
+             percentFromRatio(snapshot->rrDistributedCpuUtilization));
+    appendPair(buffer, bufferSize, used, "Dist.", left, "Resumen", right);
+
+    for (int i = 0; i < 5; ++i) {
+        if (snapshot->eventLog[i][0] != '\0') {
+            appendText(buffer, bufferSize, used, "  %.74s\n", snapshot->eventLog[i]);
+        }
+    }
+
+    if (snapshot->privilegedProcessActive) {
+        appendText(buffer, bufferSize, used, "  Privilegiado RR: %.16s\n",
+                   snapshot->privilegedProcessId);
+    }
 }
 
-static void buildDashboardBuffer(const SimulationSnapshot* snapshot, char* buffer, size_t bufferSize) {
+static void appendFooter(char* buffer, size_t bufferSize, size_t* used) {
+    appendRule(buffer, bufferSize, used, '=');
+    appendLine(buffer, bufferSize, used,
+               " Controles: X algoritmo | A privilegiar RR | P pausa | Q salir");
+    appendLine(buffer, bufferSize, used,
+               " Defensa: CPU, memoria, RR y PVM visibles en una sola pantalla.");
+    appendRule(buffer, bufferSize, used, '=');
+}
+
+static void buildDashboardBuffer(const SimulationSnapshot* snapshot,
+                                 char* buffer, size_t bufferSize) {
     size_t used = 0;
     if (!snapshot || !buffer || bufferSize == 0) return;
     buffer[0] = '\0';
@@ -255,18 +335,13 @@ static void buildDashboardBuffer(const SimulationSnapshot* snapshot, char* buffe
     appendMemoria(snapshot, buffer, bufferSize, &used);
     appendRoundRobin(snapshot, buffer, bufferSize, &used);
     appendPvmLog(snapshot, buffer, bufferSize, &used);
-    appendRule(buffer, bufferSize, &used, '=');
-    appendLine(buffer, bufferSize, &used,
-               "CONTROLES: X cambiar algoritmo | A privilegiar proceso RR | P pausa | Q salir");
-    appendLine(buffer, bufferSize, &used,
-               "Lectura sugerida: RESUMEN -> CPU -> MEMORIA. RR solo aparece cuando RR esta activo.");
-    appendRule(buffer, bufferSize, &used, '=');
+    appendFooter(buffer, bufferSize, &used);
 }
 
 void guiControllerShowDashboard(const SimulationSnapshot* snapshot) {
-    char* buffer = (char*)malloc(16384);
+    char* buffer = (char*)malloc(DashboardBufferSize);
     if (!buffer) return;
-    buildDashboardBuffer(snapshot, buffer, 16384);
+    buildDashboardBuffer(snapshot, buffer, DashboardBufferSize);
     consoleIoClear();
     fputs(buffer, stdout);
     fflush(stdout);
@@ -278,11 +353,9 @@ int guiControllerShowMainMenu(void) {
     int ch;
     consoleIoClear();
     printf("CPU-MEM-DIST Scheduler\n");
-    printf("----------------------\n\n");
-    printf("  1. Simulacion con PVM real\n");
-    printf("  2. Simulacion con PVM local\n");
-    printf("  3. Simulacion con PVM desactivado\n");
-    printf("  4. Probar comunicacion PVM\n");
+    printf("======================\n\n");
+    printf("  1. PVM real\n");
+    printf("  2. Demo virtual\n");
     printf("  0. Salir\n\n");
     printf("Seleccione opcion: ");
     fflush(stdout);
@@ -297,21 +370,23 @@ int guiControllerReadCommand(void) {
 
 int guiControllerAskAlgorithm(void) {
     consoleIoClear();
-    printf("Seleccione algoritmo:\n\n");
+    printf("Cambio de algoritmo\n");
+    printf("===================\n\n");
     printf("  1. FCFS\n");
     printf("  2. Round Robin\n");
+    printf("  3. Automatico\n");
     printf("  0. Cancelar\n\n");
     return readIntPrompt("Opcion: ");
 }
 
 int guiControllerAskQuantum(void) {
-    return readIntPrompt("Ingrese quantum: ");
+    return readIntPrompt("Ingrese quantum (10-120): ");
 }
 
 int guiControllerAskProcessId(char* outProcessId, int maxLen) {
     if (!outProcessId || maxLen <= 0) return -1;
     consoleIoSetNormalMode();
-    printf("Ingrese ID del proceso a privilegiar: ");
+    printf("ID a privilegiar (Enter cancela): ");
     fflush(stdout);
     if (!fgets(outProcessId, maxLen, stdin)) {
         outProcessId[0] = '\0';
@@ -326,9 +401,13 @@ int guiControllerAskProcessId(char* outProcessId, int maxLen) {
 void guiControllerShowRankings(const Scheduler* scheduler) {
     if (!scheduler) return;
     consoleIoClear();
-    printf("TOP 5 ROUND ROBIN\n");
-    printf("-----------------\n\n");
-    printf("Procesos mas envejecidos:\n");
+    printf("ROUND ROBIN - TOP 5\n");
+    printf("===================\n\n");
+
+    printf("Mas envejecidos\n");
+    if (scheduler->topAgedCount == 0) {
+        printf("  Sin retornos RR registrados.\n");
+    }
     for (int i = 0; i < scheduler->topAgedCount; ++i) {
         printf("  %d. %-8s retornos=%d pendientes=%d\n",
                i + 1,
@@ -336,7 +415,11 @@ void guiControllerShowRankings(const Scheduler* scheduler) {
                scheduler->topAged[i].primary,
                scheduler->topAged[i].secondary);
     }
-    printf("\nProcesos con mayor desperdicio:\n");
+
+    printf("\nMayor desperdicio CPU\n");
+    if (scheduler->topWastersCount == 0) {
+        printf("  Sin desperdicio RR registrado.\n");
+    }
     for (int i = 0; i < scheduler->topWastersCount; ++i) {
         printf("  %d. %-8s desperdicio=%d usoQuantum=%d\n",
                i + 1,

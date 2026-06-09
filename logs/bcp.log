@@ -1,1 +1,0 @@
-processId,pid,state,priority,active,arrival,creationDelay,start,finish,totalCpu,remaining,currentInstance,contextSwitch,lastContextSwitch,totalContextSwitchTime,executed,timesExecuted,waiting,turnaround,ioDevice,ioRemaining,timesInIo,memoryRequested,totalMemoryAllocated,pageCount,pageFaults,swapIns,swapOuts,cpuWasteRatio,agingCounter,returnsToReady,cpuWasteCycles

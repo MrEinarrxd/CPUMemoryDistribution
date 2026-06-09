@@ -53,9 +53,9 @@ void schedulerRebalanceQuantum(Scheduler* scheduler, ProcessTable* table) {
     if (!scheduler || !table || scheduler->algorithm != schedulerRr) return;
     processTableUpdateQueueMetrics(table);
     if (table->waitingProportion >= QueueImbalanceThreshold) {
-        scheduler->quantum += 2;
+        scheduler->quantum += QuantumRebalanceStep;
     } else if (table->readyProportion >= QueueImbalanceThreshold) {
-        scheduler->quantum -= 2;
+        scheduler->quantum -= QuantumRebalanceStep;
     }
     if (scheduler->quantum < MinQuantum) scheduler->quantum = MinQuantum;
     if (scheduler->quantum > MaxQuantum) scheduler->quantum = MaxQuantum;
@@ -73,7 +73,8 @@ int schedulerAutoSwitchIfNeeded(Scheduler* scheduler, ProcessTable* table) {
     int triggers = 0;
 
     if (!scheduler || !table) return 0;
-    if (table->cpuIterations < 5000 ||
+    if (scheduler->manualAlgorithmOverride) return 0;
+    if (table->cpuIterations < AutoSwitchMinIterations ||
         table->cpuIterations % AutoSwitchInterval != 0 ||
         table->cpuIterations - scheduler->lastAutoSwitchIteration < AutoSwitchCooldownIterations) {
         return 0;
@@ -82,10 +83,10 @@ int schedulerAutoSwitchIfNeeded(Scheduler* scheduler, ProcessTable* table) {
     processTableUpdateAverages(table);
     processTableUpdateQueueMetrics(table);
 
-    if (table->avgWaitingTime > 500.0f) triggers++;
+    if (table->avgWaitingTime > (float)AutoSwitchAvgWaitingThreshold) triggers++;
     if (table->readyProportion >= QueueImbalanceThreshold ||
         table->waitingProportion >= QueueImbalanceThreshold) triggers++;
-    if (table->totalPageFaults > table->cpuIterations / 2) triggers++;
+    if (table->totalPageFaults > table->cpuIterations / AutoSwitchPageFaultDivisor) triggers++;
 
     for (int i = 0; i < TotalProcesses; ++i) {
         Bcp* b = &table->processes[i];
@@ -99,14 +100,17 @@ int schedulerAutoSwitchIfNeeded(Scheduler* scheduler, ProcessTable* table) {
     }
 
     if (activeCount > 0) {
-        if (returnsSum / activeCount > 5) triggers++;
-        if (wasteSum / activeCount > 40) triggers++;
-        if (remainingSum / activeCount > 50000) triggers++;
-        if (ioSum / activeCount > 8) triggers++;
-        if (executedSum / activeCount < 100 && table->cpuIterations > 100) triggers++;
+        if (returnsSum / activeCount > AutoSwitchReturnsThreshold) triggers++;
+        if (wasteSum / activeCount > AutoSwitchWasteThreshold) triggers++;
+        if (remainingSum / activeCount > AutoSwitchRemainingThreshold) triggers++;
+        if (ioSum / activeCount > AutoSwitchIoThreshold) triggers++;
+        if (executedSum / activeCount < AutoSwitchExecutionMin &&
+            table->cpuIterations > AutoSwitchExecutionMin) {
+            triggers++;
+        }
     }
 
-    if (triggers >= 6) {
+    if (triggers >= AutoSwitchRequiredTriggers) {
         if (scheduler->algorithm == schedulerFcfs) {
             scheduler->algorithm = schedulerRr;
         } else {

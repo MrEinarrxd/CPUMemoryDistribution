@@ -6,9 +6,7 @@
 
 typedef enum PvmMode {
     pvmModeReal = 0,
-    pvmModeLocal = 1,
-    pvmModeFake = pvmModeLocal,
-    pvmModeDisabled = 2
+    pvmModeLocal = 1
 } PvmMode;
 
 typedef struct PvmController {
@@ -25,7 +23,6 @@ void pvmControllerInit(PvmController* controller, PvmMode mode);
 int pvmControllerStart(PvmController* controller);
 int pvmControllerRunPeriodic(PvmController* controller, const ProcessTable* table, int currentIteration);
 int pvmControllerRunFinal(PvmController* controller, const ProcessTable* table);
-int pvmControllerRunTest(void);
 void pvmControllerPrintReport(const char* title, const DistributedReport* report);
 void pvmControllerDestroy(PvmController* controller);
 

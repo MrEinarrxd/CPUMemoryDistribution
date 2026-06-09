@@ -6,26 +6,28 @@
 void localRunnerRun(const ProcessTable* table, DistributedReport* report) {
     ProcessStatsRow statsRows[TotalProcesses];
     RrAnalysisRow rrRows[TotalProcesses];
-    DistributedStatsResult statsPartials[2];
-    DistributedAgingResult agingPartials[2];
+    DistributedStatsResult statsPartials[PvmWorkerCount];
+    DistributedAgingResult agingPartials[PvmWorkerCount];
     int statsCount;
     int rrCount;
-    int splitStats;
-    int splitRr;
 
     if (!table || !report) return;
     memset(report, 0, sizeof(*report));
 
     statsCount = processTableExportStatsRows(table, statsRows, TotalProcesses);
     rrCount = processTableExportRrRows(table, rrRows, TotalProcesses);
-    splitStats = statsCount / 2;
-    splitRr = rrCount / 2;
 
-    distributedTasksCalculateStats(statsRows, splitStats, &statsPartials[0]);
-    distributedTasksCalculateStats(statsRows + splitStats, statsCount - splitStats, &statsPartials[1]);
-    distributedTasksCalculateAging(rrRows, splitRr, &agingPartials[0]);
-    distributedTasksCalculateAging(rrRows + splitRr, rrCount - splitRr, &agingPartials[1]);
+    for (int worker = 0; worker < PvmWorkerCount; ++worker) {
+        int statsStart = (statsCount * worker) / PvmWorkerCount;
+        int statsEnd = (statsCount * (worker + 1)) / PvmWorkerCount;
+        int rrStart = (rrCount * worker) / PvmWorkerCount;
+        int rrEnd = (rrCount * (worker + 1)) / PvmWorkerCount;
+        distributedTasksCalculateStats(statsRows + statsStart, statsEnd - statsStart,
+                                       &statsPartials[worker]);
+        distributedTasksCalculateAging(rrRows + rrStart, rrEnd - rrStart,
+                                       &agingPartials[worker]);
+    }
 
-    distributedTasksIntegrateStats(statsPartials, 2, &report->stats);
-    distributedTasksIntegrateAging(agingPartials, 2, &report->aging);
+    distributedTasksIntegrateStats(statsPartials, PvmWorkerCount, &report->stats);
+    distributedTasksIntegrateAging(agingPartials, PvmWorkerCount, &report->aging);
 }

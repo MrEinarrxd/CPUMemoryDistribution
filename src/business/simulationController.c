@@ -31,11 +31,7 @@ struct SimulationController {
     float utilizationHistory[HistoryBars];
     float wasteHistory[HistoryBars];
     int historyCount;
-};
-
-enum {
-    DashboardRefreshIterations = 100,
-    InteractiveDelayMilliseconds = 5
+    char commandMessage[160];
 };
 
 static void delayMilliseconds(int milliseconds) {
@@ -95,6 +91,13 @@ static float currentWasteRatio(const ProcessTable* table) {
     return denominator > 0 ? (float)table->totalCpuWasteCycles / (float)denominator : 0.0f;
 }
 
+static int clampQuantumValue(int quantum) {
+    if (quantum <= 0) quantum = DefaultQuantum;
+    if (quantum < MinQuantum) quantum = MinQuantum;
+    if (quantum > MaxQuantum) quantum = MaxQuantum;
+    return quantum;
+}
+
 static void recordHistory(SimulationController* controller) {
     float utilization;
     float waste;
@@ -122,14 +125,15 @@ static void recordHistory(SimulationController* controller) {
 }
 
 static void fillSnapshot(SimulationController* controller, SimulationSnapshot* snapshot) {
+    int rrProcessCount = 0;
+    int rrReturnsToReady = 0;
+
     if (!controller || !snapshot) return;
     memset(snapshot, 0, sizeof(*snapshot));
     if (controller->pvmMode == pvmModeReal) {
         snapshot->modeName = "Simulacion con PVM real";
-    } else if (controller->pvmMode == pvmModeDisabled) {
-        snapshot->modeName = "Simulacion sin PVM";
     } else {
-        snapshot->modeName = "Simulacion con PVM local";
+        snapshot->modeName = "Demo con PVM virtual";
     }
     snapshot->pvmStatus = controller->pvmController.statusText;
     snapshot->algorithmName = schedulerAlgorithmName(controller->scheduler.algorithm);
@@ -144,6 +148,10 @@ static void fillSnapshot(SimulationController* controller, SimulationSnapshot* s
     snapshot->totalContextSwitches = controller->table.totalContextSwitches;
     snapshot->totalIoOperations = controller->table.totalIoOperations;
     snapshot->algorithmChanges = controller->table.algorithmChanges;
+    snapshot->resizeCount = controller->table.resizeCount;
+    for (int i = 0; i < IoDeviceCount; ++i) {
+        snapshot->ioDeviceCounts[i] = controller->table.ioQueue.devices[i].count;
+    }
     snapshot->memoryUsedFrames = controller->table.memoryUsedFrames;
     snapshot->memoryFreeFrames = controller->table.memoryFreeFrames;
     snapshot->memoryLargestFreeRun = controller->table.memoryLargestFreeRun;
@@ -159,6 +167,28 @@ static void fillSnapshot(SimulationController* controller, SimulationSnapshot* s
     snapshot->avgFinishedPerTime = controller->table.avgFinishedPerTime;
     snapshot->cpuUtilization = controller->table.cpuUtilization;
     snapshot->cpuWasteRatio = currentWasteRatio(&controller->table);
+    for (int i = 0; i < TotalProcesses; ++i) {
+        const Bcp* b = &controller->table.processes[i];
+        if (b->rrExecutionCount > 0) rrProcessCount++;
+        rrReturnsToReady += b->timesReturnedToReady;
+    }
+    snapshot->rrProcessCount = rrProcessCount;
+    snapshot->rrReturnsToReady = rrReturnsToReady;
+    snapshot->rrDistributedCpuUtilization =
+        controller->pvmController.lastReport.aging.avgCpuUtilization;
+    snapshot->distributedFinishedCount =
+        controller->pvmController.lastReport.stats.finishedCount;
+    snapshot->distributedWaitingCount =
+        controller->pvmController.lastReport.stats.waitingCount;
+    snapshot->distributedAvgRemainingCycles =
+        controller->pvmController.lastReport.stats.avgRemainingCycles;
+    snapshot->privilegedProcessActive =
+        controller->scheduler.hasPrivilegedProcess && controller->scheduler.algorithm == schedulerRr;
+    if (snapshot->privilegedProcessActive) {
+        strncpy(snapshot->privilegedProcessId, controller->scheduler.privilegedProcessId,
+                ProcessIdLen - 1);
+        snapshot->privilegedProcessId[ProcessIdLen - 1] = '\0';
+    }
     snapshot->historyCount = controller->historyCount;
     for (int i = 0; i < controller->historyCount; ++i) {
         snapshot->utilizationHistory[i] = controller->utilizationHistory[i];
@@ -173,13 +203,15 @@ static void fillSnapshot(SimulationController* controller, SimulationSnapshot* s
         snapshot->topWasters[i] = controller->scheduler.topWasters[i];
     }
 
-    if (controller->pvmMode == pvmModeDisabled) {
-        snprintf(snapshot->eventLog[0], sizeof(snapshot->eventLog[0]),
-                 "[PVM DESACTIVADO] Analisis distribuido omitido.");
-        snprintf(snapshot->eventLog[1], sizeof(snapshot->eventLog[1]),
-                 "[STATS] Sin reporte distribuido.");
-    } else if (controller->pvmMode == pvmModeReal) {
-        if (controller->pvmController.analysisCount <= 0) {
+    if (controller->pvmMode == pvmModeReal) {
+        if (strncmp(controller->pvmController.statusText, "[PVM ERROR]", 11) == 0) {
+            snprintf(snapshot->eventLog[0], sizeof(snapshot->eventLog[0]),
+                     "%s", controller->pvmController.statusText);
+            snprintf(snapshot->eventLog[1], sizeof(snapshot->eventLog[1]),
+                     "[STATS] Analisis distribuido detenido por error PVM.");
+            snprintf(snapshot->eventLog[2], sizeof(snapshot->eventLog[2]),
+                     "[RR] Analisis distribuido detenido por error PVM.");
+        } else if (controller->pvmController.analysisCount <= 0) {
             snprintf(snapshot->eventLog[0], sizeof(snapshot->eventLog[0]),
                      "[PVM REAL] Activo; analisis distribuido final pendiente.");
             snprintf(snapshot->eventLog[1], sizeof(snapshot->eventLog[1]),
@@ -203,7 +235,7 @@ static void fillSnapshot(SimulationController* controller, SimulationSnapshot* s
         }
     } else {
         snprintf(snapshot->eventLog[0], sizeof(snapshot->eventLog[0]),
-                 "[PVM LOCAL] Analisis local equivalente. %s",
+                 "[PVM VIRTUAL] Demo local equivalente. %s",
                  controller->pvmController.statusText);
         snprintf(snapshot->eventLog[1], sizeof(snapshot->eventLog[1]),
                  "[STATS] Finalizados=%d | En E/S=%d | Prom. pendientes=%d.",
@@ -219,7 +251,10 @@ static void fillSnapshot(SimulationController* controller, SimulationSnapshot* s
     snprintf(snapshot->eventLog[3], sizeof(snapshot->eventLog[3]),
              "[COLAS] Listos=%d | E/S=%d | cambios algoritmo=%d.",
              snapshot->readyCount, snapshot->ioCount, snapshot->algorithmChanges);
-    if (controller->scheduler.hasPrivilegedProcess && controller->scheduler.algorithm == schedulerRr) {
+    if (controller->commandMessage[0] != '\0') {
+        snprintf(snapshot->eventLog[4], sizeof(snapshot->eventLog[4]),
+                 "[ACCION] %.149s", controller->commandMessage);
+    } else if (controller->scheduler.hasPrivilegedProcess && controller->scheduler.algorithm == schedulerRr) {
         snprintf(snapshot->eventLog[4], sizeof(snapshot->eventLog[4]),
                  "[SISTEMA] Proceso RR privilegiado activo: %s.",
                  controller->scheduler.privilegedProcessId);
@@ -356,7 +391,7 @@ static int simulationControllerStep(SimulationController* controller) {
             processTableFinishProcess(table, processIndex);
             pagingSystemDeallocateProcess(controller->paging, processIndex);
         } else {
-            shouldGoIo = randomChance(15);
+            shouldGoIo = randomChance(RrIoChancePercent);
             if (shouldGoIo) {
                 if (sendProcessToIo(controller, processIndex) != 0) return -1;
             } else {
@@ -369,15 +404,13 @@ static int simulationControllerStep(SimulationController* controller) {
         processTableFinishProcess(table, processIndex);
         pagingSystemDeallocateProcess(controller->paging, processIndex);
     } else {
-        shouldGoIo = randomChance(12);
+        shouldGoIo = randomChance(FcfsIoChancePercent);
         if (shouldGoIo) {
             if (sendProcessToIo(controller, processIndex) != 0) return -1;
         } else {
             if (requeueProcess(table, bcp, processIndex) != 0) return -1;
         }
     }
-
-    pagingSystemUpdateBcpCounters(controller->paging, bcp);
 
     if (scheduler->algorithm == schedulerRr &&
         table->cpuIterations % RrRebalanceInterval == 0) {
@@ -401,27 +434,65 @@ static void handleAlgorithmCommand(SimulationController* controller) {
     if (option == 1) {
         schedulerClearPrivilegedProcess(&controller->scheduler, &controller->table);
         controller->scheduler.algorithm = schedulerFcfs;
+        controller->scheduler.manualAlgorithmOverride = 1;
         controller->table.algorithmChanges++;
+        snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                 "Planificador cambiado a FCFS.");
     } else if (option == 2) {
-        int quantum = guiControllerAskQuantum();
-        if (quantum > 0) controller->scheduler.quantum = quantum;
-        if (controller->scheduler.quantum < MinQuantum) controller->scheduler.quantum = MinQuantum;
-        if (controller->scheduler.quantum > MaxQuantum) controller->scheduler.quantum = MaxQuantum;
+        int requestedQuantum = guiControllerAskQuantum();
+        int adjustedQuantum = clampQuantumValue(requestedQuantum);
+        controller->scheduler.quantum = adjustedQuantum;
         controller->scheduler.algorithm = schedulerRr;
+        controller->scheduler.manualAlgorithmOverride = 1;
         controller->table.currentQuantum = controller->scheduler.quantum;
         schedulerRecordQuantum(&controller->scheduler);
         controller->table.algorithmChanges++;
+        if (requestedQuantum != adjustedQuantum) {
+            snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                     "Quantum solicitado %d ajustado a %d.", requestedQuantum, adjustedQuantum);
+        } else {
+            snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                     "Planificador cambiado a Round Robin con Q=%d.", adjustedQuantum);
+        }
+    } else if (option == 3) {
+        controller->scheduler.manualAlgorithmOverride = 0;
+        controller->scheduler.lastAutoSwitchIteration = controller->table.cpuIterations;
+        snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                 "Cambio automatico de algoritmo reactivado.");
+    } else {
+        snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                 "Cambio de algoritmo cancelado.");
     }
 }
 
 static void handleRankingCommand(SimulationController* controller) {
     char processId[ProcessIdLen];
-    if (controller->scheduler.algorithm != schedulerRr) return;
+    int processIndex;
+
+    if (controller->scheduler.algorithm != schedulerRr) {
+        snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                 "Apropiatividad disponible solo en Round Robin.");
+        return;
+    }
     schedulerUpdateRankings(&controller->scheduler, &controller->table);
     guiControllerShowRankings(&controller->scheduler);
     memset(processId, 0, sizeof(processId));
     if (guiControllerAskProcessId(processId, sizeof(processId)) > 0) {
-        schedulerPrivilegeProcess(&controller->scheduler, &controller->table, processId);
+        processIndex = processTableFindById(&controller->table, processId);
+        if (processIndex < 0) {
+            snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                     "Proceso %s no existe.", processId);
+        } else if (controller->table.processes[processIndex].state == processStateFinished) {
+            snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                     "Proceso %s ya finalizo.", processId);
+        } else {
+            schedulerPrivilegeProcess(&controller->scheduler, &controller->table, processId);
+            snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                     "Proceso %s privilegiado en RR.", processId);
+        }
+    } else {
+        snprintf(controller->commandMessage, sizeof(controller->commandMessage),
+                 "Seleccion de proceso cancelada.");
     }
 }
 
@@ -433,7 +504,7 @@ static void handlePauseCommand(void) {
             int command = consoleIoGetChar();
             if (command == 'P' || command == 'p') paused = 0;
         }
-        delayMilliseconds(50);
+        delayMilliseconds(PauseDelayMilliseconds);
     }
     guiControllerShowResumeMessage();
 }
@@ -443,12 +514,15 @@ static void handleCommand(SimulationController* controller, int command) {
     switch (command) {
         case 'X': case 'x':
             handleAlgorithmCommand(controller);
+            showDashboard(controller);
             break;
         case 'A': case 'a':
             handleRankingCommand(controller);
+            showDashboard(controller);
             break;
         case 'P': case 'p':
             handlePauseCommand();
+            showDashboard(controller);
             break;
         case 'Q': case 'q': case 27:
             controller->running = 0;
@@ -484,11 +558,16 @@ int simulationControllerInit(SimulationController* controller) {
     pagingSystemInit(controller->paging, controller->table.processes);
     updateMemoryMetrics(controller);
     processTableUpdateAverages(&controller->table);
-    loggerOpen(&controller->logger, ProcessTableLog, BcpLog);
+    if (loggerOpen(&controller->logger, ProcessTableLog, BcpLog) != 0) {
+        fprintf(stderr, "No se pudieron abrir los logs requeridos: %s y %s\n",
+                ProcessTableLog, BcpLog);
+        return -1;
+    }
     loggerWriteHeaders(&controller->logger);
 
     pvmControllerInit(&controller->pvmController, controller->pvmMode);
     if (pvmControllerStart(&controller->pvmController) != 0) {
+        fprintf(stderr, "%s\n", controller->pvmController.statusText);
         return controller->pvmMode == pvmModeReal ? -1 : 0;
     }
 
@@ -500,6 +579,8 @@ int simulationControllerInit(SimulationController* controller) {
 int simulationControllerRun(SimulationController* controller) {
     int interactive;
     int finalPvmResult;
+    int runResult = 0;
+    char errorText[160] = "";
     if (!controller || !controller->initialized) return -1;
     interactive = consoleIoInit() == 0;
     if (interactive) showDashboard(controller);
@@ -510,7 +591,11 @@ int simulationControllerRun(SimulationController* controller) {
         int previousIterations = controller->table.cpuIterations;
         int iterationAdvanced;
 
-        if (simulationControllerStep(controller) != 0) break;
+        if (simulationControllerStep(controller) != 0) {
+            snprintf(errorText, sizeof(errorText), "[SIM ERROR] fallo en paso de simulacion.");
+            runResult = -1;
+            break;
+        }
         iterationAdvanced = controller->table.cpuIterations != previousIterations;
 
         if (interactive) {
@@ -531,21 +616,27 @@ int simulationControllerRun(SimulationController* controller) {
         }
 
         if (iterationAdvanced &&
-            controller->table.cpuIterations % 1000 == 0 &&
+            controller->table.cpuIterations % LogSnapshotInterval == 0 &&
             controller->table.cpuIterations != controller->lastLogIteration) {
             processTableLogSnapshot(&controller->table, &controller->logger);
             controller->lastLogIteration = controller->table.cpuIterations;
         }
 
         if (iterationAdvanced) {
-            pvmControllerRunPeriodic(&controller->pvmController, &controller->table,
-                                     controller->table.cpuIterations);
+            int pvmResult = pvmControllerRunPeriodic(&controller->pvmController, &controller->table,
+                                                     controller->table.cpuIterations);
+            if (pvmResult != 0) {
+                snprintf(errorText, sizeof(errorText), "%s",
+                         controller->pvmController.statusText);
+                runResult = -1;
+                break;
+            }
         }
 
         /* Refresco rapido y estable: muestra cambios cada 100 iteraciones sin inundar la terminal. */
         if (interactive &&
             iterationAdvanced &&
-            controller->table.cpuIterations % DashboardRefreshIterations == 0 &&
+            controller->table.cpuIterations % DashboardRefreshInterval == 0 &&
             controller->table.cpuIterations != controller->lastDashboardIteration) {
             recordHistory(controller);
             showDashboard(controller);
@@ -556,24 +647,37 @@ int simulationControllerRun(SimulationController* controller) {
         if (interactive) delayMilliseconds(InteractiveDelayMilliseconds);
     }
 
+    if (runResult == 0 && !simulationFinished(controller) &&
+        controller->table.cpuIterations >= MaxCpuIterations) {
+        snprintf(errorText, sizeof(errorText),
+                 "[SIM ERROR] se alcanzo MaxCpuIterations sin finalizar procesos.");
+        runResult = -1;
+    }
+
     updateMemoryMetrics(controller);
     processTableUpdateAverages(&controller->table);
     processTableLogSnapshot(&controller->table, &controller->logger);
     processTableLogBcps(&controller->table, &controller->logger);
-    finalPvmResult = pvmControllerRunFinal(&controller->pvmController, &controller->table);
+    finalPvmResult = 0;
+    if (runResult == 0) {
+        finalPvmResult = pvmControllerRunFinal(&controller->pvmController, &controller->table);
+        if (finalPvmResult != 0) {
+            snprintf(errorText, sizeof(errorText), "%s",
+                     controller->pvmController.statusText);
+            runResult = -1;
+        }
+    }
     recordHistory(controller);
     if (interactive) {
         showDashboard(controller);
         consoleIoCleanup();
-    } else if (controller->pvmMode == pvmModeDisabled) {
-        printf("%s\n", controller->pvmController.statusText);
-    } else if (finalPvmResult != 0) {
-        printf("%s\n", controller->pvmController.statusText);
+    } else if (runResult != 0) {
+        printf("%s\n", errorText[0] != '\0' ? errorText : "[SIM ERROR] simulacion fallida.");
     } else {
-        pvmControllerPrintReport(controller->pvmMode == pvmModeReal ? "PVM real" : "PVM local",
+        pvmControllerPrintReport(controller->pvmMode == pvmModeReal ? "PVM real" : "PVM virtual",
                                  &controller->pvmController.lastReport);
     }
-    return 0;
+    return runResult;
 }
 
 void simulationControllerDestroy(SimulationController* controller) {

@@ -98,5 +98,5 @@ int randomIoDevice(void) {
 }
 
 int randomIoCycles(void) {
-    return randomInt(1, 100);
+    return randomInt(IoCyclesMin, IoCyclesMax);
 }

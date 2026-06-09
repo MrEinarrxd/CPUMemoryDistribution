@@ -1,0 +1,395 @@
+GUIA PVM - MODO REAL CON SLAVE1 Y SLAVE2
+========================================
+
+El modo principal del proyecto es PVM real. El master ejecuta `pvm_spawn()`
+dos veces con `PvmTaskHost`: una vez en `slave1` y una vez en `slave2`.
+
+Tambien existe una demo con PVM virtual para correr el simulador sin entorno
+PVM real, pero esa opcion no reemplaza el modo exigido por el enunciado.
+
+
+1. Compilar sin PVM
+-------------------
+
+Desde la raiz del proyecto:
+
+```
+make offpvm
+```
+
+Esto genera solo:
+
+```
+build/CPUMemoryDistributionSimulator
+```
+
+Este objetivo es útil para compilar y probar el ejecutable principal sin
+preparar el entorno PVM ni el slave.
+
+2. Preparar los hosts PVM y el slave
+-----------------------------------
+
+Para ejecutar en modo PVM real, el ejecutable slave debe existir en los hosts
+`slave1` y `slave2` en la misma ruta que usará el master:
+
+```
+/tmp/simSlave
+```
+
+Comandos sugeridos para copiar y dar permisos:
+
+```
+scp ./build/simSlave slave1:/tmp/simSlave
+scp ./build/simSlave slave2:/tmp/simSlave
+ssh slave1 'chmod +x /tmp/simSlave'
+ssh slave2 'chmod +x /tmp/simSlave'
+```
+
+3. Configurar y arrancar PVM
+---------------------------
+
+Abrir consola PVM:
+
+```
+pvm
+```
+
+Agregar los hosts requeridos y verificar:
+
+```
+add slave1
+add slave2
+conf
+quit
+```
+
+`conf` debe mostrar `slave1` y `slave2`. Si no aparecen, el modo real debe
+fallar, porque no estaría usando los slaves reales del enunciado.
+
+4. Compilar la simulación completa
+----------------------------------
+
+Una vez que el entorno PVM esté listo y los hosts accesibles, compilar con:
+
+```
+make startsimulation
+```
+
+(o simplemente `make`, porque el objetivo por defecto ahora es
+`startsimulation`)
+
+Esto genera:
+
+```
+build/CPUMemoryDistributionSimulator
+build/simSlave
+```
+
+Y deja una copia local en:
+
+```
+/tmp/simSlave
+```
+
+5. Ejecutar PVM Real
+--------------------
+Modo menu:
+
+```
+./build/CPUMemoryDistributionSimulator
+```
+
+Elegir:
+
+```
+1. Simulacion con PVM real
+```
+
+Por defecto se usan:
+
+```
+PVM_SLAVE_HOSTS=slave1,slave2
+PVM_SLAVE_EXEC=/tmp/simSlave
+```
+
+6. Demo Virtual
+---------------
+
+La demo virtual no usa slaves reales. Sirve solo para mostrar el flujo del
+simulador cuando no hay PVM configurado.
+
+6. Salida Esperada
+------------------
+
+PVM real:
+
+```
+[PVM REAL] slaves persistentes activos
+[PVM REAL] analisis 1
+```
+
+Al finalizar:
+
+```
+=== PVM real ===
+Procesos analizados: 250
+Top 5 envejecidos RR
+Top 5 desperdicio CPU RR
+```
+
+
+7. Errores Comunes
+------------------
+
+Si falla con:
+
+```
+[PVM ERROR] No se pudo iniciar PVM real
+```
+
+revisar:
+
+```
+pvm
+conf
+quit
+```
+
+`conf` debe listar `slave1` y `slave2`.
+
+Tambien revisar que el slave exista en ambos hosts:
+
+```
+ssh slave1 'ls -l /tmp/simSlave'
+ssh slave2 'ls -l /tmp/simSlave'
+```
+
+
+8. Configuracion Al Cambiar De Red O De Equipos Slave
+-----------------------------------------------------
+
+Cuando se cambia de red, de router, de laboratorio o se reemplazan los equipos
+slave, se debe revisar nuevamente la configuracion de nombres, IP, SSH y PVM.
+Aunque el proyecto no haya cambiado, PVM puede fallar si `slave1`, `slave2` o
+el hostname del master ya no apuntan a las IP correctas.
+
+8.1 Verificar IP Y Hostname En Cada Equipo
+
+En el master y en cada slave ejecutar:
+
+```
+hostname
+hostname -I
+```
+
+Anotar la IP actual de cada equipo. Ejemplo:
+
+```
+masterOne -> 192.168.1.10
+slave1    -> 192.168.1.11
+slave2    -> 192.168.1.12
+```
+
+Todos los equipos deben estar en la misma red y poder comunicarse entre si.
+
+8.2 Actualizar `/etc/hosts` En Todos Los Equipos
+
+En master, slave1 y slave2 editar:
+
+```
+sudo nano /etc/hosts
+```
+
+Ejemplo recomendado:
+
+```
+127.0.0.1 localhost
+
+192.168.1.10 masterOne todos menos master
+192.168.1.11 slave1
+192.168.1.12 slave2
+```
+
+Usar las IP reales actuales. El nombre que devuelve `hostname` en cada maquina
+debe estar definido correctamente en `/etc/hosts` de todos los equipos.
+
+Despues verificar desde el master:
+
+```
+getent hosts masterOne
+getent hosts slave1
+getent hosts slave2
+ping -c 2 slave1
+ping -c 2 slave2
+```
+
+Si `getent hosts slave1` o `getent hosts slave2` no devuelve una IP correcta,
+PVM no podra encontrar ese host.
+
+8.3 Verificar SSH Sin Interaccion
+
+Desde el master:
+
+```
+ssh slave1 hostname
+ssh slave2 hostname
+```
+
+Debe entrar sin pedir contrasena y devolver el hostname del equipo remoto. Si
+pide contrasena, copiar la llave SSH nuevamente:
+
+```
+ssh-copy-id whoami@slave1
+ssh-copy-id whoami@slave2
+```
+
+`whoami`, reemplazarlo por el usuario correcto que retorna el comando en cada slave.
+
+Si la IP cambio y SSH muestra advertencias de llave antigua, limpiar las entradas
+viejas:
+
+```
+ssh-keygen -R slave1
+ssh-keygen -R slave2
+ssh-keygen -R IP_ACTUAL_SLAVE1
+ssh-keygen -R IP_ACTUAL_SLAVE2
+```
+
+Luego volver a probar `ssh slave1 hostname` y `ssh slave2 hostname`.
+
+8.4 Verificar Variables Y Carpeta Temporal De PVM
+
+En el master y en los slaves deben existir las variables principales:
+
+```
+export PVM_ROOT=/usr/lib/pvm3
+export PVM_ARCH=LINUX
+export PVM_RSH=/usr/bin/ssh
+export PVM_TMP=$HOME/pvm_tmp
+export PATH=$PATH:$PVM_ROOT/bin:$PVM_ROOT/lib
+```
+
+Se recomienda agregarlas al final de `~/.bashrc` y luego ejecutar:
+
+```
+source ~/.bashrc
+```
+
+Tambien crear la carpeta temporal de PVM en cada equipo:
+
+```
+mkdir -p ~/pvm_tmp
+chmod 700 ~/pvm_tmp
+```
+
+Si aparece un error como:
+
+```
+/home/master/pvm_tmp/pvmd.1000: No such file or directory
+Console: Can't start pvmd
+```
+
+normalmente falta crear `~/pvm_tmp` o falta exportar correctamente `PVM_TMP`.
+
+8.5 Reiniciar PVM Despues De Cambios De Red
+
+Despues de cambiar IP, hostnames, claves SSH o variables de entorno, limpiar PVM
+en todos los equipos:
+
+```
+pkill pvmd3
+pkill pvm
+```
+
+Luego en el master:
+
+```
+export PVM_RSH=/usr/bin/ssh
+export PVM_TMP=$HOME/pvm_tmp
+pvm
+```
+
+Dentro de la consola PVM:
+
+```
+add slave1
+add slave2
+conf
+quit
+```
+
+`conf` debe mostrar el master, `slave1` y `slave2`.
+
+8.6 Copiar De Nuevo El Ejecutable Slave
+
+Si se cambio de equipo slave o se reinstalo el entorno, copiar otra vez el
+slave compilado:
+
+```
+scp ./build/simSlave slave1:/tmp/simSlave
+scp ./build/simSlave slave2:/tmp/simSlave
+ssh slave1 'chmod +x /tmp/simSlave'
+ssh slave2 'chmod +x /tmp/simSlave'
+```
+
+Verificar:
+
+```
+ssh slave1 'ls -l /tmp/simSlave'
+ssh slave2 'ls -l /tmp/simSlave'
+```
+
+8.7 Diagnostico Rapido Cuando Falla
+
+Desde el master ejecutar:
+
+```
+echo "=== HOSTNAME ==="
+hostname
+hostname -I
+
+echo "=== HOSTS ==="
+getent hosts masterOne
+getent hosts master
+getent hosts slave1
+getent hosts slave2
+
+echo "=== RED ==="
+ping -c 2 slave1
+ping -c 2 slave2
+
+echo "=== SSH ==="
+ssh slave1 hostname
+ssh slave2 hostname
+
+echo "=== PVM ==="
+echo $PVM_ROOT
+echo $PVM_ARCH
+echo $PVM_RSH
+echo $PVM_TMP
+find /usr/lib/pvm3 -name "pvmd3"
+```
+
+Interpretacion rapida:
+
+```
+slave1 No such host
+```
+
+Significa que `slave1` no esta bien escrito o no esta bien definido en
+`/etc/hosts`.
+
+```
+slave2 Can't start pvmd
+```
+
+Significa que el host se encuentra, pero PVM no logra iniciar el daemon remoto.
+Revisar SSH, variables de PVM, instalacion de PVM y la carpeta `~/pvm_tmp` en
+ese slave.
+
+```
+Console: Can't start pvmd
+```
+
+Significa que el problema esta en el master local. Revisar `PVM_TMP`, permisos
+de `~/pvm_tmp` y procesos viejos de PVM.

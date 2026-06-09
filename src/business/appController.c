@@ -15,8 +15,12 @@ static int runSimulation(PvmMode mode) {
     if (!simulation) return 1;
     if (simulationControllerInit(simulation) != 0) {
         if (mode == pvmModeReal) {
-            printf("[PVM ERROR] No se pudo iniciar PVM real. Verifique pvmd y %s.\n",
-                   DefaultPvmSlaveExec);
+            const char* slaveExec = getenv("PVM_SLAVE_EXEC");
+            const char* slaveHosts = getenv("PVM_SLAVE_HOSTS");
+            if (!slaveExec || slaveExec[0] == '\0') slaveExec = DefaultPvmSlaveExec;
+            if (!slaveHosts || slaveHosts[0] == '\0') slaveHosts = DefaultPvmSlaveHosts;
+            printf("[PVM ERROR] No se pudo iniciar PVM real. Verifique pvmd, %s y hosts %s.\n",
+                   slaveExec, slaveHosts);
         }
         simulationControllerDestroy(simulation);
         return 1;
@@ -32,13 +36,9 @@ static int modeFromText(const char* text, PvmMode* mode) {
         *mode = pvmModeReal;
         return 1;
     }
-    if (strcmp(text, "local") == 0 || strcmp(text, "fake") == 0) {
+    if (strcmp(text, "demo") == 0 || strcmp(text, "virtual") == 0 ||
+        strcmp(text, "local") == 0 || strcmp(text, "fake") == 0) {
         *mode = pvmModeLocal;
-        return 1;
-    }
-    if (strcmp(text, "off") == 0 || strcmp(text, "disabled") == 0 ||
-        strcmp(text, "desactivado") == 0) {
-        *mode = pvmModeDisabled;
         return 1;
     }
     return 0;
@@ -63,10 +63,6 @@ int appControllerRun(void) {
             return runSimulation(pvmModeReal);
         case 2:
             return runSimulation(pvmModeLocal);
-        case 3:
-            return runSimulation(pvmModeDisabled);
-        case 4:
-            return pvmControllerRunTest();
         case 0:
             return 0;
         default:

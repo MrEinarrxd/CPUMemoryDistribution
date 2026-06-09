@@ -1,6 +1,11 @@
 #include "ioQueue.h"
 
-static int multipliers[IoDeviceCount] = {2, 4, 8, 12};
+static const int multipliers[IoDeviceCount] = {
+    IoDevice1Multiplier,
+    IoDevice2Multiplier,
+    IoDevice3Multiplier,
+    IoDevice4Multiplier
+};
 
 static int subqueuePush(IoSubQueue* queue, int processIndex) {
     if (!queue || queue->count >= ReadyQueueCapacity) return -1;

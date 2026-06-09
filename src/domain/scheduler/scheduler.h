@@ -25,6 +25,7 @@ typedef struct Scheduler {
     int topAgedCount;
     int topWastersCount;
     int hasPrivilegedProcess;
+    int manualAlgorithmOverride;
     int lastAutoSwitchIteration;
     char privilegedProcessId[ProcessIdLen];
 } Scheduler;

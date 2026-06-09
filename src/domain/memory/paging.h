@@ -42,11 +42,9 @@ typedef struct PagingSystem {
 } PagingSystem;
 
 void pagingSystemInit(PagingSystem* paging, Bcp processes[]);
-void pagingSystemInitProcess(PagingSystem* paging, int processIndex, int pageCount);
 void pagingSystemTouchProcess(PagingSystem* paging, Bcp* bcp, int processIndex, TextRepository* repo);
 int pagingSystemAccessPhrase(PagingSystem* paging, Bcp* bcp, int processIndex, const char* phrase, TextRepository* repo);
 void pagingSystemResizeActive(PagingSystem* paging, int activeSlots[], Bcp processes[], int currentTime);
 void pagingSystemDeallocateProcess(PagingSystem* paging, int processIndex);
-void pagingSystemUpdateBcpCounters(PagingSystem* paging, Bcp* bcp);
 
 #endif

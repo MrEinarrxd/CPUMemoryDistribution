@@ -10,9 +10,12 @@ SLAVE_SOURCES := \
 	src/distributed/protocol.c \
 	src/distributed/distributedTasks.c
 
-.PHONY: all clean
+.PHONY: all startsimulation offpvm clean prepare-pvm-slave
+all: startsimulation
 
-all: $(BUILD_DIR)/CPUMemoryDistributionSimulator $(BUILD_DIR)/simSlave
+startsimulation: $(BUILD_DIR)/CPUMemoryDistributionSimulator prepare-pvm-slave
+
+offpvm: $(BUILD_DIR)/CPUMemoryDistributionSimulator
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
@@ -22,6 +25,10 @@ $(BUILD_DIR)/CPUMemoryDistributionSimulator: $(SIM_SOURCES) | $(BUILD_DIR)
 
 $(BUILD_DIR)/simSlave: $(SLAVE_SOURCES) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(SLAVE_SOURCES) -o $@ $(LDLIBS)
+
+prepare-pvm-slave: $(BUILD_DIR)/simSlave
+	cp $(BUILD_DIR)/simSlave /tmp/simSlave
+	chmod +x /tmp/simSlave
 
 clean:
 	rm -f $(BUILD_DIR)/CPUMemoryDistributionSimulator $(BUILD_DIR)/simSlave

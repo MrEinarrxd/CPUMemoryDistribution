@@ -18,6 +18,8 @@ typedef struct SimulationSnapshot {
     int totalContextSwitches;
     int totalIoOperations;
     int algorithmChanges;
+    int resizeCount;
+    int ioDeviceCounts[IoDeviceCount];
     int memoryUsedFrames;
     int memoryFreeFrames;
     int memoryLargestFreeRun;
@@ -33,6 +35,14 @@ typedef struct SimulationSnapshot {
     float avgFinishedPerTime;
     float cpuUtilization;
     float cpuWasteRatio;
+    int rrProcessCount;
+    int rrReturnsToReady;
+    float rrDistributedCpuUtilization;
+    int distributedFinishedCount;
+    int distributedWaitingCount;
+    int distributedAvgRemainingCycles;
+    int privilegedProcessActive;
+    char privilegedProcessId[ProcessIdLen];
     float utilizationHistory[HistoryBars];
     float wasteHistory[HistoryBars];
     int historyCount;
